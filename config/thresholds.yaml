@@ -1,0 +1,24 @@
+market:
+  broad_breadth_ratio: 0.60
+  weak_breadth_ratio: 0.40
+  weight_gap_pct: 0.80
+etf:
+  positive_flow_ratio_5d: 0.005
+  negative_flow_ratio_5d: -0.005
+  positive_coverage: 0.60
+  negative_coverage: 0.60
+  strong_percentile: 70
+  weak_percentile: 30
+  turnover_pulse_percentile: 85
+margin:
+  positive_change_ratio_5d: 0.003
+  negative_change_ratio_5d: -0.003
+  strong_percentile: 70
+  weak_percentile: 30
+confirmation:
+  positive_price_breadth: 0.60
+  negative_price_breadth: 0.40
+  minimum_persistence_days: 3
+quality:
+  high: 80
+  medium: 55

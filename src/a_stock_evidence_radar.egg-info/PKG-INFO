@@ -1,3 +1,23 @@
+Metadata-Version: 2.4
+Name: a-stock-evidence-radar
+Version: 0.1.0
+Summary: A-share market ETF and margin evidence radar M1
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: akshare==1.18.64
+Requires-Dist: jinja2<4,>=3.1
+Requires-Dist: numpy<3,>=2.0
+Requires-Dist: openpyxl<4,>=3.1
+Requires-Dist: pandas<3,>=2.2
+Requires-Dist: pydantic<3,>=2.10
+Requires-Dist: PyYAML<7,>=6
+Requires-Dist: requests<3,>=2.32
+Provides-Extra: dev
+Requires-Dist: pytest<10,>=8; extra == "dev"
+Requires-Dist: ruff<1,>=0.11; extra == "dev"
+Dynamic: license-file
+
 # A股市场资金证据雷达 M1
 
 这是 V3 设计的首个可部署版本，使用 GitHub Actions 盘后批处理并通过 GitHub Pages 发布静态日报。

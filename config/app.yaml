@@ -1,0 +1,7 @@
+project_name: A股市场资金证据雷达
+history_window: 250
+history_keep_days: 320
+minimum_percentile_samples: 60
+report_timezone: Asia/Shanghai
+site_output: site
+reports_output: reports

@@ -1,0 +1,41 @@
+# First-match-wins. Keep broad groups before generic catch-alls only when intentional.
+themes:
+  - id: broad_market
+    name: 宽基指数
+    patterns: ["沪深300", "上证50", "中证500", "中证1000", "创业板", "科创50", "A500", "中证A500", "全指", "红利"]
+  - id: semiconductor
+    name: 半导体与芯片
+    patterns: ["半导体", "芯片", "集成电路", "科创芯"]
+  - id: ai_computing
+    name: 人工智能与算力
+    patterns: ["人工智能", "AI", "算力", "云计算", "软件", "机器人", "数据"]
+  - id: new_energy
+    name: 新能源
+    patterns: ["新能源", "光伏", "锂电", "电池", "储能", "风电", "绿电"]
+  - id: healthcare
+    name: 医药医疗
+    patterns: ["医药", "医疗", "创新药", "生物", "疫苗"]
+  - id: consumption
+    name: 消费
+    patterns: ["消费", "食品", "酒", "家电", "旅游", "养殖"]
+  - id: finance
+    name: 金融
+    patterns: ["证券", "券商", "银行", "保险", "金融", "地产"]
+  - id: defense
+    name: 军工
+    patterns: ["军工", "国防", "航空", "航天"]
+  - id: resources
+    name: 资源与周期
+    patterns: ["煤炭", "有色", "钢铁", "化工", "稀土", "黄金", "石油"]
+  - id: utilities
+    name: 公用事业与高股息
+    patterns: ["电力", "公用", "央企", "高股息", "红利低波"]
+  - id: cross_border
+    name: 跨境资产
+    patterns: ["纳指", "标普", "恒生", "港股", "日经", "德国", "法国", "印度", "沙特", "跨境"]
+  - id: bonds_cash
+    name: 债券与现金管理
+    patterns: ["债券", "国债", "信用债", "可转债", "货币", "现金", "短融"]
+  - id: other
+    name: 其他ETF
+    patterns: []

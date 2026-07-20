@@ -1,0 +1,62 @@
+[
+  {
+    "source_id": "mock_market",
+    "display_name": "演示市场数据",
+    "trade_date": "2026-07-17",
+    "available": true,
+    "expected_date": "2026-07-17",
+    "actual_date": "2026-07-17",
+    "freshness_ok": true,
+    "schema_ok": true,
+    "row_count": 600,
+    "anomaly_count": 0,
+    "official": false,
+    "evidence_level": "L2",
+    "error_message": null
+  },
+  {
+    "source_id": "mock_etf",
+    "display_name": "演示ETF数据",
+    "trade_date": "2026-07-17",
+    "available": true,
+    "expected_date": "2026-07-17",
+    "actual_date": "2026-07-17",
+    "freshness_ok": true,
+    "schema_ok": true,
+    "row_count": 8,
+    "anomaly_count": 0,
+    "official": false,
+    "evidence_level": "L1",
+    "error_message": null
+  },
+  {
+    "source_id": "mock_margin",
+    "display_name": "演示融资数据",
+    "trade_date": "2026-07-17",
+    "available": true,
+    "expected_date": "2026-07-17",
+    "actual_date": "2026-07-17",
+    "freshness_ok": true,
+    "schema_ok": true,
+    "row_count": 2,
+    "anomaly_count": 0,
+    "official": false,
+    "evidence_level": "L1",
+    "error_message": null
+  },
+  {
+    "source_id": "mock_margin_detail",
+    "display_name": "演示融资明细",
+    "trade_date": "2026-07-17",
+    "available": true,
+    "expected_date": "2026-07-17",
+    "actual_date": "2026-07-17",
+    "freshness_ok": true,
+    "schema_ok": true,
+    "row_count": 12,
+    "anomaly_count": 0,
+    "official": false,
+    "evidence_level": "L1",
+    "error_message": null
+  }
+]

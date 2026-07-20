@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A股市场资金证据雷达</title>
+  <style>
+    :root { color-scheme: light; --bg:#f4f5f7; --card:#fff; --text:#172033; --muted:#687386; --line:#dfe3ea; --accent:#334155; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif; line-height:1.65; }
+    main { max-width:1180px; margin:auto; padding:28px 18px 60px; }
+    h1 { margin:0 0 6px; font-size:30px; }
+    h2 { margin-top:34px; border-bottom:1px solid var(--line); padding-bottom:8px; }
+    h3 { margin:0 0 10px; }
+    .muted { color:var(--muted); }
+    .notice { border:1px solid #cbd5e1; background:#f8fafc; padding:14px 16px; border-radius:10px; margin:16px 0; }
+    .demo { border-color:#d6b562; background:#fffaf0; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; box-shadow:0 1px 3px rgba(15,23,42,.04); }
+    .metric { font-size:24px; font-weight:700; margin-top:4px; }
+    .pill { display:inline-block; border:1px solid var(--line); border-radius:999px; padding:2px 9px; font-size:13px; color:var(--muted); }
+    .state-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:14px; }
+    ul { padding-left:20px; }
+    table { width:100%; border-collapse:collapse; background:var(--card); }
+    th,td { border-bottom:1px solid var(--line); padding:9px; text-align:left; vertical-align:top; font-size:14px; }
+    details { margin-top:10px; }
+    footer { margin-top:40px; color:var(--muted); font-size:13px; }
+    a { color:#334e68; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>A股市场资金证据雷达</h1>
+  <div class="muted">2026-07-17 · demo · mock</div>
+<div class="notice demo"><strong>演示模式：</strong>页面数据不代表真实市场。</div>  <div class="notice">先看数据状态和已确认事实，再看解释。系统不识别所谓“主力真实意图”，也不输出交易建议。</div>
+
+  <div class="grid">
+    <div class="card"><div class="muted">市场状态</div><div class="metric">中性整理</div><span class="pill">置信度 high</span></div>
+    <div class="card"><div class="muted">上涨覆盖率</div><div class="metric">41.17%</div></div>
+    <div class="card"><div class="muted">市场成交额</div><div class="metric">2298.61亿元</div></div>
+    <div class="card"><div class="muted">融资余额近5日</div><div class="metric">0.13%</div></div>
+  </div>
+
+  <h2>数据源状态</h2>
+  <table><thead><tr><th>来源</th><th>级别</th><th>状态</th><th>日期</th><th>说明</th></tr></thead><tbody>
+<tr><td>演示市场数据</td><td>L2</td><td>可用</td><td>2026-07-17</td><td>-</td></tr><tr><td>演示ETF数据</td><td>L1</td><td>可用</td><td>2026-07-17</td><td>-</td></tr><tr><td>演示融资数据</td><td>L1</td><td>可用</td><td>2026-07-17</td><td>-</td></tr><tr><td>演示融资明细</td><td>L1</td><td>可用</td><td>2026-07-17</td><td>-</td></tr>  </tbody></table>
+
+  <h2>板块状态</h2>
+  <h3>杠杆主导活跃</h3>
+  <div class="state-grid">
+    <article class="card">
+      <h3>半导体与芯片</h3><span class="pill">high</span>
+      <p><strong>已确认事实</strong></p><ul><li>已映射证券的融资余额近5日增加 0.34%。</li></ul>
+<p><strong>反向证据</strong></p><ul><li>ETF组价格改善覆盖率仅为 0.0%。</li></ul>      <details><summary>无法确认与后续条件</summary><ul><li>无法确认具体交易者身份。</li><li>ETF份额变化可能包含申赎套利、做市和对冲活动。</li><li>当前状态不能用于推断未来价格必然方向。</li><li>观察相关ETF份额变化是否在未来3至5个交易日保持同方向。</li><li>观察ETF组价格改善覆盖率是否维持，而不是集中于单只产品。</li><li>观察融资余额在价格回落时是否快速下降。</li></ul></details>
+    </article>
+  </div>
+  <h3>中性观察</h3>
+  <div class="state-grid">
+    <article class="card">
+      <h3>军工</h3><span class="pill">high</span>
+      <p><strong>已确认事实</strong></p><ul><li>ETF组价格改善覆盖率为 100.0%。</li></ul>
+      <details><summary>无法确认与后续条件</summary><ul><li>无法确认具体交易者身份。</li><li>ETF份额变化可能包含申赎套利、做市和对冲活动。</li><li>当前状态不能用于推断未来价格必然方向。</li><li>观察相关ETF份额变化是否在未来3至5个交易日保持同方向。</li><li>观察ETF组价格改善覆盖率是否维持，而不是集中于单只产品。</li><li>观察融资余额在价格回落时是否快速下降。</li></ul></details>
+    </article>
+    <article class="card">
+      <h3>医药医疗</h3><span class="pill">high</span>
+      <p><strong>已确认事实</strong></p><ul><li>ETF组价格改善覆盖率为 100.0%。</li></ul>
+      <details><summary>无法确认与后续条件</summary><ul><li>无法确认具体交易者身份。</li><li>ETF份额变化可能包含申赎套利、做市和对冲活动。</li><li>当前状态不能用于推断未来价格必然方向。</li><li>观察相关ETF份额变化是否在未来3至5个交易日保持同方向。</li><li>观察ETF组价格改善覆盖率是否维持，而不是集中于单只产品。</li><li>观察融资余额在价格回落时是否快速下降。</li></ul></details>
+    </article>
+    <article class="card">
+      <h3>宽基指数</h3><span class="pill">high</span>
+      <p><strong>已确认事实</strong></p><ul><li>现有证据未形成明确一致方向。</li></ul>
+      <details><summary>无法确认与后续条件</summary><ul><li>该主题缺少证券—板块融资映射，不能把全市场融资变化直接归因到该主题。</li><li>无法确认具体交易者身份。</li><li>ETF份额变化可能包含申赎套利、做市和对冲活动。</li><li>当前状态不能用于推断未来价格必然方向。</li><li>观察相关ETF份额变化是否在未来3至5个交易日保持同方向。</li><li>观察ETF组价格改善覆盖率是否维持，而不是集中于单只产品。</li><li>补全证券—主题映射后，再检查融资余额变化是否与ETF证据一致。</li></ul></details>
+    </article>
+    <article class="card">
+      <h3>新能源</h3><span class="pill">high</span>
+      <p><strong>已确认事实</strong></p><ul><li>ETF组价格改善覆盖率为 100.0%。</li></ul>
+<p><strong>反向证据</strong></p><ul><li>相关ETF近5日份额变化估算为负，约占前期资产代理值的 0.73%。</li></ul>      <details><summary>无法确认与后续条件</summary><ul><li>无法确认具体交易者身份。</li><li>ETF份额变化可能包含申赎套利、做市和对冲活动。</li><li>当前状态不能用于推断未来价格必然方向。</li><li>观察相关ETF份额变化是否在未来3至5个交易日保持同方向。</li><li>观察ETF组价格改善覆盖率是否维持，而不是集中于单只产品。</li><li>观察融资余额在价格回落时是否快速下降。</li></ul></details>
+    </article>
+    <article class="card">
+      <h3>消费</h3><span class="pill">high</span>
+      <p><strong>已确认事实</strong></p><ul><li>现有证据未形成明确一致方向。</li></ul>
+      <details><summary>无法确认与后续条件</summary><ul><li>ETF份额历史有效样本为 0 日，尚不足以形成长期百分位判断。</li><li>无法确认具体交易者身份。</li><li>ETF份额变化可能包含申赎套利、做市和对冲活动。</li><li>当前状态不能用于推断未来价格必然方向。</li><li>观察相关ETF份额变化是否在未来3至5个交易日保持同方向。</li><li>观察ETF组价格改善覆盖率是否维持，而不是集中于单只产品。</li><li>观察融资余额在价格回落时是否快速下降。</li></ul></details>
+    </article>
+    <article class="card">
+      <h3>金融</h3><span class="pill">high</span>
+      <p><strong>已确认事实</strong></p><ul><li>ETF组价格改善覆盖率为 100.0%。</li></ul>
+      <details><summary>无法确认与后续条件</summary><ul><li>无法确认具体交易者身份。</li><li>ETF份额变化可能包含申赎套利、做市和对冲活动。</li><li>当前状态不能用于推断未来价格必然方向。</li><li>观察相关ETF份额变化是否在未来3至5个交易日保持同方向。</li><li>观察ETF组价格改善覆盖率是否维持，而不是集中于单只产品。</li><li>观察融资余额在价格回落时是否快速下降。</li></ul></details>
+    </article>
+  </div>
+
+  <h2>限制</h2>
+  <div class="card"><ul><li>无法确认具体交易者身份，也无法识别所谓真实意图。</li><li>成交额只表示成交活跃程度，不能解释为市场净流入或净流出。</li><li>ETF份额变化和融资余额变化描述已经发生的敞口变化，不代表未来价格结果。</li><li>M1不使用北向日净额，也不包含衍生品和公司资本行为证据。</li></ul></div>
+  <footer>仅用于学习、观察和复盘，不构成投资建议。<br><a href="api/v3/latest.json">查看结构化 JSON</a> · <a href="report.md">查看 Markdown 日报</a></footer>
+</main>
+</body>
+</html>

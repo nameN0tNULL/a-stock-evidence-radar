@@ -1,0 +1,13 @@
+﻿trade_date,security_code,security_name,financing_balance,financing_buy,financing_repayment,market,source_id,theme_id,theme_name
+2026-07-17,600000,浦发银行,1091790614.7358956,43664372.96828692,,SSE,mock_margin_detail,finance,金融
+2026-07-17,601398,工商银行,1199835174.075702,48022403.97869518,,SSE,mock_margin_detail,finance,金融
+2026-07-17,000001,平安银行,1309769259.6912985,52380892.93035299,,SZSE,mock_margin_detail,finance,金融
+2026-07-17,600519,贵州茅台,1268687335.5207152,50708103.11574796,,SSE,mock_margin_detail,consumption,消费
+2026-07-17,000858,五粮液,1365493631.6487532,54605432.201926015,,SZSE,mock_margin_detail,consumption,消费
+2026-07-17,600276,恒瑞医药,1513887306.6580288,60510967.29880223,,SSE,mock_margin_detail,healthcare,医药医疗
+2026-07-17,300760,迈瑞医疗,1614989748.7721698,64546139.26771544,,SZSE,mock_margin_detail,healthcare,医药医疗
+2026-07-17,688981,中芯国际,2124215741.972953,84912457.16258626,,SSE,mock_margin_detail,semiconductor,半导体与芯片
+2026-07-17,002371,北方华创,2248255784.735918,89915799.94688573,,SZSE,mock_margin_detail,semiconductor,半导体与芯片
+2026-07-17,300750,宁德时代,1676092694.9495826,66996049.712043375,,SZSE,mock_margin_detail,new_energy,新能源
+2026-07-17,601012,隆基绿能,1763164659.2436924,70534196.82766159,,SSE,mock_margin_detail,new_energy,新能源
+2026-07-17,600893,航发动力,2192193600.11859,87680189.68722539,,SSE,mock_margin_detail,defense,军工

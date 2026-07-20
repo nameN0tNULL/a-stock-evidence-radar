@@ -1,0 +1,42 @@
+{
+  "trade_date": "2026-07-17",
+  "label": "中性整理",
+  "confidence_level": "high",
+  "confidence_score": 100.0,
+  "metrics": {
+    "market": {
+      "available": true,
+      "total_amount": 229861048411.7646,
+      "advancers": 247,
+      "decliners": 353,
+      "unchanged": 0,
+      "breadth_ratio": 0.4116666666666667,
+      "median_return": -0.4632060848814462,
+      "cap_weighted_return": -0.4100543723594802,
+      "limit_up_count": 0,
+      "limit_down_count": 0,
+      "amount_5d_change": 0.022554265062928902,
+      "amount_percentile": 77.60000000000001,
+      "breadth_percentile": 2.0
+    },
+    "margin": {
+      "available": true,
+      "financing_balance": 1637033351818.8909,
+      "financing_buy": 73560032242.29813,
+      "change_1d": -188317787.59692383,
+      "change_ratio_1d": -0.00011502277980610085,
+      "change_ratio_5d": 0.001342070842605958,
+      "change_ratio_20d": 0.012466504385366006,
+      "change_percentile": 31.6,
+      "positive_persistence_days": 0,
+      "negative_persistence_days": 1,
+      "history_samples": 260
+    }
+  },
+  "supporting_evidence": [
+    "市场宽度和成交变化未形成足够一致的状态信号。",
+    "全市场融资余额近5日增加 0.13%，杠杆参与有所增强。"
+  ],
+  "counter_evidence": [],
+  "unknowns": []
+}

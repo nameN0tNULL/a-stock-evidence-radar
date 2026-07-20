@@ -1,0 +1,100 @@
+# A股市场资金证据雷达日报：{{ report.trade_date }}
+
+> 报告阶段：{{ report.report_stage }}  
+> 数据模式：{{ report.data_mode }}  
+> 生成时间：{{ report.generated_at }}  
+> 本报告用于学习、观察和复盘，不构成投资建议。
+
+## 0. 报告状态与数据源
+
+{% if report.report_stage == "demo" %}
+**当前为演示数据。页面中的数值不代表真实市场。**
+{% endif %}
+
+| 数据源 | 证据级别 | 状态 | 日期一致 | 行数 | 说明 |
+|---|---:|---|---|---:|---|
+{% for source in report.source_quality %}
+| {{ source.display_name }} | {{ source.evidence_level }} | {{ "可用" if source.available else "缺失" }} | {{ "是" if source.freshness_ok else "否" }} | {{ source.row_count }} | {{ source.error_message or "-" }} |
+{% endfor %}
+
+**本日报不能确认的事项：**
+{% for item in report.global_unknowns %}
+- {{ item }}
+{% endfor %}
+
+## 1. 今日市场基础状态
+
+**状态：{{ report.market_state.label }}；数据置信度：{{ report.market_state.confidence_level }}。**
+
+{% for item in report.market_state.supporting_evidence %}
+- 已确认：{{ item }}
+{% endfor %}
+{% for item in report.market_state.counter_evidence %}
+- 反向证据：{{ item }}
+{% endfor %}
+{% for item in report.market_state.unknowns %}
+- 无法确认：{{ item }}
+{% endfor %}
+
+## 2. 可识别资金证据总览
+
+{% set market_metrics = report.market_state.metrics.market %}
+{% set margin_metrics = report.market_state.metrics.margin %}
+- 市场上涨覆盖率：{{ market_metrics.breadth_ratio|pct if market_metrics.available else "数据不足" }}
+- 市场成交额：{{ market_metrics.total_amount|money if market_metrics.available else "数据不足" }}
+- 全市场融资余额：{{ margin_metrics.financing_balance|money if margin_metrics.available else "数据不足" }}
+- 融资余额近5日变化：{{ margin_metrics.change_ratio_5d|pct if margin_metrics.available else "数据不足" }}
+- ETF证据采用份额变化乘以净值代理进行估算；它描述工具型或配置型资金敞口，不识别具体交易者身份。
+
+{% for label, states in groups.items() %}
+## {{ loop.index + 2 }}. {{ label }}
+
+{% for state in states %}
+### {{ state.sector_name }}
+
+**数据置信度：{{ state.confidence_level }}**
+
+【已确认事实】
+{% for item in state.supporting_evidence %}
+- {{ item }}
+{% endfor %}
+
+【反向证据】
+{% if state.counter_evidence %}
+{% for item in state.counter_evidence %}
+- {{ item }}
+{% endfor %}
+{% else %}
+- 当前没有达到规则阈值的显著反向证据。
+{% endif %}
+
+【无法确认】
+{% for item in state.unknowns %}
+- {{ item }}
+{% endfor %}
+
+【后续确认条件】
+{% for item in state.next_confirmation_conditions %}
+- {{ item }}
+{% endfor %}
+
+{% endfor %}
+{% endfor %}
+
+## 10. 后续确认条件
+
+- 优先观察ETF份额变化能否持续3至5个交易日，而不是只看单日成交放大。
+- 观察融资余额变化是否与ETF份额证据同方向；方向冲突时保持“多证据分歧”。
+- 观察价格改善是否具有覆盖广度，避免把单只ETF或少数权重的表现解释为整个主题改善。
+- 当关键L1数据缺失时，继续输出“数据不足”，不使用陈旧值替代当日事实。
+
+## 11. 小白学习笔记
+
+- **ETF份额变化**：份额增加通常意味着发生了净申购，但也可能包含套利、做市和对冲。
+- **融资余额变化**：描述杠杆交易资金敞口变化，不等同于机构资金。
+- **市场宽度**：上涨证券占有效证券的比例，用来判断改善是否普遍。
+- **历史百分位**：只表示当前指标在自身历史中的相对位置，不代表未来上涨概率。
+
+## 12. 风险与限制声明
+
+本系统只整理公开市场数据和规则结果。它不能确认具体交易者身份，不能确认所谓真实意图，也不能根据当前证据推断未来价格必然方向。数据接口可能延迟、修订或中断；第三方聚合数据应以交易所和基金管理人的正式披露为最终依据。本报告仅用于学习、观察和复盘，不构成投资建议。

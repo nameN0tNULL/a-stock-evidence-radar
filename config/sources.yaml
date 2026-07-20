@@ -1,0 +1,31 @@
+sources:
+  market_spot:
+    display_name: A股实时行情聚合
+    evidence_level: L2
+    official: false
+    adapter: akshare.stock_zh_a_spot_em
+  sse_etf_shares:
+    display_name: 上交所ETF基金份额
+    evidence_level: L1
+    official: true
+    adapter: akshare.fund_etf_scale_sse
+  szse_etf_shares:
+    display_name: 深交所ETF基金份额
+    evidence_level: L1
+    official: true
+    adapter: akshare.fund_scale_daily_szse
+  etf_spot:
+    display_name: ETF行情与IOPV聚合
+    evidence_level: L2
+    official: false
+    adapter: akshare.fund_etf_spot_em
+  sse_margin:
+    display_name: 上交所融资融券汇总
+    evidence_level: L1
+    official: true
+    adapter: akshare.stock_margin_sse
+  szse_margin:
+    display_name: 深交所融资融券汇总
+    evidence_level: L1
+    official: true
+    adapter: akshare.stock_margin_szse
