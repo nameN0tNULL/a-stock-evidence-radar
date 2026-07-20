@@ -1,42 +1,19 @@
 {
   "trade_date": "2026-07-20",
-  "label": "高度分化",
-  "confidence_level": "high",
-  "confidence_score": 100.0,
+  "label": "数据不足",
+  "confidence_level": "low",
+  "confidence_score": 10.9,
   "metrics": {
     "market": {
-      "available": true,
-      "total_amount": 193211544431.323,
-      "advancers": 293,
-      "decliners": 307,
-      "unchanged": 0,
-      "breadth_ratio": 0.48833333333333334,
-      "median_return": -0.05964266951646001,
-      "cap_weighted_return": 0.06508346623579638,
-      "limit_up_count": 0,
-      "limit_down_count": 0,
-      "amount_5d_change": -0.03944194334418716,
-      "amount_percentile": 1.2,
-      "breadth_percentile": 42.8
+      "available": false
     },
     "margin": {
-      "available": true,
-      "financing_balance": 1637225675850.1377,
-      "financing_buy": 74591848600.46304,
-      "change_1d": 192324031.24682617,
-      "change_ratio_1d": 0.00011748326998538969,
-      "change_ratio_5d": 0.0008229098557226422,
-      "change_ratio_20d": 0.01047833514376717,
-      "change_percentile": 43.6,
-      "positive_persistence_days": 1,
-      "negative_persistence_days": 0,
-      "history_samples": 261
+      "available": false
     }
   },
-  "supporting_evidence": [
-    "上涨与下跌数量接近，市场缺少一致方向。",
-    "全市场融资余额近5日增加 0.08%，杠杆参与有所增强。"
-  ],
+  "supporting_evidence": [],
   "counter_evidence": [],
-  "unknowns": []
+  "unknowns": [
+    "市场宽度数据缺失，无法确认市场参与状态。"
+  ]
 }
