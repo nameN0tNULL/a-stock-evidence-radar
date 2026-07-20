@@ -40,15 +40,17 @@ jobs:
     outputs:
       stage: ${{ steps.params.outputs.stage }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
-      - name: Install
-        run: pip install .
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"   
       - name: Resolve parameters
         id: params
         shell: bash
@@ -70,7 +72,7 @@ jobs:
           if [ -n "${{ steps.params.outputs.date_arg }}" ]; then ARGS+=(--date "${{ steps.params.outputs.date_arg }}"); fi
           python -m a_stock_radar.cli "${ARGS[@]}"
       - name: Run tests
-        run: pytest -q
+        run: python -m pytest -q
       - name: Preserve raw snapshots for audit
         uses: actions/upload-artifact@v4
         with:
