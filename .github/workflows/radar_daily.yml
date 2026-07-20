@@ -21,9 +21,9 @@ on:
         options: [live, mock]
   schedule:
     - cron: "30 20 * * 1-5"
-      timezone: "Asia/Shanghai"
+      timezone: "Asia/Singapore"
     - cron: "15 23 * * 1-5"
-      timezone: "Asia/Shanghai"
+      timezone: "Asia/Singapore"
 
 concurrency:
   group: a-stock-radar-production
@@ -106,7 +106,7 @@ jobs:
       contents: read
       pages: write
       id-token: write
-      
+
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
