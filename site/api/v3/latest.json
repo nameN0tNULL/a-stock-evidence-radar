@@ -1,14 +1,14 @@
 {
   "trade_date": "2026-07-20",
-  "report_stage": "confirmed",
+  "report_stage": "preliminary",
   "data_mode": "live",
-  "generated_at": "2026-07-20T10:03:26.990840",
-  "data_version": "1d5fcd42b689",
+  "generated_at": "2026-07-20T14:38:24.715713",
+  "data_version": "172afd7d50e7",
   "market_state": {
     "trade_date": "2026-07-20",
     "label": "数据不足",
     "confidence_level": "low",
-    "confidence_score": 10.9,
+    "confidence_score": 26.6,
     "metrics": {
       "market": {
         "available": false
@@ -50,7 +50,7 @@
           "positive_persistence_days": 0,
           "negative_persistence_days": 0,
           "valid_funds": 0,
-          "official_share_coverage": 0.0,
+          "official_share_coverage": 0.5217391304347826,
           "history_samples": 0
         },
         "margin": {},
@@ -71,19 +71,19 @@
           "horizon": "5d",
           "percentile": null,
           "evidence_level": "L1",
-          "official": false,
+          "official": true,
           "source_id": "sse_etf_shares+szse_etf_shares",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990432Z",
+          "retrieved_at": "2026-07-20T14:38:24.715322Z",
           "is_estimated": true,
           "is_missing": true,
           "missing_reason": "ETF份额或历史数据不足",
-          "quality_score": 70.0,
+          "quality_score": 90.0,
           "details": {
             "estimated_flow_5d": 0.0,
             "positive_coverage": null,
             "valid_funds": 0,
-            "official_share_coverage": 0.0
+            "official_share_coverage": 0.5217391304347826
           }
         },
         {
@@ -103,7 +103,7 @@
           "official": true,
           "source_id": "margin_detail",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990464Z",
+          "retrieved_at": "2026-07-20T14:38:24.715352Z",
           "is_estimated": false,
           "is_missing": true,
           "missing_reason": "证券—板块映射或历史数据不足",
@@ -156,7 +156,7 @@
           "positive_persistence_days": 0,
           "negative_persistence_days": 0,
           "valid_funds": 0,
-          "official_share_coverage": 0.0,
+          "official_share_coverage": 0.45,
           "history_samples": 0
         },
         "margin": {},
@@ -180,7 +180,7 @@
           "official": false,
           "source_id": "sse_etf_shares+szse_etf_shares",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990523Z",
+          "retrieved_at": "2026-07-20T14:38:24.715392Z",
           "is_estimated": true,
           "is_missing": true,
           "missing_reason": "ETF份额或历史数据不足",
@@ -189,7 +189,7 @@
             "estimated_flow_5d": 0.0,
             "positive_coverage": null,
             "valid_funds": 0,
-            "official_share_coverage": 0.0
+            "official_share_coverage": 0.45
           }
         },
         {
@@ -209,7 +209,7 @@
           "official": true,
           "source_id": "margin_detail",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990536Z",
+          "retrieved_at": "2026-07-20T14:38:24.715403Z",
           "is_estimated": false,
           "is_missing": true,
           "missing_reason": "证券—板块映射或历史数据不足",
@@ -262,7 +262,7 @@
           "positive_persistence_days": 0,
           "negative_persistence_days": 0,
           "valid_funds": 0,
-          "official_share_coverage": 0.0,
+          "official_share_coverage": 0.6444444444444445,
           "history_samples": 0
         },
         "margin": {},
@@ -283,19 +283,19 @@
           "horizon": "5d",
           "percentile": null,
           "evidence_level": "L1",
-          "official": false,
+          "official": true,
           "source_id": "sse_etf_shares+szse_etf_shares",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990807Z",
+          "retrieved_at": "2026-07-20T14:38:24.715679Z",
           "is_estimated": true,
           "is_missing": true,
           "missing_reason": "ETF份额或历史数据不足",
-          "quality_score": 70.0,
+          "quality_score": 90.0,
           "details": {
             "estimated_flow_5d": 0.0,
             "positive_coverage": null,
             "valid_funds": 0,
-            "official_share_coverage": 0.0
+            "official_share_coverage": 0.6444444444444445
           }
         },
         {
@@ -315,7 +315,7 @@
           "official": true,
           "source_id": "margin_detail",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990814Z",
+          "retrieved_at": "2026-07-20T14:38:24.715688Z",
           "is_estimated": false,
           "is_missing": true,
           "missing_reason": "证券—板块映射或历史数据不足",
@@ -368,7 +368,7 @@
           "positive_persistence_days": 0,
           "negative_persistence_days": 0,
           "valid_funds": 0,
-          "official_share_coverage": 0.0,
+          "official_share_coverage": 0.688953488372093,
           "history_samples": 0
         },
         "margin": {},
@@ -389,19 +389,19 @@
           "horizon": "5d",
           "percentile": null,
           "evidence_level": "L1",
-          "official": false,
+          "official": true,
           "source_id": "sse_etf_shares+szse_etf_shares",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990740Z",
+          "retrieved_at": "2026-07-20T14:38:24.715609Z",
           "is_estimated": true,
           "is_missing": true,
           "missing_reason": "ETF份额或历史数据不足",
-          "quality_score": 70.0,
+          "quality_score": 90.0,
           "details": {
             "estimated_flow_5d": 0.0,
             "positive_coverage": null,
             "valid_funds": 0,
-            "official_share_coverage": 0.0
+            "official_share_coverage": 0.688953488372093
           }
         },
         {
@@ -421,7 +421,7 @@
           "official": true,
           "source_id": "margin_detail",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990748Z",
+          "retrieved_at": "2026-07-20T14:38:24.715616Z",
           "is_estimated": false,
           "is_missing": true,
           "missing_reason": "证券—板块映射或历史数据不足",
@@ -474,7 +474,7 @@
           "positive_persistence_days": 0,
           "negative_persistence_days": 0,
           "valid_funds": 0,
-          "official_share_coverage": 0.0,
+          "official_share_coverage": 0.45,
           "history_samples": 0
         },
         "margin": {},
@@ -498,7 +498,7 @@
           "official": false,
           "source_id": "sse_etf_shares+szse_etf_shares",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990648Z",
+          "retrieved_at": "2026-07-20T14:38:24.715513Z",
           "is_estimated": true,
           "is_missing": true,
           "missing_reason": "ETF份额或历史数据不足",
@@ -507,7 +507,7 @@
             "estimated_flow_5d": 0.0,
             "positive_coverage": null,
             "valid_funds": 0,
-            "official_share_coverage": 0.0
+            "official_share_coverage": 0.45
           }
         },
         {
@@ -527,7 +527,7 @@
           "official": true,
           "source_id": "margin_detail",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990655Z",
+          "retrieved_at": "2026-07-20T14:38:24.715521Z",
           "is_estimated": false,
           "is_missing": true,
           "missing_reason": "证券—板块映射或历史数据不足",
@@ -580,7 +580,7 @@
           "positive_persistence_days": 0,
           "negative_persistence_days": 0,
           "valid_funds": 0,
-          "official_share_coverage": 0.0,
+          "official_share_coverage": 0.43820224719101125,
           "history_samples": 0
         },
         "margin": {},
@@ -604,7 +604,7 @@
           "official": false,
           "source_id": "sse_etf_shares+szse_etf_shares",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990696Z",
+          "retrieved_at": "2026-07-20T14:38:24.715564Z",
           "is_estimated": true,
           "is_missing": true,
           "missing_reason": "ETF份额或历史数据不足",
@@ -613,7 +613,7 @@
             "estimated_flow_5d": 0.0,
             "positive_coverage": null,
             "valid_funds": 0,
-            "official_share_coverage": 0.0
+            "official_share_coverage": 0.43820224719101125
           }
         },
         {
@@ -633,7 +633,7 @@
           "official": true,
           "source_id": "margin_detail",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990703Z",
+          "retrieved_at": "2026-07-20T14:38:24.715571Z",
           "is_estimated": false,
           "is_missing": true,
           "missing_reason": "证券—板块映射或历史数据不足",
@@ -686,7 +686,7 @@
           "positive_persistence_days": 0,
           "negative_persistence_days": 0,
           "valid_funds": 0,
-          "official_share_coverage": 0.0,
+          "official_share_coverage": 0.6486486486486487,
           "history_samples": 0
         },
         "margin": {},
@@ -707,19 +707,19 @@
           "horizon": "5d",
           "percentile": null,
           "evidence_level": "L1",
-          "official": false,
+          "official": true,
           "source_id": "sse_etf_shares+szse_etf_shares",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990785Z",
+          "retrieved_at": "2026-07-20T14:38:24.715655Z",
           "is_estimated": true,
           "is_missing": true,
           "missing_reason": "ETF份额或历史数据不足",
-          "quality_score": 70.0,
+          "quality_score": 90.0,
           "details": {
             "estimated_flow_5d": 0.0,
             "positive_coverage": null,
             "valid_funds": 0,
-            "official_share_coverage": 0.0
+            "official_share_coverage": 0.6486486486486487
           }
         },
         {
@@ -739,7 +739,7 @@
           "official": true,
           "source_id": "margin_detail",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990792Z",
+          "retrieved_at": "2026-07-20T14:38:24.715664Z",
           "is_estimated": false,
           "is_missing": true,
           "missing_reason": "证券—板块映射或历史数据不足",
@@ -792,7 +792,7 @@
           "positive_persistence_days": 0,
           "negative_persistence_days": 0,
           "valid_funds": 0,
-          "official_share_coverage": 0.0,
+          "official_share_coverage": 0.3542600896860987,
           "history_samples": 0
         },
         "margin": {},
@@ -816,7 +816,7 @@
           "official": false,
           "source_id": "sse_etf_shares+szse_etf_shares",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990560Z",
+          "retrieved_at": "2026-07-20T14:38:24.715428Z",
           "is_estimated": true,
           "is_missing": true,
           "missing_reason": "ETF份额或历史数据不足",
@@ -825,7 +825,7 @@
             "estimated_flow_5d": 0.0,
             "positive_coverage": null,
             "valid_funds": 0,
-            "official_share_coverage": 0.0
+            "official_share_coverage": 0.3542600896860987
           }
         },
         {
@@ -845,7 +845,7 @@
           "official": true,
           "source_id": "margin_detail",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990570Z",
+          "retrieved_at": "2026-07-20T14:38:24.715436Z",
           "is_estimated": false,
           "is_missing": true,
           "missing_reason": "证券—板块映射或历史数据不足",
@@ -898,7 +898,7 @@
           "positive_persistence_days": 0,
           "negative_persistence_days": 0,
           "valid_funds": 0,
-          "official_share_coverage": 0.0,
+          "official_share_coverage": 0.4423076923076923,
           "history_samples": 0
         },
         "margin": {},
@@ -922,7 +922,7 @@
           "official": false,
           "source_id": "sse_etf_shares+szse_etf_shares",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990718Z",
+          "retrieved_at": "2026-07-20T14:38:24.715586Z",
           "is_estimated": true,
           "is_missing": true,
           "missing_reason": "ETF份额或历史数据不足",
@@ -931,7 +931,7 @@
             "estimated_flow_5d": 0.0,
             "positive_coverage": null,
             "valid_funds": 0,
-            "official_share_coverage": 0.0
+            "official_share_coverage": 0.4423076923076923
           }
         },
         {
@@ -951,7 +951,7 @@
           "official": true,
           "source_id": "margin_detail",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990726Z",
+          "retrieved_at": "2026-07-20T14:38:24.715593Z",
           "is_estimated": false,
           "is_missing": true,
           "missing_reason": "证券—板块映射或历史数据不足",
@@ -1004,7 +1004,7 @@
           "positive_persistence_days": 0,
           "negative_persistence_days": 0,
           "valid_funds": 0,
-          "official_share_coverage": 0.0,
+          "official_share_coverage": 0.4605263157894737,
           "history_samples": 0
         },
         "margin": {},
@@ -1028,7 +1028,7 @@
           "official": false,
           "source_id": "sse_etf_shares+szse_etf_shares",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990590Z",
+          "retrieved_at": "2026-07-20T14:38:24.715456Z",
           "is_estimated": true,
           "is_missing": true,
           "missing_reason": "ETF份额或历史数据不足",
@@ -1037,7 +1037,7 @@
             "estimated_flow_5d": 0.0,
             "positive_coverage": null,
             "valid_funds": 0,
-            "official_share_coverage": 0.0
+            "official_share_coverage": 0.4605263157894737
           }
         },
         {
@@ -1057,7 +1057,7 @@
           "official": true,
           "source_id": "margin_detail",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990598Z",
+          "retrieved_at": "2026-07-20T14:38:24.715464Z",
           "is_estimated": false,
           "is_missing": true,
           "missing_reason": "证券—板块映射或历史数据不足",
@@ -1110,7 +1110,7 @@
           "positive_persistence_days": 0,
           "negative_persistence_days": 0,
           "valid_funds": 0,
-          "official_share_coverage": 0.0,
+          "official_share_coverage": 0.375,
           "history_samples": 0
         },
         "margin": {},
@@ -1134,7 +1134,7 @@
           "official": false,
           "source_id": "sse_etf_shares+szse_etf_shares",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990762Z",
+          "retrieved_at": "2026-07-20T14:38:24.715632Z",
           "is_estimated": true,
           "is_missing": true,
           "missing_reason": "ETF份额或历史数据不足",
@@ -1143,7 +1143,7 @@
             "estimated_flow_5d": 0.0,
             "positive_coverage": null,
             "valid_funds": 0,
-            "official_share_coverage": 0.0
+            "official_share_coverage": 0.375
           }
         },
         {
@@ -1163,7 +1163,7 @@
           "official": true,
           "source_id": "margin_detail",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990770Z",
+          "retrieved_at": "2026-07-20T14:38:24.715640Z",
           "is_estimated": false,
           "is_missing": true,
           "missing_reason": "证券—板块映射或历史数据不足",
@@ -1216,7 +1216,7 @@
           "positive_persistence_days": 0,
           "negative_persistence_days": 0,
           "valid_funds": 0,
-          "official_share_coverage": 0.0,
+          "official_share_coverage": 0.41509433962264153,
           "history_samples": 0
         },
         "margin": {},
@@ -1240,7 +1240,7 @@
           "official": false,
           "source_id": "sse_etf_shares+szse_etf_shares",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990615Z",
+          "retrieved_at": "2026-07-20T14:38:24.715481Z",
           "is_estimated": true,
           "is_missing": true,
           "missing_reason": "ETF份额或历史数据不足",
@@ -1249,7 +1249,7 @@
             "estimated_flow_5d": 0.0,
             "positive_coverage": null,
             "valid_funds": 0,
-            "official_share_coverage": 0.0
+            "official_share_coverage": 0.41509433962264153
           }
         },
         {
@@ -1269,7 +1269,7 @@
           "official": true,
           "source_id": "margin_detail",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990631Z",
+          "retrieved_at": "2026-07-20T14:38:24.715495Z",
           "is_estimated": false,
           "is_missing": true,
           "missing_reason": "证券—板块映射或历史数据不足",
@@ -1322,7 +1322,7 @@
           "positive_persistence_days": 0,
           "negative_persistence_days": 0,
           "valid_funds": 0,
-          "official_share_coverage": 0.0,
+          "official_share_coverage": 0.6607142857142857,
           "history_samples": 0
         },
         "margin": {},
@@ -1343,19 +1343,19 @@
           "horizon": "5d",
           "percentile": null,
           "evidence_level": "L1",
-          "official": false,
+          "official": true,
           "source_id": "sse_etf_shares+szse_etf_shares",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990674Z",
+          "retrieved_at": "2026-07-20T14:38:24.715541Z",
           "is_estimated": true,
           "is_missing": true,
           "missing_reason": "ETF份额或历史数据不足",
-          "quality_score": 70.0,
+          "quality_score": 90.0,
           "details": {
             "estimated_flow_5d": 0.0,
             "positive_coverage": null,
             "valid_funds": 0,
-            "official_share_coverage": 0.0
+            "official_share_coverage": 0.6607142857142857
           }
         },
         {
@@ -1375,7 +1375,7 @@
           "official": true,
           "source_id": "margin_detail",
           "source_date": "2026-07-20",
-          "retrieved_at": "2026-07-20T10:03:26.990681Z",
+          "retrieved_at": "2026-07-20T14:38:24.715549Z",
           "is_estimated": false,
           "is_missing": true,
           "missing_reason": "证券—板块映射或历史数据不足",
@@ -1438,16 +1438,16 @@
       "source_id": "sse_etf_shares",
       "display_name": "上交所ETF基金份额",
       "trade_date": "2026-07-20",
-      "available": false,
+      "available": true,
       "expected_date": "2026-07-20",
-      "actual_date": null,
-      "freshness_ok": false,
-      "schema_ok": false,
-      "row_count": 0,
+      "actual_date": "2026-07-20",
+      "freshness_ok": true,
+      "schema_ok": true,
+      "row_count": 880,
       "anomaly_count": 0,
       "official": true,
       "evidence_level": "L1",
-      "error_message": "KeyError: \"None of [Index(['序号', '基金代码', '基金简称', 'ETF类型', '统计日期', '基金份额'], dtype='object')] are in the [columns]\""
+      "error_message": null
     },
     {
       "source_id": "szse_etf_shares",
@@ -1515,7 +1515,7 @@
     "成交额只表示成交活跃程度，不能解释为市场净流入或净流出。",
     "ETF份额变化和融资余额变化描述已经发生的敞口变化，不代表未来价格结果。",
     "M1不使用北向日净额，也不包含衍生品和公司资本行为证据。",
-    "以下来源缺失或异常：A股实时行情聚合、上交所ETF基金份额、深交所ETF基金份额、上交所融资融券汇总、深交所融资融券汇总、沪深融资融券明细。",
+    "以下来源缺失或异常：A股实时行情聚合、深交所ETF基金份额、上交所融资融券汇总、深交所融资融券汇总、沪深融资融券明细。",
     "行情聚合数据属于结构化接口结果，应以交易所正式披露为最终依据。"
   ],
   "glossary": {

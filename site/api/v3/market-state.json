@@ -2,7 +2,7 @@
   "trade_date": "2026-07-20",
   "label": "数据不足",
   "confidence_level": "low",
-  "confidence_score": 10.9,
+  "confidence_score": 26.6,
   "metrics": {
     "market": {
       "available": false
