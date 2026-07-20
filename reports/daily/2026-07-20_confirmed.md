@@ -2,7 +2,7 @@
 
 > 报告阶段：confirmed  
 > 数据模式：live  
-> 生成时间：2026-07-20 10:03:26.990840  
+> 生成时间：2026-07-20 16:46:31.955540  
 > 本报告用于学习、观察和复盘，不构成投资建议。
 
 ## 0. 报告状态与数据源
@@ -12,7 +12,7 @@
 |---|---:|---|---|---:|---|
 | A股实时行情聚合 | L2 | 缺失 | 否 | 0 | ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')) |
 | ETF行情与IOPV聚合 | L2 | 可用 | 是 | 1551 | - |
-| 上交所ETF基金份额 | L1 | 缺失 | 否 | 0 | KeyError: "None of [Index(['序号', '基金代码', '基金简称', 'ETF类型', '统计日期', '基金份额'], dtype='object')] are in the [columns]" |
+| 上交所ETF基金份额 | L1 | 可用 | 是 | 880 | - |
 | 深交所ETF基金份额 | L1 | 缺失 | 否 | 0 | ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer')) |
 | 上交所融资融券汇总 | L1 | 缺失 | 否 | 0 | ValueError: Length mismatch: Expected axis has 0 elements, new values have 13 elements |
 | 深交所融资融券汇总 | L1 | 缺失 | 否 | 0 | ValueError: Length mismatch: Expected axis has 0 elements, new values have 6 elements |
@@ -23,7 +23,7 @@
 - 成交额只表示成交活跃程度，不能解释为市场净流入或净流出。
 - ETF份额变化和融资余额变化描述已经发生的敞口变化，不代表未来价格结果。
 - M1不使用北向日净额，也不包含衍生品和公司资本行为证据。
-- 以下来源缺失或异常：A股实时行情聚合、上交所ETF基金份额、深交所ETF基金份额、上交所融资融券汇总、深交所融资融券汇总、沪深融资融券明细。
+- 以下来源缺失或异常：A股实时行情聚合、深交所ETF基金份额、上交所融资融券汇总、深交所融资融券汇总、沪深融资融券明细。
 - 行情聚合数据属于结构化接口结果，应以交易所正式披露为最终依据。
 
 ## 1. 今日市场基础状态
