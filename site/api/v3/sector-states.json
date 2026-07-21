@@ -1,6 +1,6 @@
 [
   {
-    "trade_date": "2026-07-20",
+    "trade_date": "2026-07-21",
     "sector_id": "ai_computing",
     "sector_name": "人工智能与算力",
     "state_label": "数据不足",
@@ -10,31 +10,31 @@
       "etf": {
         "theme_id": "ai_computing",
         "theme_name": "人工智能与算力",
-        "estimated_flow_1d": 0.0,
-        "estimated_flow_5d": 0.0,
-        "estimated_flow_20d": 0.0,
-        "flow_ratio_1d": null,
+        "estimated_flow_1d": -3801468189375.315,
+        "estimated_flow_5d": -3801468189375.315,
+        "estimated_flow_20d": -3801468189375.315,
+        "flow_ratio_1d": -0.006111052665742924,
         "flow_ratio_5d": null,
         "flow_ratio_20d": null,
         "flow_percentile": null,
-        "positive_coverage": null,
-        "negative_coverage": null,
-        "price_breadth": null,
-        "mean_price_return": null,
+        "positive_coverage": 0.5217391304347826,
+        "negative_coverage": 0.37681159420289856,
+        "price_breadth": 1.0,
+        "mean_price_return": 0.0519422474620438,
         "turnover_percentile": null,
         "positive_persistence_days": 0,
-        "negative_persistence_days": 0,
-        "valid_funds": 0,
+        "negative_persistence_days": 1,
+        "valid_funds": 69,
         "official_share_coverage": 0.5217391304347826,
-        "history_samples": 0
+        "history_samples": 1
       },
       "margin": {},
-      "price_breadth": null
+      "price_breadth": 1.0
     },
     "evidence_summary": [
       {
-        "evidence_id": "2026-07-20:ai_computing:etf_creation:estimated_creation_flow_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:ai_computing:etf_creation:estimated_creation_flow_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "ai_computing",
         "entity_name": "人工智能与算力",
@@ -48,22 +48,22 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "sse_etf_shares+szse_etf_shares",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.954888Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.597860Z",
         "is_estimated": true,
         "is_missing": true,
         "missing_reason": "ETF份额或历史数据不足",
         "quality_score": 90.0,
         "details": {
-          "estimated_flow_5d": 0.0,
-          "positive_coverage": null,
-          "valid_funds": 0,
+          "estimated_flow_5d": -3801468189375.315,
+          "positive_coverage": 0.5217391304347826,
+          "valid_funds": 69,
           "official_share_coverage": 0.5217391304347826
         }
       },
       {
-        "evidence_id": "2026-07-20:ai_computing:margin_exposure:financing_balance_change_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:ai_computing:margin_exposure:financing_balance_change_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "ai_computing",
         "entity_name": "人工智能与算力",
@@ -77,8 +77,8 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "margin_detail",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.954940Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.597888Z",
         "is_estimated": false,
         "is_missing": true,
         "missing_reason": "证券—板块映射或历史数据不足",
@@ -89,11 +89,11 @@
       }
     ],
     "supporting_evidence": [
-      "现有证据未形成明确一致方向。"
+      "ETF组价格改善覆盖率为 100.0%。"
     ],
     "counter_evidence": [],
     "unknowns": [
-      "ETF份额历史有效样本为 0 日，尚不足以形成长期百分位判断。",
+      "ETF份额历史有效样本为 1 日，尚不足以形成长期百分位判断。",
       "该主题缺少证券—板块融资映射，不能把全市场融资变化直接归因到该主题。",
       "无法确认具体交易者身份。",
       "ETF份额变化可能包含申赎套利、做市和对冲活动。",
@@ -106,7 +106,7 @@
     ]
   },
   {
-    "trade_date": "2026-07-20",
+    "trade_date": "2026-07-21",
     "sector_id": "bonds_cash",
     "sector_name": "债券与现金管理",
     "state_label": "数据不足",
@@ -116,31 +116,31 @@
       "etf": {
         "theme_id": "bonds_cash",
         "theme_name": "债券与现金管理",
-        "estimated_flow_1d": 0.0,
-        "estimated_flow_5d": 0.0,
-        "estimated_flow_20d": 0.0,
-        "flow_ratio_1d": null,
+        "estimated_flow_1d": -421944376991.2112,
+        "estimated_flow_5d": -421944376991.2112,
+        "estimated_flow_20d": -421944376991.2112,
+        "flow_ratio_1d": -0.00514111535931372,
         "flow_ratio_5d": null,
         "flow_ratio_20d": null,
         "flow_percentile": null,
-        "positive_coverage": null,
-        "negative_coverage": null,
-        "price_breadth": null,
-        "mean_price_return": null,
+        "positive_coverage": 0.35,
+        "negative_coverage": 0.35,
+        "price_breadth": 0.2708333333333333,
+        "mean_price_return": -0.0005963055013137759,
         "turnover_percentile": null,
         "positive_persistence_days": 0,
-        "negative_persistence_days": 0,
-        "valid_funds": 0,
+        "negative_persistence_days": 1,
+        "valid_funds": 60,
         "official_share_coverage": 0.45,
-        "history_samples": 0
+        "history_samples": 1
       },
       "margin": {},
-      "price_breadth": null
+      "price_breadth": 0.2708333333333333
     },
     "evidence_summary": [
       {
-        "evidence_id": "2026-07-20:bonds_cash:etf_creation:estimated_creation_flow_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:bonds_cash:etf_creation:estimated_creation_flow_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "bonds_cash",
         "entity_name": "债券与现金管理",
@@ -154,22 +154,22 @@
         "evidence_level": "L1",
         "official": false,
         "source_id": "sse_etf_shares+szse_etf_shares",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955022Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.597931Z",
         "is_estimated": true,
         "is_missing": true,
         "missing_reason": "ETF份额或历史数据不足",
         "quality_score": 70.0,
         "details": {
-          "estimated_flow_5d": 0.0,
-          "positive_coverage": null,
-          "valid_funds": 0,
+          "estimated_flow_5d": -421944376991.2112,
+          "positive_coverage": 0.35,
+          "valid_funds": 60,
           "official_share_coverage": 0.45
         }
       },
       {
-        "evidence_id": "2026-07-20:bonds_cash:margin_exposure:financing_balance_change_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:bonds_cash:margin_exposure:financing_balance_change_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "bonds_cash",
         "entity_name": "债券与现金管理",
@@ -183,8 +183,8 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "margin_detail",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955042Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.597943Z",
         "is_estimated": false,
         "is_missing": true,
         "missing_reason": "证券—板块映射或历史数据不足",
@@ -197,9 +197,11 @@
     "supporting_evidence": [
       "现有证据未形成明确一致方向。"
     ],
-    "counter_evidence": [],
+    "counter_evidence": [
+      "ETF组价格改善覆盖率仅为 27.1%。"
+    ],
     "unknowns": [
-      "ETF份额历史有效样本为 0 日，尚不足以形成长期百分位判断。",
+      "ETF份额历史有效样本为 1 日，尚不足以形成长期百分位判断。",
       "该主题缺少证券—板块融资映射，不能把全市场融资变化直接归因到该主题。",
       "无法确认具体交易者身份。",
       "ETF份额变化可能包含申赎套利、做市和对冲活动。",
@@ -212,7 +214,7 @@
     ]
   },
   {
-    "trade_date": "2026-07-20",
+    "trade_date": "2026-07-21",
     "sector_id": "utilities",
     "sector_name": "公用事业与高股息",
     "state_label": "数据不足",
@@ -222,31 +224,31 @@
       "etf": {
         "theme_id": "utilities",
         "theme_name": "公用事业与高股息",
-        "estimated_flow_1d": 0.0,
-        "estimated_flow_5d": 0.0,
-        "estimated_flow_20d": 0.0,
-        "flow_ratio_1d": null,
+        "estimated_flow_1d": 2800889356160.0,
+        "estimated_flow_5d": 2800889356160.0,
+        "estimated_flow_20d": 2800889356160.0,
+        "flow_ratio_1d": 0.0122781124877253,
         "flow_ratio_5d": null,
         "flow_ratio_20d": null,
         "flow_percentile": null,
-        "positive_coverage": null,
-        "negative_coverage": null,
-        "price_breadth": null,
-        "mean_price_return": null,
+        "positive_coverage": 0.5,
+        "negative_coverage": 0.25,
+        "price_breadth": 0.29545454545454547,
+        "mean_price_return": 0.0006684510551103599,
         "turnover_percentile": null,
-        "positive_persistence_days": 0,
+        "positive_persistence_days": 1,
         "negative_persistence_days": 0,
-        "valid_funds": 0,
-        "official_share_coverage": 0.6444444444444445,
-        "history_samples": 0
+        "valid_funds": 44,
+        "official_share_coverage": 0.6363636363636364,
+        "history_samples": 1
       },
       "margin": {},
-      "price_breadth": null
+      "price_breadth": 0.29545454545454547
     },
     "evidence_summary": [
       {
-        "evidence_id": "2026-07-20:utilities:etf_creation:estimated_creation_flow_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:utilities:etf_creation:estimated_creation_flow_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "utilities",
         "entity_name": "公用事业与高股息",
@@ -260,22 +262,22 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "sse_etf_shares+szse_etf_shares",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955469Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598243Z",
         "is_estimated": true,
         "is_missing": true,
         "missing_reason": "ETF份额或历史数据不足",
         "quality_score": 90.0,
         "details": {
-          "estimated_flow_5d": 0.0,
-          "positive_coverage": null,
-          "valid_funds": 0,
-          "official_share_coverage": 0.6444444444444445
+          "estimated_flow_5d": 2800889356160.0,
+          "positive_coverage": 0.5,
+          "valid_funds": 44,
+          "official_share_coverage": 0.6363636363636364
         }
       },
       {
-        "evidence_id": "2026-07-20:utilities:margin_exposure:financing_balance_change_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:utilities:margin_exposure:financing_balance_change_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "utilities",
         "entity_name": "公用事业与高股息",
@@ -289,8 +291,8 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "margin_detail",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955493Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598251Z",
         "is_estimated": false,
         "is_missing": true,
         "missing_reason": "证券—板块映射或历史数据不足",
@@ -303,9 +305,11 @@
     "supporting_evidence": [
       "现有证据未形成明确一致方向。"
     ],
-    "counter_evidence": [],
+    "counter_evidence": [
+      "ETF组价格改善覆盖率仅为 29.5%。"
+    ],
     "unknowns": [
-      "ETF份额历史有效样本为 0 日，尚不足以形成长期百分位判断。",
+      "ETF份额历史有效样本为 1 日，尚不足以形成长期百分位判断。",
       "该主题缺少证券—板块融资映射，不能把全市场融资变化直接归因到该主题。",
       "无法确认具体交易者身份。",
       "ETF份额变化可能包含申赎套利、做市和对冲活动。",
@@ -318,7 +322,7 @@
     ]
   },
   {
-    "trade_date": "2026-07-20",
+    "trade_date": "2026-07-21",
     "sector_id": "other",
     "sector_name": "其他ETF",
     "state_label": "数据不足",
@@ -328,31 +332,31 @@
       "etf": {
         "theme_id": "other",
         "theme_name": "其他ETF",
-        "estimated_flow_1d": 0.0,
-        "estimated_flow_5d": 0.0,
-        "estimated_flow_20d": 0.0,
-        "flow_ratio_1d": null,
+        "estimated_flow_1d": -58464344395285.34,
+        "estimated_flow_5d": -58464344395285.34,
+        "estimated_flow_20d": -58464344395285.34,
+        "flow_ratio_1d": -0.005736111313134035,
         "flow_ratio_5d": null,
         "flow_ratio_20d": null,
         "flow_percentile": null,
-        "positive_coverage": null,
-        "negative_coverage": null,
-        "price_breadth": null,
-        "mean_price_return": null,
+        "positive_coverage": 0.3033381712626996,
+        "negative_coverage": 0.2844702467343977,
+        "price_breadth": 0.8950524737631185,
+        "mean_price_return": 0.03767687510182166,
         "turnover_percentile": null,
         "positive_persistence_days": 0,
-        "negative_persistence_days": 0,
-        "valid_funds": 0,
-        "official_share_coverage": 0.688953488372093,
-        "history_samples": 0
+        "negative_persistence_days": 1,
+        "valid_funds": 689,
+        "official_share_coverage": 0.6894049346879536,
+        "history_samples": 1
       },
       "margin": {},
-      "price_breadth": null
+      "price_breadth": 0.8950524737631185
     },
     "evidence_summary": [
       {
-        "evidence_id": "2026-07-20:other:etf_creation:estimated_creation_flow_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:other:etf_creation:estimated_creation_flow_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "other",
         "entity_name": "其他ETF",
@@ -366,22 +370,22 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "sse_etf_shares+szse_etf_shares",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955353Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598171Z",
         "is_estimated": true,
         "is_missing": true,
         "missing_reason": "ETF份额或历史数据不足",
         "quality_score": 90.0,
         "details": {
-          "estimated_flow_5d": 0.0,
-          "positive_coverage": null,
-          "valid_funds": 0,
-          "official_share_coverage": 0.688953488372093
+          "estimated_flow_5d": -58464344395285.34,
+          "positive_coverage": 0.3033381712626996,
+          "valid_funds": 689,
+          "official_share_coverage": 0.6894049346879536
         }
       },
       {
-        "evidence_id": "2026-07-20:other:margin_exposure:financing_balance_change_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:other:margin_exposure:financing_balance_change_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "other",
         "entity_name": "其他ETF",
@@ -395,8 +399,8 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "margin_detail",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955364Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598178Z",
         "is_estimated": false,
         "is_missing": true,
         "missing_reason": "证券—板块映射或历史数据不足",
@@ -407,11 +411,11 @@
       }
     ],
     "supporting_evidence": [
-      "现有证据未形成明确一致方向。"
+      "ETF组价格改善覆盖率为 89.5%。"
     ],
     "counter_evidence": [],
     "unknowns": [
-      "ETF份额历史有效样本为 0 日，尚不足以形成长期百分位判断。",
+      "ETF份额历史有效样本为 1 日，尚不足以形成长期百分位判断。",
       "该主题缺少证券—板块融资映射，不能把全市场融资变化直接归因到该主题。",
       "无法确认具体交易者身份。",
       "ETF份额变化可能包含申赎套利、做市和对冲活动。",
@@ -424,7 +428,7 @@
     ]
   },
   {
-    "trade_date": "2026-07-20",
+    "trade_date": "2026-07-21",
     "sector_id": "defense",
     "sector_name": "军工",
     "state_label": "数据不足",
@@ -434,31 +438,31 @@
       "etf": {
         "theme_id": "defense",
         "theme_name": "军工",
-        "estimated_flow_1d": 0.0,
-        "estimated_flow_5d": 0.0,
-        "estimated_flow_20d": 0.0,
-        "flow_ratio_1d": null,
+        "estimated_flow_1d": -1475109981667.715,
+        "estimated_flow_5d": -1475109981667.715,
+        "estimated_flow_20d": -1475109981667.715,
+        "flow_ratio_1d": -0.00689629675314459,
         "flow_ratio_5d": null,
         "flow_ratio_20d": null,
         "flow_percentile": null,
-        "positive_coverage": null,
-        "negative_coverage": null,
-        "price_breadth": null,
-        "mean_price_return": null,
+        "positive_coverage": 0.45,
+        "negative_coverage": 0.4,
+        "price_breadth": 1.0,
+        "mean_price_return": 0.026748807513660433,
         "turnover_percentile": null,
         "positive_persistence_days": 0,
-        "negative_persistence_days": 0,
-        "valid_funds": 0,
+        "negative_persistence_days": 1,
+        "valid_funds": 20,
         "official_share_coverage": 0.45,
-        "history_samples": 0
+        "history_samples": 1
       },
       "margin": {},
-      "price_breadth": null
+      "price_breadth": 1.0
     },
     "evidence_summary": [
       {
-        "evidence_id": "2026-07-20:defense:etf_creation:estimated_creation_flow_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:defense:etf_creation:estimated_creation_flow_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "defense",
         "entity_name": "军工",
@@ -472,22 +476,22 @@
         "evidence_level": "L1",
         "official": false,
         "source_id": "sse_etf_shares+szse_etf_shares",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955213Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598064Z",
         "is_estimated": true,
         "is_missing": true,
         "missing_reason": "ETF份额或历史数据不足",
         "quality_score": 70.0,
         "details": {
-          "estimated_flow_5d": 0.0,
-          "positive_coverage": null,
-          "valid_funds": 0,
+          "estimated_flow_5d": -1475109981667.715,
+          "positive_coverage": 0.45,
+          "valid_funds": 20,
           "official_share_coverage": 0.45
         }
       },
       {
-        "evidence_id": "2026-07-20:defense:margin_exposure:financing_balance_change_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:defense:margin_exposure:financing_balance_change_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "defense",
         "entity_name": "军工",
@@ -501,8 +505,8 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "margin_detail",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955225Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598073Z",
         "is_estimated": false,
         "is_missing": true,
         "missing_reason": "证券—板块映射或历史数据不足",
@@ -513,11 +517,11 @@
       }
     ],
     "supporting_evidence": [
-      "现有证据未形成明确一致方向。"
+      "ETF组价格改善覆盖率为 100.0%。"
     ],
     "counter_evidence": [],
     "unknowns": [
-      "ETF份额历史有效样本为 0 日，尚不足以形成长期百分位判断。",
+      "ETF份额历史有效样本为 1 日，尚不足以形成长期百分位判断。",
       "该主题缺少证券—板块融资映射，不能把全市场融资变化直接归因到该主题。",
       "无法确认具体交易者身份。",
       "ETF份额变化可能包含申赎套利、做市和对冲活动。",
@@ -530,7 +534,7 @@
     ]
   },
   {
-    "trade_date": "2026-07-20",
+    "trade_date": "2026-07-21",
     "sector_id": "healthcare",
     "sector_name": "医药医疗",
     "state_label": "数据不足",
@@ -540,31 +544,31 @@
       "etf": {
         "theme_id": "healthcare",
         "theme_name": "医药医疗",
-        "estimated_flow_1d": 0.0,
-        "estimated_flow_5d": 0.0,
-        "estimated_flow_20d": 0.0,
-        "flow_ratio_1d": null,
+        "estimated_flow_1d": 1482079044352.481,
+        "estimated_flow_5d": 1482079044352.481,
+        "estimated_flow_20d": 1482079044352.481,
+        "flow_ratio_1d": 0.0012324762119411768,
         "flow_ratio_5d": null,
         "flow_ratio_20d": null,
         "flow_percentile": null,
-        "positive_coverage": null,
-        "negative_coverage": null,
-        "price_breadth": null,
-        "mean_price_return": null,
+        "positive_coverage": 0.4157303370786517,
+        "negative_coverage": 0.38202247191011235,
+        "price_breadth": 0.6292134831460674,
+        "mean_price_return": 0.0034416508094402727,
         "turnover_percentile": null,
-        "positive_persistence_days": 0,
+        "positive_persistence_days": 1,
         "negative_persistence_days": 0,
-        "valid_funds": 0,
+        "valid_funds": 89,
         "official_share_coverage": 0.43820224719101125,
-        "history_samples": 0
+        "history_samples": 1
       },
       "margin": {},
-      "price_breadth": null
+      "price_breadth": 0.6292134831460674
     },
     "evidence_summary": [
       {
-        "evidence_id": "2026-07-20:healthcare:etf_creation:estimated_creation_flow_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:healthcare:etf_creation:estimated_creation_flow_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "healthcare",
         "entity_name": "医药医疗",
@@ -578,22 +582,22 @@
         "evidence_level": "L1",
         "official": false,
         "source_id": "sse_etf_shares+szse_etf_shares",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955286Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598120Z",
         "is_estimated": true,
         "is_missing": true,
         "missing_reason": "ETF份额或历史数据不足",
         "quality_score": 70.0,
         "details": {
-          "estimated_flow_5d": 0.0,
-          "positive_coverage": null,
-          "valid_funds": 0,
+          "estimated_flow_5d": 1482079044352.481,
+          "positive_coverage": 0.4157303370786517,
+          "valid_funds": 89,
           "official_share_coverage": 0.43820224719101125
         }
       },
       {
-        "evidence_id": "2026-07-20:healthcare:margin_exposure:financing_balance_change_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:healthcare:margin_exposure:financing_balance_change_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "healthcare",
         "entity_name": "医药医疗",
@@ -607,8 +611,8 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "margin_detail",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955297Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598128Z",
         "is_estimated": false,
         "is_missing": true,
         "missing_reason": "证券—板块映射或历史数据不足",
@@ -619,11 +623,11 @@
       }
     ],
     "supporting_evidence": [
-      "现有证据未形成明确一致方向。"
+      "ETF组价格改善覆盖率为 62.9%。"
     ],
     "counter_evidence": [],
     "unknowns": [
-      "ETF份额历史有效样本为 0 日，尚不足以形成长期百分位判断。",
+      "ETF份额历史有效样本为 1 日，尚不足以形成长期百分位判断。",
       "该主题缺少证券—板块融资映射，不能把全市场融资变化直接归因到该主题。",
       "无法确认具体交易者身份。",
       "ETF份额变化可能包含申赎套利、做市和对冲活动。",
@@ -636,7 +640,7 @@
     ]
   },
   {
-    "trade_date": "2026-07-20",
+    "trade_date": "2026-07-21",
     "sector_id": "semiconductor",
     "sector_name": "半导体与芯片",
     "state_label": "数据不足",
@@ -646,31 +650,31 @@
       "etf": {
         "theme_id": "semiconductor",
         "theme_name": "半导体与芯片",
-        "estimated_flow_1d": 0.0,
-        "estimated_flow_5d": 0.0,
-        "estimated_flow_20d": 0.0,
-        "flow_ratio_1d": null,
+        "estimated_flow_1d": -25410296471158.844,
+        "estimated_flow_5d": -25410296471158.844,
+        "estimated_flow_20d": -25410296471158.844,
+        "flow_ratio_1d": -0.025067404109490758,
         "flow_ratio_5d": null,
         "flow_ratio_20d": null,
         "flow_percentile": null,
-        "positive_coverage": null,
-        "negative_coverage": null,
-        "price_breadth": null,
-        "mean_price_return": null,
+        "positive_coverage": 0.2222222222222222,
+        "negative_coverage": 0.6388888888888888,
+        "price_breadth": 1.0,
+        "mean_price_return": 0.11801149988127824,
         "turnover_percentile": null,
         "positive_persistence_days": 0,
-        "negative_persistence_days": 0,
-        "valid_funds": 0,
-        "official_share_coverage": 0.6486486486486487,
-        "history_samples": 0
+        "negative_persistence_days": 1,
+        "valid_funds": 36,
+        "official_share_coverage": 0.6388888888888888,
+        "history_samples": 1
       },
       "margin": {},
-      "price_breadth": null
+      "price_breadth": 1.0
     },
     "evidence_summary": [
       {
-        "evidence_id": "2026-07-20:semiconductor:etf_creation:estimated_creation_flow_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:semiconductor:etf_creation:estimated_creation_flow_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "semiconductor",
         "entity_name": "半导体与芯片",
@@ -684,22 +688,22 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "sse_etf_shares+szse_etf_shares",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955427Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598218Z",
         "is_estimated": true,
         "is_missing": true,
         "missing_reason": "ETF份额或历史数据不足",
         "quality_score": 90.0,
         "details": {
-          "estimated_flow_5d": 0.0,
-          "positive_coverage": null,
-          "valid_funds": 0,
-          "official_share_coverage": 0.6486486486486487
+          "estimated_flow_5d": -25410296471158.844,
+          "positive_coverage": 0.2222222222222222,
+          "valid_funds": 36,
+          "official_share_coverage": 0.6388888888888888
         }
       },
       {
-        "evidence_id": "2026-07-20:semiconductor:margin_exposure:financing_balance_change_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:semiconductor:margin_exposure:financing_balance_change_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "semiconductor",
         "entity_name": "半导体与芯片",
@@ -713,8 +717,8 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "margin_detail",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955441Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598226Z",
         "is_estimated": false,
         "is_missing": true,
         "missing_reason": "证券—板块映射或历史数据不足",
@@ -725,11 +729,11 @@
       }
     ],
     "supporting_evidence": [
-      "现有证据未形成明确一致方向。"
+      "ETF组价格改善覆盖率为 100.0%。"
     ],
     "counter_evidence": [],
     "unknowns": [
-      "ETF份额历史有效样本为 0 日，尚不足以形成长期百分位判断。",
+      "ETF份额历史有效样本为 1 日，尚不足以形成长期百分位判断。",
       "该主题缺少证券—板块融资映射，不能把全市场融资变化直接归因到该主题。",
       "无法确认具体交易者身份。",
       "ETF份额变化可能包含申赎套利、做市和对冲活动。",
@@ -742,7 +746,7 @@
     ]
   },
   {
-    "trade_date": "2026-07-20",
+    "trade_date": "2026-07-21",
     "sector_id": "broad_market",
     "sector_name": "宽基指数",
     "state_label": "数据不足",
@@ -752,31 +756,31 @@
       "etf": {
         "theme_id": "broad_market",
         "theme_name": "宽基指数",
-        "estimated_flow_1d": 0.0,
-        "estimated_flow_5d": 0.0,
-        "estimated_flow_20d": 0.0,
-        "flow_ratio_1d": null,
+        "estimated_flow_1d": 9956062636784.043,
+        "estimated_flow_5d": 9956062636784.043,
+        "estimated_flow_20d": 9956062636784.043,
+        "flow_ratio_1d": 0.002612920201954229,
         "flow_ratio_5d": null,
         "flow_ratio_20d": null,
         "flow_percentile": null,
-        "positive_coverage": null,
-        "negative_coverage": null,
-        "price_breadth": null,
-        "mean_price_return": null,
+        "positive_coverage": 0.5866666666666667,
+        "negative_coverage": 0.19555555555555557,
+        "price_breadth": 0.6888888888888889,
+        "mean_price_return": 0.0313546528830029,
         "turnover_percentile": null,
-        "positive_persistence_days": 0,
+        "positive_persistence_days": 1,
         "negative_persistence_days": 0,
-        "valid_funds": 0,
-        "official_share_coverage": 0.3542600896860987,
-        "history_samples": 0
+        "valid_funds": 225,
+        "official_share_coverage": 0.3584070796460177,
+        "history_samples": 1
       },
       "margin": {},
-      "price_breadth": null
+      "price_breadth": 0.6888888888888889
     },
     "evidence_summary": [
       {
-        "evidence_id": "2026-07-20:broad_market:etf_creation:estimated_creation_flow_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:broad_market:etf_creation:estimated_creation_flow_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "broad_market",
         "entity_name": "宽基指数",
@@ -790,22 +794,22 @@
         "evidence_level": "L1",
         "official": false,
         "source_id": "sse_etf_shares+szse_etf_shares",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955075Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.597970Z",
         "is_estimated": true,
         "is_missing": true,
         "missing_reason": "ETF份额或历史数据不足",
         "quality_score": 70.0,
         "details": {
-          "estimated_flow_5d": 0.0,
-          "positive_coverage": null,
-          "valid_funds": 0,
-          "official_share_coverage": 0.3542600896860987
+          "estimated_flow_5d": 9956062636784.043,
+          "positive_coverage": 0.5866666666666667,
+          "valid_funds": 225,
+          "official_share_coverage": 0.3584070796460177
         }
       },
       {
-        "evidence_id": "2026-07-20:broad_market:margin_exposure:financing_balance_change_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:broad_market:margin_exposure:financing_balance_change_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "broad_market",
         "entity_name": "宽基指数",
@@ -819,8 +823,8 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "margin_detail",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955088Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.597979Z",
         "is_estimated": false,
         "is_missing": true,
         "missing_reason": "证券—板块映射或历史数据不足",
@@ -831,11 +835,11 @@
       }
     ],
     "supporting_evidence": [
-      "现有证据未形成明确一致方向。"
+      "ETF组价格改善覆盖率为 68.9%。"
     ],
     "counter_evidence": [],
     "unknowns": [
-      "ETF份额历史有效样本为 0 日，尚不足以形成长期百分位判断。",
+      "ETF份额历史有效样本为 1 日，尚不足以形成长期百分位判断。",
       "该主题缺少证券—板块融资映射，不能把全市场融资变化直接归因到该主题。",
       "无法确认具体交易者身份。",
       "ETF份额变化可能包含申赎套利、做市和对冲活动。",
@@ -848,7 +852,7 @@
     ]
   },
   {
-    "trade_date": "2026-07-20",
+    "trade_date": "2026-07-21",
     "sector_id": "new_energy",
     "sector_name": "新能源",
     "state_label": "数据不足",
@@ -858,31 +862,31 @@
       "etf": {
         "theme_id": "new_energy",
         "theme_name": "新能源",
-        "estimated_flow_1d": 0.0,
-        "estimated_flow_5d": 0.0,
-        "estimated_flow_20d": 0.0,
-        "flow_ratio_1d": null,
+        "estimated_flow_1d": -2096613877160.7104,
+        "estimated_flow_5d": -2096613877160.7104,
+        "estimated_flow_20d": -2096613877160.7104,
+        "flow_ratio_1d": -0.009341891259264918,
         "flow_ratio_5d": null,
         "flow_ratio_20d": null,
         "flow_percentile": null,
-        "positive_coverage": null,
-        "negative_coverage": null,
-        "price_breadth": null,
-        "mean_price_return": null,
+        "positive_coverage": 0.3076923076923077,
+        "negative_coverage": 0.5192307692307693,
+        "price_breadth": 0.9423076923076923,
+        "mean_price_return": 0.03993114787682473,
         "turnover_percentile": null,
         "positive_persistence_days": 0,
-        "negative_persistence_days": 0,
-        "valid_funds": 0,
+        "negative_persistence_days": 1,
+        "valid_funds": 52,
         "official_share_coverage": 0.4423076923076923,
-        "history_samples": 0
+        "history_samples": 1
       },
       "margin": {},
-      "price_breadth": null
+      "price_breadth": 0.9423076923076923
     },
     "evidence_summary": [
       {
-        "evidence_id": "2026-07-20:new_energy:etf_creation:estimated_creation_flow_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:new_energy:etf_creation:estimated_creation_flow_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "new_energy",
         "entity_name": "新能源",
@@ -896,22 +900,22 @@
         "evidence_level": "L1",
         "official": false,
         "source_id": "sse_etf_shares+szse_etf_shares",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955320Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598146Z",
         "is_estimated": true,
         "is_missing": true,
         "missing_reason": "ETF份额或历史数据不足",
         "quality_score": 70.0,
         "details": {
-          "estimated_flow_5d": 0.0,
-          "positive_coverage": null,
-          "valid_funds": 0,
+          "estimated_flow_5d": -2096613877160.7104,
+          "positive_coverage": 0.3076923076923077,
+          "valid_funds": 52,
           "official_share_coverage": 0.4423076923076923
         }
       },
       {
-        "evidence_id": "2026-07-20:new_energy:margin_exposure:financing_balance_change_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:new_energy:margin_exposure:financing_balance_change_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "new_energy",
         "entity_name": "新能源",
@@ -925,8 +929,8 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "margin_detail",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955331Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598154Z",
         "is_estimated": false,
         "is_missing": true,
         "missing_reason": "证券—板块映射或历史数据不足",
@@ -937,11 +941,11 @@
       }
     ],
     "supporting_evidence": [
-      "现有证据未形成明确一致方向。"
+      "ETF组价格改善覆盖率为 94.2%。"
     ],
     "counter_evidence": [],
     "unknowns": [
-      "ETF份额历史有效样本为 0 日，尚不足以形成长期百分位判断。",
+      "ETF份额历史有效样本为 1 日，尚不足以形成长期百分位判断。",
       "该主题缺少证券—板块融资映射，不能把全市场融资变化直接归因到该主题。",
       "无法确认具体交易者身份。",
       "ETF份额变化可能包含申赎套利、做市和对冲活动。",
@@ -954,7 +958,7 @@
     ]
   },
   {
-    "trade_date": "2026-07-20",
+    "trade_date": "2026-07-21",
     "sector_id": "consumption",
     "sector_name": "消费",
     "state_label": "数据不足",
@@ -964,31 +968,31 @@
       "etf": {
         "theme_id": "consumption",
         "theme_name": "消费",
-        "estimated_flow_1d": 0.0,
-        "estimated_flow_5d": 0.0,
-        "estimated_flow_20d": 0.0,
-        "flow_ratio_1d": null,
+        "estimated_flow_1d": 1654545477684.6785,
+        "estimated_flow_5d": 1654545477684.6785,
+        "estimated_flow_20d": 1654545477684.6785,
+        "flow_ratio_1d": 0.00474322557773355,
         "flow_ratio_5d": null,
         "flow_ratio_20d": null,
         "flow_percentile": null,
-        "positive_coverage": null,
-        "negative_coverage": null,
-        "price_breadth": null,
-        "mean_price_return": null,
+        "positive_coverage": 0.3026315789473684,
+        "negative_coverage": 0.39473684210526316,
+        "price_breadth": 0.35526315789473684,
+        "mean_price_return": 0.00558405690362242,
         "turnover_percentile": null,
-        "positive_persistence_days": 0,
+        "positive_persistence_days": 1,
         "negative_persistence_days": 0,
-        "valid_funds": 0,
+        "valid_funds": 76,
         "official_share_coverage": 0.4605263157894737,
-        "history_samples": 0
+        "history_samples": 1
       },
       "margin": {},
-      "price_breadth": null
+      "price_breadth": 0.35526315789473684
     },
     "evidence_summary": [
       {
-        "evidence_id": "2026-07-20:consumption:etf_creation:estimated_creation_flow_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:consumption:etf_creation:estimated_creation_flow_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "consumption",
         "entity_name": "消费",
@@ -1002,22 +1006,22 @@
         "evidence_level": "L1",
         "official": false,
         "source_id": "sse_etf_shares+szse_etf_shares",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955121Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598000Z",
         "is_estimated": true,
         "is_missing": true,
         "missing_reason": "ETF份额或历史数据不足",
         "quality_score": 70.0,
         "details": {
-          "estimated_flow_5d": 0.0,
-          "positive_coverage": null,
-          "valid_funds": 0,
+          "estimated_flow_5d": 1654545477684.6785,
+          "positive_coverage": 0.3026315789473684,
+          "valid_funds": 76,
           "official_share_coverage": 0.4605263157894737
         }
       },
       {
-        "evidence_id": "2026-07-20:consumption:margin_exposure:financing_balance_change_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:consumption:margin_exposure:financing_balance_change_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "consumption",
         "entity_name": "消费",
@@ -1031,8 +1035,8 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "margin_detail",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955135Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598009Z",
         "is_estimated": false,
         "is_missing": true,
         "missing_reason": "证券—板块映射或历史数据不足",
@@ -1045,9 +1049,11 @@
     "supporting_evidence": [
       "现有证据未形成明确一致方向。"
     ],
-    "counter_evidence": [],
+    "counter_evidence": [
+      "ETF组价格改善覆盖率仅为 35.5%。"
+    ],
     "unknowns": [
-      "ETF份额历史有效样本为 0 日，尚不足以形成长期百分位判断。",
+      "ETF份额历史有效样本为 1 日，尚不足以形成长期百分位判断。",
       "该主题缺少证券—板块融资映射，不能把全市场融资变化直接归因到该主题。",
       "无法确认具体交易者身份。",
       "ETF份额变化可能包含申赎套利、做市和对冲活动。",
@@ -1060,7 +1066,7 @@
     ]
   },
   {
-    "trade_date": "2026-07-20",
+    "trade_date": "2026-07-21",
     "sector_id": "resources",
     "sector_name": "资源与周期",
     "state_label": "数据不足",
@@ -1070,31 +1076,31 @@
       "etf": {
         "theme_id": "resources",
         "theme_name": "资源与周期",
-        "estimated_flow_1d": 0.0,
-        "estimated_flow_5d": 0.0,
-        "estimated_flow_20d": 0.0,
-        "flow_ratio_1d": null,
+        "estimated_flow_1d": 2279201664282.3945,
+        "estimated_flow_5d": 2279201664282.3945,
+        "estimated_flow_20d": 2279201664282.3945,
+        "flow_ratio_1d": 0.0009880194668618809,
         "flow_ratio_5d": null,
         "flow_ratio_20d": null,
         "flow_percentile": null,
-        "positive_coverage": null,
-        "negative_coverage": null,
-        "price_breadth": null,
-        "mean_price_return": null,
+        "positive_coverage": 0.515625,
+        "negative_coverage": 0.375,
+        "price_breadth": 0.765625,
+        "mean_price_return": 0.02771013246253782,
         "turnover_percentile": null,
-        "positive_persistence_days": 0,
+        "positive_persistence_days": 1,
         "negative_persistence_days": 0,
-        "valid_funds": 0,
+        "valid_funds": 64,
         "official_share_coverage": 0.375,
-        "history_samples": 0
+        "history_samples": 1
       },
       "margin": {},
-      "price_breadth": null
+      "price_breadth": 0.765625
     },
     "evidence_summary": [
       {
-        "evidence_id": "2026-07-20:resources:etf_creation:estimated_creation_flow_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:resources:etf_creation:estimated_creation_flow_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "resources",
         "entity_name": "资源与周期",
@@ -1108,22 +1114,22 @@
         "evidence_level": "L1",
         "official": false,
         "source_id": "sse_etf_shares+szse_etf_shares",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955388Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598195Z",
         "is_estimated": true,
         "is_missing": true,
         "missing_reason": "ETF份额或历史数据不足",
         "quality_score": 70.0,
         "details": {
-          "estimated_flow_5d": 0.0,
-          "positive_coverage": null,
-          "valid_funds": 0,
+          "estimated_flow_5d": 2279201664282.3945,
+          "positive_coverage": 0.515625,
+          "valid_funds": 64,
           "official_share_coverage": 0.375
         }
       },
       {
-        "evidence_id": "2026-07-20:resources:margin_exposure:financing_balance_change_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:resources:margin_exposure:financing_balance_change_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "resources",
         "entity_name": "资源与周期",
@@ -1137,8 +1143,8 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "margin_detail",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955401Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598202Z",
         "is_estimated": false,
         "is_missing": true,
         "missing_reason": "证券—板块映射或历史数据不足",
@@ -1149,11 +1155,11 @@
       }
     ],
     "supporting_evidence": [
-      "现有证据未形成明确一致方向。"
+      "ETF组价格改善覆盖率为 76.6%。"
     ],
     "counter_evidence": [],
     "unknowns": [
-      "ETF份额历史有效样本为 0 日，尚不足以形成长期百分位判断。",
+      "ETF份额历史有效样本为 1 日，尚不足以形成长期百分位判断。",
       "该主题缺少证券—板块融资映射，不能把全市场融资变化直接归因到该主题。",
       "无法确认具体交易者身份。",
       "ETF份额变化可能包含申赎套利、做市和对冲活动。",
@@ -1166,7 +1172,7 @@
     ]
   },
   {
-    "trade_date": "2026-07-20",
+    "trade_date": "2026-07-21",
     "sector_id": "cross_border",
     "sector_name": "跨境资产",
     "state_label": "数据不足",
@@ -1176,31 +1182,31 @@
       "etf": {
         "theme_id": "cross_border",
         "theme_name": "跨境资产",
-        "estimated_flow_1d": 0.0,
-        "estimated_flow_5d": 0.0,
-        "estimated_flow_20d": 0.0,
-        "flow_ratio_1d": null,
+        "estimated_flow_1d": 1566485145020.8801,
+        "estimated_flow_5d": 1566485145020.8801,
+        "estimated_flow_20d": 1566485145020.8801,
+        "flow_ratio_1d": 0.0006395928401397998,
         "flow_ratio_5d": null,
         "flow_ratio_20d": null,
         "flow_percentile": null,
-        "positive_coverage": null,
-        "negative_coverage": null,
-        "price_breadth": null,
-        "mean_price_return": null,
+        "positive_coverage": 0.3238095238095238,
+        "negative_coverage": 0.2761904761904762,
+        "price_breadth": 0.6952380952380952,
+        "mean_price_return": 0.009848667279806166,
         "turnover_percentile": null,
-        "positive_persistence_days": 0,
+        "positive_persistence_days": 1,
         "negative_persistence_days": 0,
-        "valid_funds": 0,
-        "official_share_coverage": 0.41509433962264153,
-        "history_samples": 0
+        "valid_funds": 105,
+        "official_share_coverage": 0.4095238095238095,
+        "history_samples": 1
       },
       "margin": {},
-      "price_breadth": null
+      "price_breadth": 0.6952380952380952
     },
     "evidence_summary": [
       {
-        "evidence_id": "2026-07-20:cross_border:etf_creation:estimated_creation_flow_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:cross_border:etf_creation:estimated_creation_flow_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "cross_border",
         "entity_name": "跨境资产",
@@ -1214,22 +1220,22 @@
         "evidence_level": "L1",
         "official": false,
         "source_id": "sse_etf_shares+szse_etf_shares",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955165Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598028Z",
         "is_estimated": true,
         "is_missing": true,
         "missing_reason": "ETF份额或历史数据不足",
         "quality_score": 70.0,
         "details": {
-          "estimated_flow_5d": 0.0,
-          "positive_coverage": null,
-          "valid_funds": 0,
-          "official_share_coverage": 0.41509433962264153
+          "estimated_flow_5d": 1566485145020.8801,
+          "positive_coverage": 0.3238095238095238,
+          "valid_funds": 105,
+          "official_share_coverage": 0.4095238095238095
         }
       },
       {
-        "evidence_id": "2026-07-20:cross_border:margin_exposure:financing_balance_change_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:cross_border:margin_exposure:financing_balance_change_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "cross_border",
         "entity_name": "跨境资产",
@@ -1243,8 +1249,8 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "margin_detail",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955188Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598043Z",
         "is_estimated": false,
         "is_missing": true,
         "missing_reason": "证券—板块映射或历史数据不足",
@@ -1255,11 +1261,11 @@
       }
     ],
     "supporting_evidence": [
-      "现有证据未形成明确一致方向。"
+      "ETF组价格改善覆盖率为 69.5%。"
     ],
     "counter_evidence": [],
     "unknowns": [
-      "ETF份额历史有效样本为 0 日，尚不足以形成长期百分位判断。",
+      "ETF份额历史有效样本为 1 日，尚不足以形成长期百分位判断。",
       "该主题缺少证券—板块融资映射，不能把全市场融资变化直接归因到该主题。",
       "无法确认具体交易者身份。",
       "ETF份额变化可能包含申赎套利、做市和对冲活动。",
@@ -1272,7 +1278,7 @@
     ]
   },
   {
-    "trade_date": "2026-07-20",
+    "trade_date": "2026-07-21",
     "sector_id": "finance",
     "sector_name": "金融",
     "state_label": "数据不足",
@@ -1282,31 +1288,31 @@
       "etf": {
         "theme_id": "finance",
         "theme_name": "金融",
-        "estimated_flow_1d": 0.0,
-        "estimated_flow_5d": 0.0,
-        "estimated_flow_20d": 0.0,
-        "flow_ratio_1d": null,
+        "estimated_flow_1d": 1575939964182.0515,
+        "estimated_flow_5d": 1575939964182.0515,
+        "estimated_flow_20d": 1575939964182.0515,
+        "flow_ratio_1d": 0.0008135393632040989,
         "flow_ratio_5d": null,
         "flow_ratio_20d": null,
         "flow_percentile": null,
-        "positive_coverage": null,
-        "negative_coverage": null,
-        "price_breadth": null,
-        "mean_price_return": null,
+        "positive_coverage": 0.48214285714285715,
+        "negative_coverage": 0.30357142857142855,
+        "price_breadth": 0.48214285714285715,
+        "mean_price_return": -0.0010041051383475569,
         "turnover_percentile": null,
-        "positive_persistence_days": 0,
+        "positive_persistence_days": 1,
         "negative_persistence_days": 0,
-        "valid_funds": 0,
+        "valid_funds": 56,
         "official_share_coverage": 0.6607142857142857,
-        "history_samples": 0
+        "history_samples": 1
       },
       "margin": {},
-      "price_breadth": null
+      "price_breadth": 0.48214285714285715
     },
     "evidence_summary": [
       {
-        "evidence_id": "2026-07-20:finance:etf_creation:estimated_creation_flow_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:finance:etf_creation:estimated_creation_flow_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "finance",
         "entity_name": "金融",
@@ -1320,22 +1326,22 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "sse_etf_shares+szse_etf_shares",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955252Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598095Z",
         "is_estimated": true,
         "is_missing": true,
         "missing_reason": "ETF份额或历史数据不足",
         "quality_score": 90.0,
         "details": {
-          "estimated_flow_5d": 0.0,
-          "positive_coverage": null,
-          "valid_funds": 0,
+          "estimated_flow_5d": 1575939964182.0515,
+          "positive_coverage": 0.48214285714285715,
+          "valid_funds": 56,
           "official_share_coverage": 0.6607142857142857
         }
       },
       {
-        "evidence_id": "2026-07-20:finance:margin_exposure:financing_balance_change_ratio:5d",
-        "trade_date": "2026-07-20",
+        "evidence_id": "2026-07-21:finance:margin_exposure:financing_balance_change_ratio:5d",
+        "trade_date": "2026-07-21",
         "entity_type": "sector",
         "entity_id": "finance",
         "entity_name": "金融",
@@ -1349,8 +1355,8 @@
         "evidence_level": "L1",
         "official": true,
         "source_id": "margin_detail",
-        "source_date": "2026-07-20",
-        "retrieved_at": "2026-07-20T16:46:31.955264Z",
+        "source_date": "2026-07-21",
+        "retrieved_at": "2026-07-21T14:33:11.598104Z",
         "is_estimated": false,
         "is_missing": true,
         "missing_reason": "证券—板块映射或历史数据不足",
@@ -1365,7 +1371,7 @@
     ],
     "counter_evidence": [],
     "unknowns": [
-      "ETF份额历史有效样本为 0 日，尚不足以形成长期百分位判断。",
+      "ETF份额历史有效样本为 1 日，尚不足以形成长期百分位判断。",
       "该主题缺少证券—板块融资映射，不能把全市场融资变化直接归因到该主题。",
       "无法确认具体交易者身份。",
       "ETF份额变化可能包含申赎套利、做市和对冲活动。",
