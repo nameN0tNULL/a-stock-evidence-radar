@@ -3,16 +3,16 @@
     "source_id": "market_spot",
     "display_name": "A股实时行情聚合",
     "trade_date": "2026-07-22",
-    "available": false,
+    "available": true,
     "expected_date": "2026-07-22",
-    "actual_date": null,
-    "freshness_ok": false,
-    "schema_ok": false,
-    "row_count": 0,
+    "actual_date": "2026-07-22",
+    "freshness_ok": true,
+    "schema_ok": true,
+    "row_count": 5528,
     "anomaly_count": 0,
     "official": false,
     "evidence_level": "L2",
-    "error_message": "ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+    "error_message": null
   },
   {
     "source_id": "etf_spot",
@@ -33,16 +33,16 @@
     "source_id": "sse_etf_shares",
     "display_name": "上交所ETF基金份额",
     "trade_date": "2026-07-22",
-    "available": true,
+    "available": false,
     "expected_date": "2026-07-22",
-    "actual_date": "2026-07-22",
-    "freshness_ok": true,
-    "schema_ok": true,
-    "row_count": 882,
+    "actual_date": null,
+    "freshness_ok": false,
+    "schema_ok": false,
+    "row_count": 0,
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": null
+    "error_message": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
   },
   {
     "source_id": "szse_etf_shares",
@@ -72,7 +72,7 @@
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": "ValueError: Length mismatch: Expected axis has 0 elements, new values have 13 elements"
+    "error_message": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
   },
   {
     "source_id": "szse_margin",
@@ -102,6 +102,6 @@
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": "ValueError: Length mismatch: Expected axis has 0 elements, new values have 13 elements"
+    "error_message": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
   }
 ]
