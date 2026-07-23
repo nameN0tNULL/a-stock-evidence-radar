@@ -1,34 +1,19 @@
 {
-  "trade_date": "2026-07-22",
-  "label": "权重主导",
+  "trade_date": "2026-07-23",
+  "label": "数据不足",
   "confidence_level": "low",
-  "confidence_score": 21.9,
+  "confidence_score": 26.6,
   "metrics": {
     "market": {
-      "available": true,
-      "total_amount": 2668645331656.26,
-      "advancers": 1530,
-      "decliners": 3875,
-      "unchanged": 123,
-      "breadth_ratio": 0.2767727930535456,
-      "median_return": -1.28,
-      "cap_weighted_return": -0.2722165255188727,
-      "limit_up_count": 78,
-      "limit_down_count": 22,
-      "amount_5d_change": null,
-      "amount_percentile": null,
-      "breadth_percentile": null
+      "available": false
     },
     "margin": {
       "available": false
     }
   },
-  "supporting_evidence": [
-    "市值加权表现明显强于等权中位数，市场改善主要集中在较大市值证券。"
-  ],
+  "supporting_evidence": [],
   "counter_evidence": [],
   "unknowns": [
-    "融资余额数据缺失，无法确认杠杆资金敞口变化。",
-    "历史样本不足，成交和市场宽度的长期百分位暂不可用。"
+    "市场宽度数据缺失，无法确认市场参与状态。"
   ]
 }
