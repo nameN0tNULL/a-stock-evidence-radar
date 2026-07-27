@@ -2,9 +2,9 @@
   {
     "source_id": "market_spot",
     "display_name": "A股实时行情聚合",
-    "trade_date": "2026-07-24",
+    "trade_date": "2026-07-27",
     "available": false,
-    "expected_date": "2026-07-24",
+    "expected_date": "2026-07-27",
     "actual_date": null,
     "freshness_ok": false,
     "schema_ok": false,
@@ -17,10 +17,10 @@
   {
     "source_id": "etf_spot",
     "display_name": "ETF行情与IOPV聚合",
-    "trade_date": "2026-07-24",
+    "trade_date": "2026-07-27",
     "available": true,
-    "expected_date": "2026-07-24",
-    "actual_date": "2026-07-24",
+    "expected_date": "2026-07-27",
+    "actual_date": "2026-07-27",
     "freshness_ok": true,
     "schema_ok": true,
     "row_count": 1555,
@@ -32,24 +32,24 @@
   {
     "source_id": "sse_etf_shares",
     "display_name": "上交所ETF基金份额",
-    "trade_date": "2026-07-24",
-    "available": true,
-    "expected_date": "2026-07-24",
-    "actual_date": "2026-07-24",
-    "freshness_ok": true,
-    "schema_ok": true,
-    "row_count": 883,
+    "trade_date": "2026-07-27",
+    "available": false,
+    "expected_date": "2026-07-27",
+    "actual_date": null,
+    "freshness_ok": false,
+    "schema_ok": false,
+    "row_count": 0,
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": null
+    "error_message": "ConnectionError: HTTPSConnectionPool(host='query.sse.com.cn', port=443): Max retries exceeded with url: /commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-27 (Caused by NewConnectionError(\"HTTPSConnection(host='query.sse.com.cn', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable\"))"
   },
   {
     "source_id": "szse_etf_shares",
     "display_name": "深交所ETF基金份额",
-    "trade_date": "2026-07-24",
+    "trade_date": "2026-07-27",
     "available": false,
-    "expected_date": "2026-07-24",
+    "expected_date": "2026-07-27",
     "actual_date": null,
     "freshness_ok": false,
     "schema_ok": false,
@@ -62,9 +62,9 @@
   {
     "source_id": "sse_margin",
     "display_name": "上交所融资融券汇总",
-    "trade_date": "2026-07-24",
+    "trade_date": "2026-07-27",
     "available": false,
-    "expected_date": "2026-07-24",
+    "expected_date": "2026-07-27",
     "actual_date": null,
     "freshness_ok": false,
     "schema_ok": false,
@@ -72,14 +72,14 @@
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": "ValueError: Length mismatch: Expected axis has 0 elements, new values have 13 elements"
+    "error_message": "ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))"
   },
   {
     "source_id": "szse_margin",
     "display_name": "深交所融资融券汇总",
-    "trade_date": "2026-07-24",
+    "trade_date": "2026-07-27",
     "available": false,
-    "expected_date": "2026-07-24",
+    "expected_date": "2026-07-27",
     "actual_date": null,
     "freshness_ok": false,
     "schema_ok": false,
@@ -92,9 +92,9 @@
   {
     "source_id": "margin_detail",
     "display_name": "沪深融资融券明细",
-    "trade_date": "2026-07-24",
+    "trade_date": "2026-07-27",
     "available": false,
-    "expected_date": "2026-07-24",
+    "expected_date": "2026-07-27",
     "actual_date": null,
     "freshness_ok": false,
     "schema_ok": false,
@@ -102,6 +102,6 @@
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": "ValueError: Length mismatch: Expected axis has 0 elements, new values have 13 elements"
+    "error_message": "ConnectionError: HTTPSConnectionPool(host='query.sse.com.cn', port=443): Max retries exceeded with url: /marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260727&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageCount=50&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21 (Caused by NewConnectionError(\"HTTPSConnection(host='query.sse.com.cn', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable\"))"
   }
 ]
