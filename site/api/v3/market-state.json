@@ -1,19 +1,34 @@
 {
   "trade_date": "2026-07-29",
-  "label": "数据不足",
+  "label": "广泛改善",
   "confidence_level": "low",
-  "confidence_score": 0.0,
+  "confidence_score": 21.9,
   "metrics": {
     "market": {
-      "available": false
+      "available": true,
+      "total_amount": 2311727110108.17,
+      "advancers": 4253,
+      "decliners": 1215,
+      "unchanged": 57,
+      "breadth_ratio": 0.7697737556561086,
+      "median_return": 1.58,
+      "cap_weighted_return": 0.7377850398466573,
+      "limit_up_count": 103,
+      "limit_down_count": 34,
+      "amount_5d_change": null,
+      "amount_percentile": null,
+      "breadth_percentile": null
     },
     "margin": {
       "available": false
     }
   },
-  "supporting_evidence": [],
+  "supporting_evidence": [
+    "上涨覆盖率为 77.0%，中位数涨跌幅为 1.58%。"
+  ],
   "counter_evidence": [],
   "unknowns": [
-    "市场宽度数据缺失，无法确认市场参与状态。"
+    "融资余额数据缺失，无法确认杠杆资金敞口变化。",
+    "历史样本不足，成交和市场宽度的长期百分位暂不可用。"
   ]
 }
