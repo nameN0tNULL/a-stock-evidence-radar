@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 
 from .browser_fetcher import EastmoneyBrowserAdapter
+from .exchange_fetcher import OfficialExchangeFetcher
 from .models import SourceQuality
 from .taxonomy import ThemeMapper
 
@@ -69,6 +70,7 @@ class AkshareProvider:
         self.browser_adapter = (
             EastmoneyBrowserAdapter() if EastmoneyBrowserAdapter.enabled_from_env() else None
         )
+        self.exchange_fetcher = OfficialExchangeFetcher()
 
     def _safe(self, fn: Callable[[], pd.DataFrame]) -> tuple[pd.DataFrame, str | None]:
         try:
@@ -126,16 +128,10 @@ class AkshareProvider:
                 etf_spot_error = "; ".join(
                     filter(None, [etf_spot_error, f"Playwright fallback: {browser_error}"])
                 )
-        sse_scale, sse_error = self._safe(
-            lambda: self.ak.fund_etf_scale_sse(date=trade_date.strftime("%Y%m%d"))
-        )
-        szse_scale, szse_error = self._safe(
-            lambda: self.ak.fund_scale_daily_szse(
-                start_date=trade_date.strftime("%Y%m%d"),
-                end_date=trade_date.strftime("%Y%m%d"),
-                symbol="ETF",
-            )
-        )
+        sse_scale_result = self.exchange_fetcher.fetch_sse_etf_shares(trade_date)
+        szse_scale_result = self.exchange_fetcher.fetch_szse_etf_shares(trade_date)
+        sse_scale = sse_scale_result.frame
+        szse_scale = szse_scale_result.frame
         etf_norm = self._normalize_etf(etf_spot, sse_scale, szse_scale, trade_date)
         qualities.extend(
             [
@@ -160,8 +156,8 @@ class AkshareProvider:
                     len(sse_scale),
                     True,
                     "L1",
-                    trade_date if not sse_scale.empty else None,
-                    sse_error,
+                    sse_scale_result.actual_date,
+                    sse_scale_result.error,
                 ),
                 _quality(
                     "szse_etf_shares",
@@ -171,21 +167,28 @@ class AkshareProvider:
                     len(szse_scale),
                     True,
                     "L1",
-                    trade_date if not szse_scale.empty else None,
-                    szse_error,
+                    szse_scale_result.actual_date,
+                    szse_scale_result.error,
                 ),
             ]
         )
 
-        date_text = trade_date.strftime("%Y%m%d")
-        margin_sse, margin_sse_error = self._safe(
-            lambda: self.ak.stock_margin_sse(start_date=date_text, end_date=date_text)
-        )
-        margin_szse, margin_szse_error = self._safe(lambda: self.ak.stock_margin_szse(date=date_text))
-        detail_sse, detail_sse_error = self._safe(lambda: self.ak.stock_margin_detail_sse(date=date_text))
-        detail_szse, detail_szse_error = self._safe(lambda: self.ak.stock_margin_detail_szse(date=date_text))
+        margin_sse_result = self.exchange_fetcher.fetch_sse_margin_summary(trade_date)
+        margin_szse_result = self.exchange_fetcher.fetch_szse_margin_summary(trade_date)
+        detail_sse_result = self.exchange_fetcher.fetch_sse_margin_detail(trade_date)
+        detail_szse_result = self.exchange_fetcher.fetch_szse_margin_detail(trade_date)
+        margin_sse = margin_sse_result.frame
+        margin_szse = margin_szse_result.frame
+        detail_sse = detail_sse_result.frame
+        detail_szse = detail_szse_result.frame
         margin_norm = self._normalize_margin(margin_sse, margin_szse, trade_date)
         detail_norm = self._normalize_margin_detail(detail_sse, detail_szse, trade_date)
+        detail_dates = [
+            value
+            for value in [detail_sse_result.actual_date, detail_szse_result.actual_date]
+            if value is not None
+        ]
+        detail_actual_date = min(detail_dates) if detail_dates else None
         qualities.extend(
             [
                 _quality(
@@ -196,8 +199,8 @@ class AkshareProvider:
                     len(margin_sse),
                     True,
                     "L1",
-                    trade_date if not margin_sse.empty else None,
-                    margin_sse_error,
+                    margin_sse_result.actual_date,
+                    margin_sse_result.error,
                 ),
                 _quality(
                     "szse_margin",
@@ -207,8 +210,8 @@ class AkshareProvider:
                     len(margin_szse),
                     True,
                     "L1",
-                    trade_date if not margin_szse.empty else None,
-                    margin_szse_error,
+                    margin_szse_result.actual_date,
+                    margin_szse_result.error,
                 ),
                 _quality(
                     "margin_detail",
@@ -218,8 +221,11 @@ class AkshareProvider:
                     len(detail_norm),
                     True,
                     "L1",
-                    trade_date if not detail_norm.empty else None,
-                    "; ".join(filter(None, [detail_sse_error, detail_szse_error])) or None,
+                    detail_actual_date,
+                    "; ".join(
+                        filter(None, [detail_sse_result.error, detail_szse_result.error])
+                    )
+                    or None,
                 ),
             ]
         )
@@ -263,7 +269,7 @@ class AkshareProvider:
             sse = sse_scale.rename(
                 columns={"基金代码": "fund_code", "基金简称": "fund_name", "基金份额": "total_shares"}
             )[["fund_code", "fund_name", "total_shares"]].copy()
-            sse["total_shares"] = _numeric(sse["total_shares"]) * 10000.0
+            sse["total_shares"] = _numeric(sse["total_shares"])
             sse["share_source_id"] = "sse_etf_shares"
             sse["share_is_official"] = True
             pieces.append(sse)

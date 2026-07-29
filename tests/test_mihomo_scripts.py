@@ -18,6 +18,11 @@ def _load_script(name: str):  # noqa: ANN202
 def test_mihomo_provider_bootstraps_direct(monkeypatch) -> None:  # noqa: ANN001
     module = _load_script("render_mihomo_config.py")
     monkeypatch.setenv("MIHOMO_PROVIDER_URL", "https://mergelist.vercel.app/api/all")
+    # GitHub Actions job-level environment is resolved before a release replaces
+    # the workflow file. Pin the target here so an older workflow cannot leak its
+    # quote.eastmoney.com health URL into this unit test.
+    monkeypatch.setenv("MIHOMO_HEALTHCHECK_URL", module.DEFAULT_EASTMONEY_TEST_URL)
+    monkeypatch.setenv("MIHOMO_NODE_TEST_URL", module.DEFAULT_EASTMONEY_TEST_URL)
     config = module.build_config()
 
     provider = config["proxy-providers"]["mergelist"]

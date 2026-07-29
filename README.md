@@ -1,5 +1,12 @@
 # A股市场资金证据雷达 M1
 
+## v0.2.6 official exchange resilience
+
+- Official SSE/SZSE ETF-share and margin sources now bypass fragile AKShare empty-frame column assignment.
+- Current-date publication gaps automatically fall back to the nearest available trading day.
+- Direct and environment-proxy routes are both supported with structured diagnostics.
+
+
 这是 V3 设计的首个可部署版本，使用 GitHub Actions 盘后批处理并通过 GitHub Pages 发布静态日报。
 
 ## M1 已实现
@@ -219,18 +226,20 @@ security_code,theme_id,theme_name
 
 ## 数据来源适配
 
-当前实时适配通过 AKShare 调用：
+当前实时适配分为两条链路：
 
-- `stock_zh_a_spot_em`
-- `fund_etf_spot_em`
-- `fund_etf_scale_sse`
-- `fund_scale_daily_szse`
-- `stock_margin_sse`
-- `stock_margin_szse`
-- `stock_margin_detail_sse`
-- `stock_margin_detail_szse`
+- 东方财富行情与 ETF 实时行情继续通过 AKShare，失败后使用 Playwright＋Mihomo SOCKS5 回退；
+- 上交所/深交所 ETF 份额和融资融券改由 `OfficialExchangeFetcher` 直接访问交易所公开接口。
 
-其中 ETF 份额和融资融券的原始目标来源是沪深交易所；行情和 IOPV 代理包含聚合来源。所有调用均独立捕获异常并生成来源质量记录。东方财富两项聚合接口在 AKShare 失败后可通过 Playwright＋Mihomo SOCKS5 回退；交易所 ETF 份额和融资接口仍保持 AKShare 独立抓取与显式降级。
+官方交易所链路默认采用 `direct-first`：先绕开公共代理直连交易所，连接失败后再尝试环境代理。每个来源会检查 HTTP 状态、JSON/XLSX 类型、空结果和字段数量。当天数据尚未发布时，会在最近 7 个自然日内向前寻找最近交易日，并把真实 `actual_date` 与过期状态写入来源质量记录，而不是抛出 `KeyError` 或 `Length mismatch`。
+
+可通过以下 Actions Variables 调整：
+
+- `RADAR_EXCHANGE_ROUTE`: `direct-first`、`proxy-first` 或 `direct-only`；
+- `RADAR_EXCHANGE_LOOKBACK_DAYS`: 默认 `7`；
+- `RADAR_EXCHANGE_TIMEOUT`: 默认 `20` 秒。
+
+交易所请求诊断写入 `diagnostics/exchange/`。上交所 ETF 份额按 AKShare 1.18.15 之后的口径统一使用“份”，不会再次乘以 10,000。
 
 ## 初次上线建议
 
@@ -384,3 +393,12 @@ python scripts/update_workspace.py \
 ```
 
 这不会跳过 Python 编译和 pytest；正式 CI 仍会执行仓库内配置的 Ruff 规则。
+
+## v0.2.6 修复
+
+- 避免上交所 ETF 空结果触发列选择 `KeyError`；
+- 避免沪深融资融券空结果触发 `Length mismatch`；
+- 深交所 XLSX 请求增加重试、直连/代理双路由和内容类型校验；
+- 当日清算数据尚未发布时自动回退到最近可用交易日；
+- 修复上交所 ETF 份额重复乘以 10,000 的单位错误；
+- 新增官方交易所响应诊断和回退测试。
