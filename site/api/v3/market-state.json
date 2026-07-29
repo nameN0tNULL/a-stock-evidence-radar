@@ -1,43 +1,29 @@
 {
-  "trade_date": "2026-07-29",
-  "label": "广泛改善",
+  "trade_date": "2026-07-30",
+  "label": "数据不足",
   "confidence_level": "low",
-  "confidence_score": 34.4,
+  "confidence_score": 50.0,
   "metrics": {
     "market": {
-      "available": true,
-      "total_amount": 2311727110108.17,
-      "advancers": 4253,
-      "decliners": 1215,
-      "unchanged": 57,
-      "breadth_ratio": 0.7697737556561086,
-      "median_return": 1.58,
-      "cap_weighted_return": 0.7377838817830026,
-      "limit_up_count": 103,
-      "limit_down_count": 34,
-      "amount_5d_change": null,
-      "amount_percentile": null,
-      "breadth_percentile": null
+      "available": false
     },
     "margin": {
       "available": true,
       "financing_balance": 1349011546410.06,
       "financing_buy": 88529674872.17,
-      "change_1d": null,
-      "change_ratio_1d": null,
+      "change_1d": 0.0,
+      "change_ratio_1d": 0.0,
       "change_ratio_5d": null,
       "change_ratio_20d": null,
       "change_percentile": null,
       "positive_persistence_days": 0,
       "negative_persistence_days": 0,
-      "history_samples": 0
+      "history_samples": 1
     }
   },
-  "supporting_evidence": [
-    "上涨覆盖率为 77.0%，中位数涨跌幅为 1.58%。"
-  ],
+  "supporting_evidence": [],
   "counter_evidence": [],
   "unknowns": [
-    "历史样本不足，成交和市场宽度的长期百分位暂不可用。"
+    "市场宽度数据缺失，无法确认市场参与状态。"
   ]
 }
