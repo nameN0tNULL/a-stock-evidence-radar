@@ -6,6 +6,15 @@ from urllib.parse import urlparse
 
 import yaml
 
+DEFAULT_EASTMONEY_TEST_URL = (
+    "https://82.push2.eastmoney.com/api/qt/clist/get"
+    "?pn=1&pz=1&po=1&np=1"
+    "&ut=bd1d9ddb04089700cf9c27f6f7426281"
+    "&fltt=2&invt=2&fid=f3"
+    "&fs=m%3A1+t%3A2"
+    "&fields=f2%2Cf3%2Cf12%2Cf14"
+)
+
 
 def _provider_host(provider_url: str) -> str | None:
     host = urlparse(provider_url).hostname
@@ -19,7 +28,7 @@ def build_config() -> dict:
     )
     health_url = os.getenv(
         "MIHOMO_HEALTHCHECK_URL",
-        "https://quote.eastmoney.com/",
+        os.getenv("MIHOMO_NODE_TEST_URL", DEFAULT_EASTMONEY_TEST_URL),
     )
     socks_port = int(os.getenv("MIHOMO_SOCKS_PORT", "7891"))
     mixed_port = int(os.getenv("MIHOMO_MIXED_PORT", "7890"))
@@ -30,8 +39,8 @@ def build_config() -> dict:
         "url": provider_url,
         "path": "./providers/mergelist.yaml",
         "interval": 3600,
-        # Critical bootstrap rule: the provider cannot be downloaded through a
-        # proxy group that itself depends on this provider.
+        # The provider cannot be downloaded through a group that itself depends
+        # on this provider. Force the bootstrap request to DIRECT.
         "proxy": "DIRECT",
         "header": {
             "User-Agent": ["mihomo/a-stock-evidence-radar"],
@@ -41,7 +50,7 @@ def build_config() -> dict:
             "enable": True,
             "url": health_url,
             "interval": 300,
-            "timeout": 10000,
+            "timeout": 12000,
             "lazy": False,
             "expected-status": "200-399",
         },
@@ -52,7 +61,7 @@ def build_config() -> dict:
     provider_host = _provider_host(provider_url)
     if provider_host:
         rules.append(f"DOMAIN,{provider_host},DIRECT")
-    rules.append("MATCH,RADAR-AUTO")
+    rules.append("MATCH,RADAR-SELECT")
 
     return {
         "mixed-port": mixed_port,
@@ -88,11 +97,20 @@ def build_config() -> dict:
                 "use": ["mergelist"],
                 "url": health_url,
                 "interval": 300,
-                "timeout": 10000,
+                "timeout": 12000,
                 "tolerance": 150,
                 "lazy": False,
                 "expected-status": "200-399",
-            }
+            },
+            {
+                # The readiness script selects an exact node in this group only
+                # after requests/OpenSSL and Playwright both pass against the
+                # real Eastmoney API host.
+                "name": "RADAR-SELECT",
+                "type": "select",
+                "proxies": ["RADAR-AUTO", "DIRECT"],
+                "use": ["mergelist"],
+            },
         ],
         "rules": rules,
     }
@@ -116,6 +134,7 @@ def main() -> None:
     print(f"SOCKS endpoint: socks5://127.0.0.1:{socks_port}")
     print(f"Provider host: {_provider_host(provider_url) or 'unknown'}")
     print("Provider bootstrap route: DIRECT")
+    print("Runtime route: RADAR-SELECT")
 
 
 if __name__ == "__main__":

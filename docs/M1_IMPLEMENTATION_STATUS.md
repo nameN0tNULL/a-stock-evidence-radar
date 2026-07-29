@@ -30,3 +30,12 @@
 - 修正导入来源、前向类型注解、时区时间戳和可变类常量。
 - 安装器新增 `--skip-lint`，与 `--skip-tests` 分离。
 - 更新失败时仍然自动恢复原工作区。
+
+
+## v0.2.4 代理目标 TLS 检测
+
+- 新增 `RADAR-SELECT` 固定选择组。
+- 对候选节点逐个执行 Mihomo 原生检查、requests/OpenSSL 检查和 Playwright 检查。
+- 仅选择能访问实际 `82.push2.eastmoney.com` 行情 API 的节点。
+- 记录 `SSLEOFError`、`ERR_CONNECTION_CLOSED` 和非 JSON 响应。
+- 修复安装器在合成发布包缺少 `tests/` 时 Ruff E902 导致回滚的问题。

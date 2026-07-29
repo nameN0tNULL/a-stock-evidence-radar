@@ -3,7 +3,7 @@
 ## 数据路径
 
 - Mihomo 从 `MIHOMO_PROVIDER_URL` 加载代理订阅；
-- `RADAR-AUTO` 使用 `url-test` 策略和目标站点健康检查；
+- `RADAR-AUTO` 提供通用延迟排序；`RADAR-SELECT` 保存经目标 TLS/API 检测通过的固定节点；
 - 本地监听 `socks5://127.0.0.1:7891`；
 - Playwright 只连接本地 SOCKS5；
 - AKShare 直连是第一顺位，Playwright 是东方财富市场行情和 ETF 行情的第二顺位；
@@ -23,7 +23,7 @@
 - 公共代理的可用性和访问地区不可保证；
 - 浏览器回退只覆盖东方财富全市场行情与 ETF 行情；
 - 不处理验证码、登录页或交互式验证；
-- 代理节点切换由 Mihomo 完成，Python 不逐节点重试。
+- Python 只通过 Mihomo Controller 切换本地策略组，不读取或使用远端节点凭据。
 
 ## 2026-07 GitHub Actions 诊断修复
 
@@ -45,3 +45,18 @@ mergelist provider 下载请求
 - 只有目标站点 SOCKS 冒烟测试成功才向抓取流程注入代理环境变量；
 - 代理未就绪时恢复直连 HTTP 与直连 Playwright，避免坏掉的本地端口污染所有来源；
 - 每次真实运行先清理 `data/raw/`、旧 provider 缓存和诊断目录，避免历史 mock 快照混入本次 Artifact。
+
+
+## v0.2.4 目标 TLS 节点筛选
+
+针对 `SSLEOFError` 和 Chromium `ERR_CONNECTION_CLOSED`，就绪流程不再只检查首页：
+
+1. 从 provider 读取候选节点，优先选择 alive 且延迟较低的节点；
+2. 通过 Controller 将节点写入 `RADAR-SELECT`；
+3. 使用 `requests` 经 `socks5h://127.0.0.1:7891` 请求真实 `82.push2.eastmoney.com` 最小行情接口；
+4. 校验 HTTP 状态、非 HTML、JSON/JSONP 格式及东方财富响应字段；
+5. 再使用 Playwright Chromium 请求同一接口；
+6. 两项通过后保留该节点，失败则继续下一个节点；
+7. 所有结果写入 `diagnostics/proxy-node-validation.json`。
+
+这项检测验证的是当前节点到目标域名的实际 TLS 和应用响应，不将“可访问其他 HTTPS 网站”误判为“可访问东方财富行情接口”。

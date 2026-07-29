@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import importlib.util
+import os
 import shutil
 import stat
 import subprocess
@@ -257,8 +258,14 @@ def verify_workspace(
     if skip_lint:
         print("Ruff lint skipped by request.")
     elif shutil.which("ruff"):
-        print("Running Ruff. Any lint details below refer to the replacement release.")
-        run_command(["ruff", "check", "src", "tests", "scripts"], cwd=workspace)
+        lint_targets = [
+            name for name in ("src", "tests", "scripts") if (workspace / name).exists()
+        ]
+        if lint_targets:
+            print("Running Ruff. Any lint details below refer to the replacement release.")
+            run_command(["ruff", "check", *lint_targets], cwd=workspace)
+        else:
+            print("No Ruff target directories found; lint execution skipped.")
     else:
         print("ruff is not installed; lint execution skipped.")
 

@@ -113,7 +113,7 @@ mergelist 订阅
   → 东方财富公开 JSON 接口
 ```
 
-Python 不直接解析或轮换远端节点。Mihomo 的 `RADAR-AUTO` 策略组自动选择当前可用节点，Playwright 始终只连接本地 SOCKS5。AKShare 仍作为首选；只有 `stock_zh_a_spot_em` 或 `fund_etf_spot_em` 失败或返回空数据时，才启动浏览器回退。
+Python 不解析节点凭据，也不直接连接远端代理。Mihomo 负责加载节点并在本地暴露 SOCKS5；就绪脚本通过 Mihomo Controller 逐个切换候选节点，先用 `requests + socks5h` 验证 `82.push2.eastmoney.com` 的 TLS/API 响应，再用标准 Playwright 验证同一接口。只有两项都通过的节点才会被固定到 `RADAR-SELECT`。AKShare 仍作为首选；只有 `stock_zh_a_spot_em` 或 `fund_etf_spot_em` 失败或返回空数据时，才启动浏览器回退。
 
 GitHub Actions 会自动完成：
 
@@ -131,9 +131,26 @@ GitHub Actions 会自动完成：
 |---|---|---|
 | `MIHOMO_PROVIDER_URL` | `https://mergelist.vercel.app/api/all` | Clash/Mihomo 订阅地址 |
 | `MIHOMO_VERSION` | `v1.19.28` | Mihomo 固定版本 |
-| `MIHOMO_HEALTHCHECK_URL` | `https://quote.eastmoney.com/` | 节点健康检查目标 |
+| `MIHOMO_HEALTHCHECK_URL` | 东方财富最小行情 API | Mihomo provider 原生健康检查目标 |
+| `MIHOMO_NODE_TEST_URL` | 东方财富最小行情 API | 逐节点 TLS、JSON 和 Playwright 验证目标 |
+| `MIHOMO_NODE_TEST_LIMIT` | `20` | 单次最多检测的节点数 |
+| `MIHOMO_NODE_REQUEST_TIMEOUT` | `18` | Python/OpenSSL 单节点超时，秒 |
+| `MIHOMO_NODE_BROWSER_TIMEOUT_MS` | `25000` | Playwright 单节点超时，毫秒 |
+| `MIHOMO_NODE_PLAYWRIGHT_CHECK` | `true` | 是否要求浏览器验证通过 |
 
 订阅返回内容需要是 Mihomo/Clash 可识别的代理订阅或 `proxy-provider` 内容。无法解析时，`fetch-diagnostics-*` Artifact 内的 `mihomo.log` 会显示具体错误。
+
+
+### TLS 节点筛选诊断
+
+节点检测结果写入：
+
+```text
+diagnostics/proxy-node-validation.json
+diagnostics/proxy-ready-summary.json
+```
+
+每个节点会记录 provider 延迟、Mihomo 原生健康检查、Python `requests` 结果、Playwright 结果以及是否命中 `SSLEOFError` / `ERR_CONNECTION_CLOSED`。全部节点失败时，工作流不会注入本地代理环境变量，而是按现有逻辑回退直连并保留诊断 Artifact。
 
 ### 本地启动代理链路
 
