@@ -8,7 +8,6 @@ from pathlib import Path
 
 import pytest
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -86,6 +85,7 @@ def test_workspace_update_replaces_code_and_merges_reports(tmp_path: Path) -> No
         no_push=True,
         skip_tests=True,
         dry_run=False,
+        skip_lint=True,
     )
     module.apply_update(options)
 

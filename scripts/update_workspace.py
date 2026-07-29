@@ -21,7 +21,6 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import importlib.util
-import os
 import shutil
 import stat
 import subprocess
