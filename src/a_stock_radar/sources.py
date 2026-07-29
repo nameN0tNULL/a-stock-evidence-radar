@@ -8,6 +8,7 @@ from typing import Callable
 import numpy as np
 import pandas as pd
 
+from .browser_fetcher import EastmoneyBrowserAdapter
 from .models import SourceQuality
 from .taxonomy import ThemeMapper
 
@@ -64,6 +65,9 @@ class AkshareProvider:
         except ImportError as exc:  # pragma: no cover - installation issue
             raise RuntimeError("akshare is required for live mode") from exc
         self.ak = ak
+        self.browser_adapter = (
+            EastmoneyBrowserAdapter() if EastmoneyBrowserAdapter.enabled_from_env() else None
+        )
 
     def _safe(self, fn: Callable[[], pd.DataFrame]) -> tuple[pd.DataFrame, str | None]:
         try:
@@ -77,11 +81,25 @@ class AkshareProvider:
     def fetch(self, trade_date: date) -> SourceBundle:
         qualities: list[SourceQuality] = []
         market, market_error = self._safe(self.ak.stock_zh_a_spot_em)
+        market_via_browser = False
+        if market.empty and self.browser_adapter is not None:
+            browser_market, browser_error = self._safe(self.browser_adapter.fetch_market_spot)
+            if not browser_market.empty:
+                market = browser_market
+                market_via_browser = True
+                market_error = (
+                    f"AKShare direct failed: {market_error or 'empty response'}; "
+                    "recovered through Playwright via local Clash SOCKS"
+                )
+            elif browser_error:
+                market_error = "; ".join(
+                    filter(None, [market_error, f"Playwright fallback: {browser_error}"])
+                )
         market_norm = self._normalize_market(market, trade_date)
         qualities.append(
             _quality(
-                "market_spot",
-                "A股实时行情聚合",
+                "market_spot_browser" if market_via_browser else "market_spot",
+                "A股实时行情聚合（浏览器代理回退）" if market_via_browser else "A股实时行情聚合",
                 trade_date,
                 not market_norm.empty,
                 len(market_norm),
@@ -93,6 +111,20 @@ class AkshareProvider:
         )
 
         etf_spot, etf_spot_error = self._safe(self.ak.fund_etf_spot_em)
+        etf_spot_via_browser = False
+        if etf_spot.empty and self.browser_adapter is not None:
+            browser_etf, browser_error = self._safe(self.browser_adapter.fetch_etf_spot)
+            if not browser_etf.empty:
+                etf_spot = browser_etf
+                etf_spot_via_browser = True
+                etf_spot_error = (
+                    f"AKShare direct failed: {etf_spot_error or 'empty response'}; "
+                    "recovered through Playwright via local Clash SOCKS"
+                )
+            elif browser_error:
+                etf_spot_error = "; ".join(
+                    filter(None, [etf_spot_error, f"Playwright fallback: {browser_error}"])
+                )
         sse_scale, sse_error = self._safe(
             lambda: self.ak.fund_etf_scale_sse(date=trade_date.strftime("%Y%m%d"))
         )
@@ -107,8 +139,10 @@ class AkshareProvider:
         qualities.extend(
             [
                 _quality(
-                    "etf_spot",
-                    "ETF行情与IOPV聚合",
+                    "etf_spot_browser" if etf_spot_via_browser else "etf_spot",
+                    "ETF行情与IOPV聚合（浏览器代理回退）"
+                    if etf_spot_via_browser
+                    else "ETF行情与IOPV聚合",
                     trade_date,
                     not etf_spot.empty,
                     len(etf_spot),

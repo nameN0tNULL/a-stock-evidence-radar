@@ -21,36 +21,35 @@ on:
         options: [live, mock]
   schedule:
     - cron: "30 20 * * 1-5"
-      timezone: "Asia/Singapore"
+      timezone: "Asia/Shanghai"
     - cron: "15 23 * * 1-5"
-      timezone: "Asia/Singapore"
+      timezone: "Asia/Shanghai"
 
 concurrency:
   group: a-stock-radar-production
   cancel-in-progress: false
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       stage: ${{ steps.params.outputs.stage }}
+    env:
+      MIHOMO_VERSION: ${{ vars.MIHOMO_VERSION || 'v1.19.28' }}
+      MIHOMO_PROVIDER_URL: ${{ vars.MIHOMO_PROVIDER_URL || 'https://mergelist.vercel.app/api/all' }}
+      MIHOMO_HEALTHCHECK_URL: ${{ vars.MIHOMO_HEALTHCHECK_URL || 'https://quote.eastmoney.com/' }}
+      MIHOMO_SOCKS_PORT: "7891"
+      MIHOMO_MIXED_PORT: "7890"
+      MIHOMO_CONTROLLER_PORT: "9090"
+      RADAR_DIAGNOSTICS_DIR: diagnostics
+
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-          cache: pip
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e ".[dev]"   
+
       - name: Resolve parameters
         id: params
         shell: bash
@@ -59,27 +58,105 @@ jobs:
           MODE="${{ inputs.data_mode }}"
           DATE_ARG="${{ inputs.trade_date }}"
           if [ -z "$STAGE" ]; then
-            if [ "${{ github.event.schedule }}" = "30 20 * * 1-5" ]; then STAGE="preliminary"; else STAGE="confirmed"; fi
+            if [ "${{ github.event.schedule }}" = "30 20 * * 1-5" ]; then
+              STAGE="preliminary"
+            else
+              STAGE="confirmed"
+            fi
           fi
           if [ -z "$MODE" ]; then MODE="live"; fi
           echo "stage=$STAGE" >> "$GITHUB_OUTPUT"
           echo "mode=$MODE" >> "$GITHUB_OUTPUT"
           echo "date_arg=$DATE_ARG" >> "$GITHUB_OUTPUT"
-      - name: Generate report
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev,browser]"
+
+      - name: Install Chromium
+        if: steps.params.outputs.mode == 'live'
+        run: python -m playwright install --with-deps chromium
+
+      - name: Install Mihomo
+        if: steps.params.outputs.mode == 'live'
+        run: ./scripts/install_mihomo.sh
+
+      - name: Render Mihomo configuration
+        if: steps.params.outputs.mode == 'live'
+        run: python scripts/render_mihomo_config.py
+
+      - name: Start Mihomo local proxy
+        if: steps.params.outputs.mode == 'live'
         shell: bash
         run: |
-          ARGS=(run --stage "${{ steps.params.outputs.stage }}" --data-mode "${{ steps.params.outputs.mode }}")
-          if [ -n "${{ steps.params.outputs.date_arg }}" ]; then ARGS+=(--date "${{ steps.params.outputs.date_arg }}"); fi
-          python -m a_stock_radar.cli "${ARGS[@]}"
+          mkdir -p diagnostics runtime/mihomo
+          ./runtime/mihomo/bin/mihomo \
+            -d runtime/mihomo \
+            -f runtime/mihomo/config.yaml \
+            > diagnostics/mihomo.log 2>&1 &
+          echo $! > runtime/mihomo/mihomo.pid
+
+      - name: Verify local SOCKS proxy
+        id: proxy_ready
+        if: steps.params.outputs.mode == 'live'
+        continue-on-error: true
+        run: python scripts/wait_for_mihomo.py
+
       - name: Run tests
-        run: python -m pytest -q
+        run: |
+          python -m pytest -q
+          ruff check src tests scripts
+
+      - name: Generate report
+        shell: bash
+        env:
+          RADAR_BROWSER_FALLBACK: ${{ steps.params.outputs.mode == 'live' && 'true' || 'false' }}
+          RADAR_BROWSER_PROXY: socks5://127.0.0.1:7891
+          RADAR_BROWSER_TIMEOUT_MS: "45000"
+          ALL_PROXY: socks5h://127.0.0.1:7891
+          HTTP_PROXY: http://127.0.0.1:7890
+          HTTPS_PROXY: http://127.0.0.1:7890
+          NO_PROXY: 127.0.0.1,localhost
+          PYTHONUNBUFFERED: "1"
+        run: |
+          ARGS=(run --stage "${{ steps.params.outputs.stage }}" --data-mode "${{ steps.params.outputs.mode }}")
+          if [ -n "${{ steps.params.outputs.date_arg }}" ]; then
+            ARGS+=(--date "${{ steps.params.outputs.date_arg }}")
+          fi
+          python -m a_stock_radar.cli "${ARGS[@]}"
+
       - name: Preserve raw snapshots for audit
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: raw-snapshots-${{ github.run_id }}-${{ github.run_attempt }}
           path: data/raw
           retention-days: 30
           if-no-files-found: warn
+
+      - name: Upload proxy and browser diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fetch-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: diagnostics
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Stop Mihomo
+        if: always() && steps.params.outputs.mode == 'live'
+        shell: bash
+        run: |
+          if [ -f runtime/mihomo/mihomo.pid ]; then
+            kill "$(cat runtime/mihomo/mihomo.pid)" || true
+          fi
+
       - name: Persist compact history and reports
         shell: bash
         run: |
@@ -90,8 +167,9 @@ jobs:
             git commit -m "data: update radar ${{ steps.params.outputs.stage }} [skip ci]"
             git push
           fi
+
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: site
 
@@ -99,14 +177,12 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    needs: build
     runs-on: ubuntu-latest
-    
+    needs: build
     permissions:
       contents: read
       pages: write
       id-token: write
-
     steps:
       - name: Deploy to GitHub Pages
         id: deployment

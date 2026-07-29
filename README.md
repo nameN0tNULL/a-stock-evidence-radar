@@ -14,6 +14,8 @@
 - 原始快照、紧凑历史、结构化 JSON、Markdown 与静态 HTML；
 - `live` 和隔离的 `mock` 模式；
 - GitHub Actions CI、定时生成和 GitHub Pages 部署；
+- Mihomo（Clash Meta 内核）代理订阅、节点健康检查与本地 SOCKS5 网关；
+- AKShare 直连失败后，使用标准 Playwright 经本地 SOCKS5 获取东方财富 JSON；
 - 数据源失效时发布“数据不足”，不会自动用演示数据伪装真实市场。
 
 ## 重要边界
@@ -28,7 +30,8 @@
 
 ```text
 src/a_stock_radar/
-  sources.py       # AKShare 实时适配和演示数据源
+  sources.py       # AKShare 实时适配、浏览器回退和演示数据源
+  browser_fetcher.py # Playwright JSON 抓取与东方财富回退适配
   features.py      # 市场、ETF、融资特征
   states.py        # 规则状态和证据记录
   pipeline.py      # 端到端任务
@@ -40,6 +43,9 @@ data/raw/          # 每次抓取的原始快照
 data/history/      # 最近约 320 个交易日的紧凑历史
 reports/           # 日报
 site/              # GitHub Pages 发布目录
+scripts/           # Mihomo 安装、配置和就绪检查
+diagnostics/       # 运行失败截图、HTML、代理日志（不提交 Git）
+runtime/           # Mihomo 二进制、配置和缓存（不提交 Git）
 ```
 
 `mock_*` 和 `live_*` 历史文件完全隔离，先运行演示模式不会污染真实历史。
@@ -51,7 +57,8 @@ site/              # GitHub Pages 发布目录
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -e '.[dev]'
+pip install -e '.[dev,browser]'
+python -m playwright install chromium
 pytest -q
 ```
 
@@ -93,6 +100,69 @@ python -m http.server 8000 --directory site
 
 打开 `http://localhost:8000`。
 
+
+## Clash/Mihomo 浏览器代理链路
+
+真实模式的网络路径是：
+
+```text
+mergelist 订阅
+  → Mihomo 加载代理节点并健康检查
+  → 本地 SOCKS5 127.0.0.1:7891
+  → Playwright Chromium
+  → 东方财富公开 JSON 接口
+```
+
+Python 不直接解析或轮换远端节点。Mihomo 的 `RADAR-AUTO` 策略组自动选择当前可用节点，Playwright 始终只连接本地 SOCKS5。AKShare 仍作为首选；只有 `stock_zh_a_spot_em` 或 `fund_etf_spot_em` 失败或返回空数据时，才启动浏览器回退。
+
+GitHub Actions 会自动完成：
+
+1. 下载固定版本的 Mihomo；
+2. 以 `https://mergelist.vercel.app/api/all` 建立远程 `proxy-provider`；
+3. 在 `127.0.0.1:7891` 暴露 SOCKS5；
+4. 检查控制器、代理出口和目标站点；
+5. 安装 Playwright Chromium；
+6. 运行真实数据抓取；
+7. 将代理日志、浏览器截图和失败页面保存为 Actions Artifact。
+
+可在仓库 `Settings → Secrets and variables → Actions → Variables` 配置：
+
+| Variable | 默认值 | 用途 |
+|---|---|---|
+| `MIHOMO_PROVIDER_URL` | `https://mergelist.vercel.app/api/all` | Clash/Mihomo 订阅地址 |
+| `MIHOMO_VERSION` | `v1.19.28` | Mihomo 固定版本 |
+| `MIHOMO_HEALTHCHECK_URL` | `https://quote.eastmoney.com/` | 节点健康检查目标 |
+
+订阅返回内容需要是 Mihomo/Clash 可识别的代理订阅或 `proxy-provider` 内容。无法解析时，`fetch-diagnostics-*` Artifact 内的 `mihomo.log` 会显示具体错误。
+
+### 本地启动代理链路
+
+```bash
+python -m pip install -e '.[dev,browser]'
+python -m playwright install chromium
+
+MIHOMO_PROVIDER_URL=https://mergelist.vercel.app/api/all \
+  ./scripts/install_mihomo.sh
+
+python scripts/render_mihomo_config.py
+
+./runtime/mihomo/bin/mihomo \
+  -d runtime/mihomo \
+  -f runtime/mihomo/config.yaml \
+  > diagnostics/mihomo.log 2>&1 &
+
+python scripts/wait_for_mihomo.py
+
+RADAR_BROWSER_FALLBACK=true \
+RADAR_BROWSER_PROXY=socks5://127.0.0.1:7891 \
+ALL_PROXY=socks5h://127.0.0.1:7891 \
+HTTP_PROXY=http://127.0.0.1:7890 \
+HTTPS_PROXY=http://127.0.0.1:7890 \
+python -m a_stock_radar.cli run --stage confirmed --data-mode live
+```
+
+浏览器回退失败时会在 `diagnostics/browser/` 保存截图和 HTML。真实报告继续生成，并把对应来源标记为缺失，而不是填入模拟数据。
+
 ## GitHub 部署
 
 1. 新建 GitHub 仓库并上传本目录全部内容。
@@ -100,7 +170,7 @@ python -m http.server 8000 --directory site
 3. 在 `Actions` 中先运行 `CI`。
 4. 手动运行 `Build and deploy radar`，第一次建议选择 `mock`，确认页面部署正常。
 5. 再手动运行一次 `live`。真实来源不可用时，页面会展示缺失来源和“数据不足”。
-6. 工作流默认在北京时间工作日 20:30 生成初版，23:15 生成确认版。
+6. 工作流默认在北京时间工作日 20:30 生成初版，23:15 生成确认版。真实模式会先启动 Mihomo 本地 SOCKS5，再执行抓取。
 
 工作流会把紧凑历史和日报 JSON 提交回仓库，把每次原始快照保存为保留 30 天的 Actions Artifact，并直接上传 `site/` 作为 Pages artifact。
 
@@ -143,7 +213,7 @@ security_code,theme_id,theme_name
 - `stock_margin_detail_sse`
 - `stock_margin_detail_szse`
 
-其中 ETF 份额和融资融券的原始目标来源是沪深交易所；行情和 IOPV 代理包含聚合来源。所有调用均独立捕获异常并生成来源质量记录。
+其中 ETF 份额和融资融券的原始目标来源是沪深交易所；行情和 IOPV 代理包含聚合来源。所有调用均独立捕获异常并生成来源质量记录。东方财富两项聚合接口在 AKShare 失败后可通过 Playwright＋Mihomo SOCKS5 回退；交易所 ETF 份额和融资接口仍保持 AKShare 独立抓取与显式降级。
 
 ## 初次上线建议
 
@@ -180,7 +250,7 @@ security_code,theme_id,theme_name
 
 ```bash
 pytest -q
-ruff check src tests
+ruff check src tests scripts
 ```
 
 测试覆盖：
