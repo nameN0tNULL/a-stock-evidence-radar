@@ -1,8 +1,8 @@
 {
   "trade_date": "2026-07-29",
   "label": "广泛改善",
-  "confidence_level": "medium",
-  "confidence_score": 60.9,
+  "confidence_level": "low",
+  "confidence_score": 34.4,
   "metrics": {
     "market": {
       "available": true,
