@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import sys
 from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from .config import load_settings
 from .pipeline import run_pipeline
@@ -10,9 +11,9 @@ from .pipeline import run_pipeline
 
 def resolve_date(value: str | None) -> date:
     if value:
-        result = datetime.strptime(value, "%Y-%m-%d").date()
+        result = date.fromisoformat(value)
     else:
-        result = date.today()
+        result = datetime.now(ZoneInfo("Asia/Shanghai")).date()
     while result.weekday() >= 5:
         result -= timedelta(days=1)
     return result

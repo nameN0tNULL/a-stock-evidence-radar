@@ -25,7 +25,7 @@ def test_diff_records_accepts_dict_and_list() -> None:
 
 
 class FakeSession:
-    def fetch_json(self, url, params):  # noqa: ANN001
+    def fetch_json(self, url, params):
         if "push2delay" in url:
             return {
                 "data": {

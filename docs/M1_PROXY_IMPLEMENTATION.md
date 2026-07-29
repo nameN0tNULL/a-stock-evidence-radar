@@ -24,3 +24,24 @@
 - 浏览器回退只覆盖东方财富全市场行情与 ETF 行情；
 - 不处理验证码、登录页或交互式验证；
 - 代理节点切换由 Mihomo 完成，Python 不逐节点重试。
+
+## 2026-07 GitHub Actions 诊断修复
+
+对运行 `30418545478` 的诊断包分析后，首要故障不是目标接口先拒绝浏览器，而是 Mihomo 的代理提供器发生自举循环：
+
+```text
+mergelist provider 下载请求
+  → MATCH,RADAR-AUTO
+  → RADAR-AUTO 尚无真实节点
+  → 只剩 COMPATIBLE 占位项
+  → provider 永远无法完成下载
+```
+
+本版修复包括：
+
+- `proxy-provider.proxy` 固定为 `DIRECT`；
+- 为 provider 域名增加显式 `DIRECT` 规则；
+- 就绪检查必须确认 provider 和 `RADAR-AUTO` 中存在真实节点；
+- 只有目标站点 SOCKS 冒烟测试成功才向抓取流程注入代理环境变量；
+- 代理未就绪时恢复直连 HTTP 与直连 Playwright，避免坏掉的本地端口污染所有来源；
+- 每次真实运行先清理 `data/raw/`、旧 provider 缓存和诊断目录，避免历史 mock 快照混入本次 Artifact。

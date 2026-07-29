@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
@@ -51,7 +51,7 @@ def _select_provider(data_mode: str, mapper: ThemeMapper):
     if data_mode in {"live", "auto"}:
         try:
             return AkshareProvider(mapper)
-        except Exception as exc:
+        except RuntimeError as exc:
             return UnavailableProvider(f"Live provider initialization failed: {exc}")
     raise ValueError(f"Unsupported data mode: {data_mode}")
 
@@ -178,7 +178,7 @@ def run_pipeline(
         trade_date=trade_date,
         report_stage=effective_stage,  # type: ignore[arg-type]
         data_mode=bundle.data_mode,
-        generated_at=datetime.now(),
+        generated_at=datetime.now(UTC),
         data_version=os.getenv("GITHUB_SHA", "local")[:12],
         market_state=market_state,
         sector_states=sector_states,

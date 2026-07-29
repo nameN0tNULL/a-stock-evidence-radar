@@ -9,7 +9,6 @@ from a_stock_radar.config import load_settings
 from a_stock_radar.guardrails import PROHIBITED_PHRASES, validate_report
 from a_stock_radar.pipeline import run_pipeline
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 

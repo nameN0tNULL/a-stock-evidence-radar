@@ -277,3 +277,93 @@ ruff check src tests scripts
 ## 免责声明
 
 本项目仅用于学习、技术研究和市场复盘。数据可能延迟、修订、中断或存在授权限制；商业使用前应核查数据许可和再分发条款。系统输出不构成投资建议。
+
+## 从发布 ZIP 自动更新现有仓库
+
+发布包包含：
+
+```text
+scripts/update_workspace.py
+scripts/update_workspace.sh
+```
+
+脚本用于把新发布包完整替换到已有 Git 工作区，同时：
+
+- 永远保留目标仓库的 `.git/`；
+- 合并并保留现有 `reports/`；
+- 合并并保留现有 `data/history/`，避免滚动历史丢失；
+- 保留本地 `.env`、`.env.local` 等环境文件；
+- 删除旧版本中已经不存在的代码文件；
+- 更新后运行 `compileall`，并在工具已安装时运行 `pytest` 和 `ruff`；
+- 自动执行 `git add -A`、`git commit` 和 `git push`；
+- 校验或复制失败时自动恢复更新前的工作区。
+
+推荐将发布 ZIP 解压到目标仓库之外，例如：
+
+```bash
+unzip a_stock_evidence_radar_m1_clash_fixed.zip -d /tmp/radar-release
+
+/tmp/radar-release/a_stock_evidence_radar_m1_clash_fixed/install_release.sh \
+  /workspaces/a-stock-evidence-radar
+```
+
+`install_release.sh` 是最简单的入口；后续参数会原样传给 Python 更新器。
+
+如果 ZIP 解压后没有外层目录，则使用：
+
+```bash
+/tmp/radar-release/scripts/update_workspace.sh \
+  --workspace /workspaces/a-stock-evidence-radar
+```
+
+默认要求目标仓库没有未提交修改。确实需要覆盖未提交内容时：
+
+```bash
+./scripts/update_workspace.sh \
+  --workspace /workspaces/a-stock-evidence-radar \
+  --allow-dirty
+```
+
+先验证但不修改：
+
+```bash
+./scripts/update_workspace.sh \
+  --workspace /workspaces/a-stock-evidence-radar \
+  --dry-run
+```
+
+只提交、不推送：
+
+```bash
+./scripts/update_workspace.sh \
+  --workspace /workspaces/a-stock-evidence-radar \
+  --no-push
+```
+
+指定提交信息：
+
+```bash
+./scripts/update_workspace.sh \
+  --workspace /workspaces/a-stock-evidence-radar \
+  --message "fix: repair Mihomo provider bootstrap"
+```
+
+也可以让脚本直接读取 ZIP，但需要从现有脚本副本运行：
+
+```bash
+python scripts/update_workspace.py \
+  --archive /tmp/a_stock_evidence_radar_m1_clash_fixed.zip \
+  --workspace /workspaces/a-stock-evidence-radar
+```
+
+在 Codespaces 中，GitHub 通常已经配置好 `origin` 和登录凭据。若推送失败，本地提交仍会保留，修复认证或分支保护后重新执行 `git push` 即可。
+
+### 安装校验选项
+
+如目标环境的 Ruff 版本或本地配置临时冲突，可以仅跳过 lint：
+
+```bash
+./install_release.sh /path/to/repo --skip-lint
+```
+
+这不会跳过 Python 编译和 pytest；正式 CI 仍会执行仓库内配置的 Ruff 规则。

@@ -91,6 +91,13 @@ jobs:
         if: steps.params.outputs.mode == 'live'
         run: python scripts/render_mihomo_config.py
 
+      - name: Prepare clean runtime outputs
+        if: steps.params.outputs.mode == 'live'
+        shell: bash
+        run: |
+          rm -rf diagnostics runtime/mihomo/providers data/raw
+          mkdir -p diagnostics runtime/mihomo/providers data/raw
+
       - name: Start Mihomo local proxy
         if: steps.params.outputs.mode == 'live'
         shell: bash
@@ -116,15 +123,29 @@ jobs:
       - name: Generate report
         shell: bash
         env:
-          RADAR_BROWSER_FALLBACK: ${{ steps.params.outputs.mode == 'live' && 'true' || 'false' }}
-          RADAR_BROWSER_PROXY: socks5://127.0.0.1:7891
+          RADAR_PROXY_READY: ${{ steps.proxy_ready.outcome == 'success' && 'true' || 'false' }}
           RADAR_BROWSER_TIMEOUT_MS: "45000"
-          ALL_PROXY: socks5h://127.0.0.1:7891
-          HTTP_PROXY: http://127.0.0.1:7890
-          HTTPS_PROXY: http://127.0.0.1:7890
-          NO_PROXY: 127.0.0.1,localhost
           PYTHONUNBUFFERED: "1"
         run: |
+          if [ "${{ steps.params.outputs.mode }}" = "live" ]; then
+            export RADAR_BROWSER_FALLBACK=true
+            if [ "$RADAR_PROXY_READY" = "true" ]; then
+              export RADAR_BROWSER_PROXY=socks5://127.0.0.1:7891
+              export ALL_PROXY=socks5h://127.0.0.1:7891
+              export HTTP_PROXY=http://127.0.0.1:7890
+              export HTTPS_PROXY=http://127.0.0.1:7890
+              export NO_PROXY=127.0.0.1,localhost
+              echo "Proxy verified; live sources will use Mihomo."
+            else
+              unset RADAR_BROWSER_PROXY ALL_PROXY HTTP_PROXY HTTPS_PROXY
+              export NO_PROXY=127.0.0.1,localhost
+              echo "Proxy verification failed; falling back to direct HTTP and direct Playwright."
+            fi
+          else
+            export RADAR_BROWSER_FALLBACK=false
+            unset RADAR_BROWSER_PROXY ALL_PROXY HTTP_PROXY HTTPS_PROXY
+          fi
+
           ARGS=(run --stage "${{ steps.params.outputs.stage }}" --data-mode "${{ steps.params.outputs.mode }}")
           if [ -n "${{ steps.params.outputs.date_arg }}" ]; then
             ARGS+=(--date "${{ steps.params.outputs.date_arg }}")

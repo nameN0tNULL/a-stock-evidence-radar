@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
+from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterator, Mapping
+from typing import Any
 from urllib.parse import urlencode
 
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -20,7 +24,7 @@ class BrowserFetchConfig:
     diagnostics_dir: Path = Path("diagnostics/browser")
 
     @classmethod
-    def from_env(cls) -> "BrowserFetchConfig":
+    def from_env(cls) -> BrowserFetchConfig:
         return cls(
             proxy_server=os.getenv("RADAR_BROWSER_PROXY") or None,
             timeout_ms=int(os.getenv("RADAR_BROWSER_TIMEOUT_MS", "45000")),
@@ -65,12 +69,12 @@ class BrowserJsonSession:
         prefix = self.diagnostics_dir / f"{self.counter:03d}_{slug}"
         try:
             self.page.screenshot(path=str(prefix.with_suffix(".png")), full_page=True)
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Could not save browser screenshot: %s", exc)
         try:
             prefix.with_suffix(".html").write_text(self.page.content(), encoding="utf-8")
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.debug("Could not save browser HTML: %s", exc)
 
 
 class BrowserJsonFetcher:
@@ -120,7 +124,7 @@ def _decode_json_or_jsonp(body: str) -> dict[str, Any]:
             raise RuntimeError(f"expected JSON response, received: {preview}")
         parsed = json.loads(match.group(1))
     if not isinstance(parsed, dict):
-        raise RuntimeError(f"expected a JSON object, received {type(parsed).__name__}")
+        raise TypeError(f"expected a JSON object, received {type(parsed).__name__}")
     return parsed
 
 

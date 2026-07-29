@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
-from typing import Callable
+from typing import ClassVar
 
 import numpy as np
 import pandas as pd
@@ -418,7 +419,7 @@ class AkshareProvider:
 class MockProvider:
     """Deterministic demo source. Every output is visibly marked as demo."""
 
-    FUNDS = [
+    FUNDS: ClassVar[tuple[tuple[str, str, str, str], ...]] = (
         ("510300", "沪深300ETF", "broad_market", "宽基指数"),
         ("588000", "科创50ETF", "broad_market", "宽基指数"),
         ("512480", "半导体ETF", "semiconductor", "半导体与芯片"),
@@ -427,9 +428,9 @@ class MockProvider:
         ("159992", "创新药ETF", "healthcare", "医药医疗"),
         ("512000", "券商ETF", "finance", "金融"),
         ("512660", "军工ETF", "defense", "军工"),
-    ]
+    )
 
-    SECURITIES = [
+    SECURITIES: ClassVar[tuple[tuple[str, str, str, str], ...]] = (
         ("600000", "浦发银行", "finance", "金融"),
         ("601398", "工商银行", "finance", "金融"),
         ("000001", "平安银行", "finance", "金融"),
@@ -442,7 +443,7 @@ class MockProvider:
         ("300750", "宁德时代", "new_energy", "新能源"),
         ("601012", "隆基绿能", "new_energy", "新能源"),
         ("600893", "航发动力", "defense", "军工"),
-    ]
+    )
 
     def __init__(self, seed: int = 20260720):
         self.seed = seed

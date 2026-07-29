@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "trade_date": "2026-07-17",
   "label": "中性整理",
   "confidence_level": "high",
@@ -38,23 +37,6 @@
     "市场宽度和成交变化未形成足够一致的状态信号。",
     "全市场融资余额近5日增加 0.13%，杠杆参与有所增强。"
   ],
-=======
-  "trade_date": "2026-07-28",
-  "label": "数据不足",
-  "confidence_level": "low",
-  "confidence_score": 10.9,
-  "metrics": {
-    "market": {
-      "available": false
-    },
-    "margin": {
-      "available": false
-    }
-  },
-  "supporting_evidence": [],
->>>>>>> f6e3e6187bb38785099a72df7cdf0e79af97725f
   "counter_evidence": [],
-  "unknowns": [
-    "市场宽度数据缺失，无法确认市场参与状态。"
-  ]
+  "unknowns": []
 }
