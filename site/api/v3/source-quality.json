@@ -1,20 +1,45 @@
 [
   {
+<<<<<<< HEAD
     "source_id": "mock_market",
     "display_name": "演示市场数据",
     "trade_date": "2026-07-17",
     "available": true,
     "expected_date": "2026-07-17",
     "actual_date": "2026-07-17",
+=======
+    "source_id": "market_spot",
+    "display_name": "A股实时行情聚合",
+    "trade_date": "2026-07-28",
+    "available": false,
+    "expected_date": "2026-07-28",
+    "actual_date": null,
+    "freshness_ok": false,
+    "schema_ok": false,
+    "row_count": 0,
+    "anomaly_count": 0,
+    "official": false,
+    "evidence_level": "L2",
+    "error_message": "ConnectionError: HTTPSConnectionPool(host='82.push2.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/clist/get?pn=1&pz=100&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f12&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf12%2Cf13%2Cf14%2Cf15%2Cf16%2Cf17%2Cf18%2Cf20%2Cf21%2Cf23%2Cf24%2Cf25%2Cf22%2Cf11%2Cf62%2Cf128%2Cf136%2Cf115%2Cf152 (Caused by NewConnectionError(\"HTTPSConnection(host='82.push2.eastmoney.com', port=443): Failed to establish a new connection: [Errno 101] Network is unreachable\"))"
+  },
+  {
+    "source_id": "etf_spot",
+    "display_name": "ETF行情与IOPV聚合",
+    "trade_date": "2026-07-28",
+    "available": true,
+    "expected_date": "2026-07-28",
+    "actual_date": "2026-07-28",
+>>>>>>> f6e3e6187bb38785099a72df7cdf0e79af97725f
     "freshness_ok": true,
     "schema_ok": true,
-    "row_count": 600,
+    "row_count": 1555,
     "anomaly_count": 0,
     "official": false,
     "evidence_level": "L2",
     "error_message": null
   },
   {
+<<<<<<< HEAD
     "source_id": "mock_etf",
     "display_name": "演示ETF数据",
     "trade_date": "2026-07-17",
@@ -24,12 +49,24 @@
     "freshness_ok": true,
     "schema_ok": true,
     "row_count": 8,
+=======
+    "source_id": "sse_etf_shares",
+    "display_name": "上交所ETF基金份额",
+    "trade_date": "2026-07-28",
+    "available": false,
+    "expected_date": "2026-07-28",
+    "actual_date": null,
+    "freshness_ok": false,
+    "schema_ok": false,
+    "row_count": 0,
+>>>>>>> f6e3e6187bb38785099a72df7cdf0e79af97725f
     "anomaly_count": 0,
-    "official": false,
+    "official": true,
     "evidence_level": "L1",
-    "error_message": null
+    "error_message": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
   },
   {
+<<<<<<< HEAD
     "source_id": "mock_margin",
     "display_name": "演示融资数据",
     "trade_date": "2026-07-17",
@@ -39,12 +76,24 @@
     "freshness_ok": true,
     "schema_ok": true,
     "row_count": 2,
+=======
+    "source_id": "szse_etf_shares",
+    "display_name": "深交所ETF基金份额",
+    "trade_date": "2026-07-28",
+    "available": false,
+    "expected_date": "2026-07-28",
+    "actual_date": null,
+    "freshness_ok": false,
+    "schema_ok": false,
+    "row_count": 0,
+>>>>>>> f6e3e6187bb38785099a72df7cdf0e79af97725f
     "anomaly_count": 0,
-    "official": false,
+    "official": true,
     "evidence_level": "L1",
-    "error_message": null
+    "error_message": "ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))"
   },
   {
+<<<<<<< HEAD
     "source_id": "mock_margin_detail",
     "display_name": "演示融资明细",
     "trade_date": "2026-07-17",
@@ -54,9 +103,50 @@
     "freshness_ok": true,
     "schema_ok": true,
     "row_count": 12,
+=======
+    "source_id": "sse_margin",
+    "display_name": "上交所融资融券汇总",
+    "trade_date": "2026-07-28",
+    "available": false,
+    "expected_date": "2026-07-28",
+    "actual_date": null,
+    "freshness_ok": false,
+    "schema_ok": false,
+    "row_count": 0,
+>>>>>>> f6e3e6187bb38785099a72df7cdf0e79af97725f
     "anomaly_count": 0,
-    "official": false,
+    "official": true,
     "evidence_level": "L1",
-    "error_message": null
+    "error_message": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
+  },
+  {
+    "source_id": "szse_margin",
+    "display_name": "深交所融资融券汇总",
+    "trade_date": "2026-07-28",
+    "available": false,
+    "expected_date": "2026-07-28",
+    "actual_date": null,
+    "freshness_ok": false,
+    "schema_ok": false,
+    "row_count": 0,
+    "anomaly_count": 0,
+    "official": true,
+    "evidence_level": "L1",
+    "error_message": "ValueError: Length mismatch: Expected axis has 0 elements, new values have 6 elements"
+  },
+  {
+    "source_id": "margin_detail",
+    "display_name": "沪深融资融券明细",
+    "trade_date": "2026-07-28",
+    "available": false,
+    "expected_date": "2026-07-28",
+    "actual_date": null,
+    "freshness_ok": false,
+    "schema_ok": false,
+    "row_count": 0,
+    "anomaly_count": 0,
+    "official": true,
+    "evidence_level": "L1",
+    "error_message": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
   }
 ]
