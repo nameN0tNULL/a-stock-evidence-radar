@@ -10,7 +10,6 @@ from typing import Any
 
 import requests
 
-
 PLACEHOLDER_PROXY_NAMES = {
     "COMPATIBLE",
     "DIRECT",
