@@ -12,7 +12,7 @@
     "anomaly_count": 0,
     "official": false,
     "evidence_level": "L2",
-    "error_message": "ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')); Playwright fallback: Error: Page.goto: net::ERR_EMPTY_RESPONSE at https://82.push2.eastmoney.com/api/qt/clist/get?pn=22&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21\nCall log:\n  - navigating to \"https://82.push2.eastmoney.com/api/qt/clist/get?pn=22&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21\", waiting until \"domcontentloaded\"\n"
+    "error_message": "ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')); Playwright fallback: Error: Page.goto: net::ERR_EMPTY_RESPONSE at https://82.push2.eastmoney.com/api/qt/clist/get?pn=34&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21\nCall log:\n  - navigating to \"https://82.push2.eastmoney.com/api/qt/clist/get?pn=34&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21\", waiting until \"domcontentloaded\"\n"
   },
   {
     "source_id": "etf_spot",
@@ -23,7 +23,7 @@
     "actual_date": "2026-07-30",
     "freshness_ok": true,
     "schema_ok": true,
-    "row_count": 1556,
+    "row_count": 1559,
     "anomaly_count": 0,
     "official": false,
     "evidence_level": "L2",
@@ -53,7 +53,7 @@
     "actual_date": "2026-07-29",
     "freshness_ok": false,
     "schema_ok": true,
-    "row_count": 701,
+    "row_count": 704,
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
@@ -65,14 +65,14 @@
     "trade_date": "2026-07-30",
     "available": true,
     "expected_date": "2026-07-30",
-    "actual_date": "2026-07-28",
+    "actual_date": "2026-07-29",
     "freshness_ok": false,
     "schema_ok": true,
     "row_count": 1,
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": "requested 2026-07-30 was not published; using 2026-07-28 via direct"
+    "error_message": "requested 2026-07-30 was not published; using 2026-07-29 via direct"
   },
   {
     "source_id": "szse_margin",
@@ -80,14 +80,14 @@
     "trade_date": "2026-07-30",
     "available": true,
     "expected_date": "2026-07-30",
-    "actual_date": "2026-07-28",
+    "actual_date": "2026-07-29",
     "freshness_ok": false,
     "schema_ok": true,
     "row_count": 1,
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": "requested 2026-07-30 was not published; using 2026-07-28 via direct"
+    "error_message": "requested 2026-07-30 was not published; using 2026-07-29 via direct"
   },
   {
     "source_id": "margin_detail",
@@ -95,13 +95,13 @@
     "trade_date": "2026-07-30",
     "available": true,
     "expected_date": "2026-07-30",
-    "actual_date": "2026-07-28",
+    "actual_date": "2026-07-29",
     "freshness_ok": false,
     "schema_ok": true,
     "row_count": 4090,
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": "requested 2026-07-30 was not published; using 2026-07-28 via direct; requested 2026-07-30 was not published; using 2026-07-28 via direct"
+    "error_message": "requested 2026-07-30 was not published; using 2026-07-29 via direct; requested 2026-07-30 was not published; using 2026-07-29 via direct"
   }
 ]

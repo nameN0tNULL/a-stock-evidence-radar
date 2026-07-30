@@ -2,7 +2,7 @@
 
 > 报告阶段：confirmed  
 > 数据模式：live  
-> 生成时间：2026-07-29 16:46:25.382723+00:00  
+> 生成时间：2026-07-30 03:45:18.332425+00:00  
 > 本报告用于学习、观察和复盘，不构成投资建议。
 
 ## 0. 报告状态与数据源
@@ -10,16 +10,16 @@
 
 | 数据源 | 证据级别 | 状态 | 日期一致 | 行数 | 说明 |
 |---|---:|---|---|---:|---|
-| A股实时行情聚合 | L2 | 缺失 | 否 | 0 | ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')); Playwright fallback: Error: Page.goto: net::ERR_EMPTY_RESPONSE at https://82.push2.eastmoney.com/api/qt/clist/get?pn=22&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21
+| A股实时行情聚合 | L2 | 缺失 | 否 | 0 | ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')); Playwright fallback: Error: Page.goto: net::ERR_EMPTY_RESPONSE at https://82.push2.eastmoney.com/api/qt/clist/get?pn=34&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21
 Call log:
-  - navigating to "https://82.push2.eastmoney.com/api/qt/clist/get?pn=22&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21", waiting until "domcontentloaded"
+  - navigating to "https://82.push2.eastmoney.com/api/qt/clist/get?pn=34&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21", waiting until "domcontentloaded"
  |
-| ETF行情与IOPV聚合 | L2 | 可用 | 是 | 1556 | - |
+| ETF行情与IOPV聚合 | L2 | 可用 | 是 | 1559 | - |
 | 上交所ETF基金份额 | L1 | 可用 | 否 | 884 | requested 2026-07-30 was not published; using 2026-07-29 via direct |
-| 深交所ETF基金份额 | L1 | 可用 | 否 | 701 | requested 2026-07-30 was not published; using 2026-07-29 via direct |
-| 上交所融资融券汇总 | L1 | 可用 | 否 | 1 | requested 2026-07-30 was not published; using 2026-07-28 via direct |
-| 深交所融资融券汇总 | L1 | 可用 | 否 | 1 | requested 2026-07-30 was not published; using 2026-07-28 via direct |
-| 沪深融资融券明细 | L1 | 可用 | 否 | 4090 | requested 2026-07-30 was not published; using 2026-07-28 via direct; requested 2026-07-30 was not published; using 2026-07-28 via direct |
+| 深交所ETF基金份额 | L1 | 可用 | 否 | 704 | requested 2026-07-30 was not published; using 2026-07-29 via direct |
+| 上交所融资融券汇总 | L1 | 可用 | 否 | 1 | requested 2026-07-30 was not published; using 2026-07-29 via direct |
+| 深交所融资融券汇总 | L1 | 可用 | 否 | 1 | requested 2026-07-30 was not published; using 2026-07-29 via direct |
+| 沪深融资融券明细 | L1 | 可用 | 否 | 4090 | requested 2026-07-30 was not published; using 2026-07-29 via direct; requested 2026-07-30 was not published; using 2026-07-29 via direct |
 
 **本日报不能确认的事项：**
 - 无法确认具体交易者身份，也无法识别所谓真实意图。
@@ -39,7 +39,7 @@ Call log:
 
 - 市场上涨覆盖率：数据不足
 - 市场成交额：数据不足
-- 全市场融资余额：1.35万亿元
+- 全市场融资余额：1.34万亿元
 - 融资余额近5日变化：数据不足
 - ETF证据采用份额变化乘以净值代理进行估算；它描述工具型或配置型资金敞口，不识别具体交易者身份。
 
@@ -53,7 +53,7 @@ Call log:
 - 现有证据未形成明确一致方向。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- ETF组价格改善覆盖率仅为 15.7%。
 
 【无法确认】
 - ETF份额历史有效样本为 8 日，尚不足以形成长期百分位判断。
@@ -72,10 +72,10 @@ Call log:
 **数据置信度：low**
 
 【已确认事实】
-- 现有证据未形成明确一致方向。
+- ETF组价格改善覆盖率为 72.3%。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- 当前没有达到规则阈值的显著反向证据。
 
 【无法确认】
 - ETF份额历史有效样本为 8 日，尚不足以形成长期百分位判断。
@@ -97,7 +97,7 @@ Call log:
 - 现有证据未形成明确一致方向。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- ETF组价格改善覆盖率仅为 29.5%。
 
 【无法确认】
 - ETF份额历史有效样本为 8 日，尚不足以形成长期百分位判断。
@@ -119,7 +119,7 @@ Call log:
 - 现有证据未形成明确一致方向。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- ETF组价格改善覆盖率仅为 12.0%。
 
 【无法确认】
 - ETF份额历史有效样本为 8 日，尚不足以形成长期百分位判断。
@@ -163,7 +163,7 @@ Call log:
 - 现有证据未形成明确一致方向。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- ETF组价格改善覆盖率仅为 5.6%。
 
 【无法确认】
 - ETF份额历史有效样本为 8 日，尚不足以形成长期百分位判断。
@@ -207,7 +207,7 @@ Call log:
 - 现有证据未形成明确一致方向。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- ETF组价格改善覆盖率仅为 32.7%。
 
 【无法确认】
 - ETF份额历史有效样本为 8 日，尚不足以形成长期百分位判断。
@@ -248,10 +248,10 @@ Call log:
 **数据置信度：low**
 
 【已确认事实】
-- 现有证据未形成明确一致方向。
+- ETF组价格改善覆盖率为 72.7%。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- 当前没有达到规则阈值的显著反向证据。
 
 【无法确认】
 - ETF份额历史有效样本为 8 日，尚不足以形成长期百分位判断。
@@ -273,7 +273,7 @@ Call log:
 - 现有证据未形成明确一致方向。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- ETF组价格改善覆盖率仅为 23.4%。
 
 【无法确认】
 - ETF份额历史有效样本为 8 日，尚不足以形成长期百分位判断。
@@ -295,7 +295,7 @@ Call log:
 - 现有证据未形成明确一致方向。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- ETF组价格改善覆盖率仅为 7.6%。
 
 【无法确认】
 - ETF份额历史有效样本为 8 日，尚不足以形成长期百分位判断。
@@ -317,7 +317,7 @@ Call log:
 - 现有证据未形成明确一致方向。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- 当前没有达到规则阈值的显著反向证据。
 
 【无法确认】
 - ETF份额历史有效样本为 8 日，尚不足以形成长期百分位判断。

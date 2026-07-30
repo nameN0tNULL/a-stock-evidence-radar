@@ -9,15 +9,15 @@
     },
     "margin": {
       "available": true,
-      "financing_balance": 1349011546410.06,
-      "financing_buy": 88529674872.17,
-      "change_1d": 0.0,
-      "change_ratio_1d": 0.0,
+      "financing_balance": 1336695458247.74,
+      "financing_buy": 99312755699.66,
+      "change_1d": -12316088162.320068,
+      "change_ratio_1d": -0.0091297129332178,
       "change_ratio_5d": null,
       "change_ratio_20d": null,
       "change_percentile": null,
       "positive_persistence_days": 0,
-      "negative_persistence_days": 0,
+      "negative_persistence_days": 1,
       "history_samples": 1
     }
   },
