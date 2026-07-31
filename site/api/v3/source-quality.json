@@ -12,7 +12,7 @@
     "anomaly_count": 0,
     "official": false,
     "evidence_level": "L2",
-    "error_message": "ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')); Playwright fallback: Error: Page.goto: net::ERR_EMPTY_RESPONSE at https://82.push2.eastmoney.com/api/qt/clist/get?pn=29&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21\nCall log:\n  - navigating to \"https://82.push2.eastmoney.com/api/qt/clist/get?pn=29&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21\", waiting until \"domcontentloaded\"\n"
+    "error_message": "ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')); Playwright fallback: Error: Page.goto: net::ERR_EMPTY_RESPONSE at https://82.push2.eastmoney.com/api/qt/clist/get?pn=27&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21\nCall log:\n  - navigating to \"https://82.push2.eastmoney.com/api/qt/clist/get?pn=27&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21\", waiting until \"domcontentloaded\"\n"
   },
   {
     "source_id": "etf_spot",
@@ -23,7 +23,7 @@
     "actual_date": "2026-07-31",
     "freshness_ok": true,
     "schema_ok": true,
-    "row_count": 1559,
+    "row_count": 1560,
     "anomaly_count": 0,
     "official": false,
     "evidence_level": "L2",
@@ -33,16 +33,16 @@
     "source_id": "sse_etf_shares",
     "display_name": "上交所ETF基金份额",
     "trade_date": "2026-07-31",
-    "available": false,
+    "available": true,
     "expected_date": "2026-07-31",
-    "actual_date": null,
-    "freshness_ok": false,
-    "schema_ok": false,
-    "row_count": 0,
+    "actual_date": "2026-07-31",
+    "freshness_ok": true,
+    "schema_ok": true,
+    "row_count": 885,
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": "2026-07-31: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-31; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-31; 2026-07-30: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-30; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-30; 2026-07-29: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-29; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-29; 2026-07-28: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-28; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-28; 2026-07-27: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-27; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-27; 2026-07-24: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-24; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-24"
+    "error_message": null
   },
   {
     "source_id": "szse_etf_shares",
@@ -63,16 +63,16 @@
     "source_id": "sse_margin",
     "display_name": "上交所融资融券汇总",
     "trade_date": "2026-07-31",
-    "available": false,
+    "available": true,
     "expected_date": "2026-07-31",
-    "actual_date": null,
+    "actual_date": "2026-07-30",
     "freshness_ok": false,
-    "schema_ok": false,
-    "row_count": 0,
+    "schema_ok": true,
+    "row_count": 1,
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": "2026-07-31: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260731&endDate=20260731&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260731&endDate=20260731&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; 2026-07-30: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260730&endDate=20260730&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260730&endDate=20260730&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; 2026-07-29: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260729&endDate=20260729&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260729&endDate=20260729&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; 2026-07-28: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260728&endDate=20260728&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260728&endDate=20260728&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; 2026-07-27: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260727&endDate=20260727&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260727&endDate=20260727&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; 2026-07-24: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260724&endDate=20260724&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260724&endDate=20260724&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5"
+    "error_message": "requested 2026-07-31 was not published; using 2026-07-30 via direct"
   },
   {
     "source_id": "szse_margin",
@@ -80,14 +80,14 @@
     "trade_date": "2026-07-31",
     "available": true,
     "expected_date": "2026-07-31",
-    "actual_date": "2026-07-29",
+    "actual_date": "2026-07-30",
     "freshness_ok": false,
     "schema_ok": true,
     "row_count": 1,
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": "requested 2026-07-31 was not published; using 2026-07-29 via direct"
+    "error_message": "requested 2026-07-31 was not published; using 2026-07-30 via direct"
   },
   {
     "source_id": "margin_detail",
@@ -95,13 +95,13 @@
     "trade_date": "2026-07-31",
     "available": true,
     "expected_date": "2026-07-31",
-    "actual_date": "2026-07-29",
+    "actual_date": "2026-07-30",
     "freshness_ok": false,
     "schema_ok": true,
-    "row_count": 2097,
+    "row_count": 4090,
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": "2026-07-31: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260731&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260731&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; 2026-07-30: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260730&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260730&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; 2026-07-29: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260729&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260729&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; 2026-07-28: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260728&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260728&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; 2026-07-27: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260727&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260727&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; 2026-07-24: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260724&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260724&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; requested 2026-07-31 was not published; using 2026-07-29 via direct"
+    "error_message": "requested 2026-07-31 was not published; using 2026-07-30 via direct; requested 2026-07-31 was not published; using 2026-07-30 via direct"
   }
 ]

@@ -2,17 +2,17 @@
   "trade_date": "2026-07-31",
   "label": "数据不足",
   "confidence_level": "low",
-  "confidence_score": 34.4,
+  "confidence_score": 57.8,
   "metrics": {
     "market": {
       "available": false
     },
     "margin": {
       "available": true,
-      "financing_balance": 12762.74,
-      "financing_buy": 910.66,
-      "change_1d": -1336695445485.0,
-      "change_ratio_1d": -0.9999999904520211,
+      "financing_balance": 1322212177528.98,
+      "financing_buy": 101245345299.49,
+      "change_1d": -14483280718.76001,
+      "change_ratio_1d": -0.010835138721684586,
       "change_ratio_5d": null,
       "change_ratio_20d": null,
       "change_percentile": null,
