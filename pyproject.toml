@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "a-stock-evidence-radar"
-version = "0.2.6"
-description = "A-share market ETF and margin evidence radar M1"
+version = "0.3.0"
+description = "A-share market ETF, margin and trade-print evidence radar"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
