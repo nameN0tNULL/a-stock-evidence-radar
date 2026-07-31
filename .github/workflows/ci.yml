@@ -1,7 +1,8 @@
-name: CI cleanup pause
+name: CI
 
 on:
-  workflow_dispatch:
+  push:
+  pull_request:
 
 permissions:
   contents: read
@@ -10,4 +11,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Cleanup checkpoint; final CI configuration follows."
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev,browser]"
+      - name: Test
+        run: |
+          python -m pytest -q
+          ruff check src tests scripts
