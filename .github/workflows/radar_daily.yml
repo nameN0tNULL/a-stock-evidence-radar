@@ -1,191 +1,218 @@
-name: Integrate free market aggregation
+name: Build and deploy radar
 
 on:
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
+    inputs:
+      trade_date:
+        description: "YYYY-MM-DD；留空使用最近工作日"
+        required: false
+        type: string
+      stage:
+        description: "报告阶段"
+        required: true
+        default: confirmed
+        type: choice
+        options: [preliminary, confirmed]
+      data_mode:
+        description: "live 为真实数据；mock 仅用于演示"
+        required: true
+        default: live
+        type: choice
+        options: [live, mock]
+  schedule:
+    - cron: "30 20 * * 1-5"
+      timezone: "Asia/Shanghai"
+    - cron: "15 23 * * 1-5"
+      timezone: "Asia/Shanghai"
+
+concurrency:
+  group: a-stock-radar-production
+  cancel-in-progress: false
 
 jobs:
-  integrate:
-    if: github.head_ref == 'agent/fix-live-source-resilience'
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      stage: ${{ steps.params.outputs.stage }}
+    env:
+      MIHOMO_VERSION: ${{ vars.MIHOMO_VERSION || 'v1.19.28' }}
+      MIHOMO_PROVIDER_URL: ${{ vars.MIHOMO_PROVIDER_URL || 'https://mergelist.vercel.app/api/all' }}
+      MIHOMO_HEALTHCHECK_URL: ${{ vars.MIHOMO_HEALTHCHECK_URL || 'https://82.push2.eastmoney.com/api/qt/clist/get?pn=1&pz=1&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A1+t%3A2&fields=f2%2Cf3%2Cf12%2Cf14' }}
+      MIHOMO_NODE_TEST_URL: ${{ vars.MIHOMO_NODE_TEST_URL || 'https://82.push2.eastmoney.com/api/qt/clist/get?pn=1&pz=1&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A1+t%3A2&fields=f2%2Cf3%2Cf12%2Cf14' }}
+      MIHOMO_NODE_TEST_LIMIT: ${{ vars.MIHOMO_NODE_TEST_LIMIT || '20' }}
+      MIHOMO_NODE_REQUEST_TIMEOUT: ${{ vars.MIHOMO_NODE_REQUEST_TIMEOUT || '18' }}
+      MIHOMO_NODE_BROWSER_TIMEOUT_MS: ${{ vars.MIHOMO_NODE_BROWSER_TIMEOUT_MS || '25000' }}
+      MIHOMO_NODE_PLAYWRIGHT_CHECK: ${{ vars.MIHOMO_NODE_PLAYWRIGHT_CHECK || 'true' }}
+      RADAR_EXCHANGE_ROUTE: ${{ vars.RADAR_EXCHANGE_ROUTE || 'direct-first' }}
+      RADAR_EXCHANGE_LOOKBACK_DAYS: ${{ vars.RADAR_EXCHANGE_LOOKBACK_DAYS || '7' }}
+      RADAR_EXCHANGE_TIMEOUT: ${{ vars.RADAR_EXCHANGE_TIMEOUT || '20' }}
+      MIHOMO_SOCKS_PORT: "7891"
+      MIHOMO_MIXED_PORT: "7890"
+      MIHOMO_CONTROLLER_PORT: "9090"
+      RADAR_DIAGNOSTICS_DIR: diagnostics
+
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: agent/fix-live-source-resilience
           fetch-depth: 0
+
+      - name: Resolve parameters
+        id: params
+        shell: bash
+        run: |
+          STAGE="${{ inputs.stage }}"
+          MODE="${{ inputs.data_mode }}"
+          DATE_ARG="${{ inputs.trade_date }}"
+          if [ -z "$STAGE" ]; then
+            if [ "${{ github.event.schedule }}" = "30 20 * * 1-5" ]; then
+              STAGE="preliminary"
+            else
+              STAGE="confirmed"
+            fi
+          fi
+          if [ -z "$MODE" ]; then MODE="live"; fi
+          echo "stage=$STAGE" >> "$GITHUB_OUTPUT"
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "date_arg=$DATE_ARG" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
 
-      - name: Wire market aggregator into provider
-        shell: bash
-        run: |
-          python - <<'PY'
-          import textwrap
-          from pathlib import Path
-
-          path = Path("src/a_stock_radar/sources.py")
-          text = path.read_text(encoding="utf-8")
-          text = text.replace(
-              "from .exchange_fetcher import OfficialExchangeFetcher\n",
-              "from .exchange_fetcher import OfficialExchangeFetcher\n"
-              "from .market_fetcher import FreeMarketAggregator, TencentMarketAdapter\n",
-          )
-          text = text.replace(
-              "        self.ak = ak\n        self.browser_adapter = (\n",
-              "        self.ak = ak\n"
-              "        self.tencent_market_adapter = TencentMarketAdapter()\n"
-              "        self.market_aggregator = FreeMarketAggregator()\n"
-              "        self.browser_adapter = (\n",
-          )
-          start = text.index(
-              "        market, market_error = self._safe(self.ak.stock_zh_a_spot_em)"
-          )
-          end = text.index("\n\n        etf_spot,", start)
-          market_block = textwrap.indent(
-              textwrap.dedent(
-                  '''\
-                  browser_market_fetch = (
-                      self.browser_adapter.fetch_market_spot
-                      if self.browser_adapter is not None
-                      else None
-                  )
-                  market_result = self.market_aggregator.fetch(
-                      tencent_fetch=self.tencent_market_adapter.fetch_market_spot,
-                      eastmoney_fetch=self.ak.stock_zh_a_spot_em,
-                      browser_fetch=browser_market_fetch,
-                      sina_fetch=self.ak.stock_zh_a_spot,
-                  )
-                  market_norm = self._normalize_market(market_result.frame, trade_date)
-                  market_errors: list[str] = []
-                  for attempt in market_result.attempts:
-                      if attempt.error:
-                          market_errors.append(
-                              f"{attempt.display_name}: {attempt.error}"
-                          )
-                      qualities.append(
-                          _quality(
-                              attempt.source_id,
-                              attempt.display_name,
-                              trade_date,
-                              not attempt.frame.empty,
-                              len(attempt.frame),
-                              False,
-                              "L2",
-                              trade_date if not attempt.frame.empty else None,
-                              attempt.error,
-                          )
-                      )
-                  qualities.append(
-                      _quality(
-                          "market_aggregate",
-                          "A股免费行情多源聚合",
-                          trade_date,
-                          not market_norm.empty,
-                          len(market_norm),
-                          False,
-                          "L2",
-                          trade_date if not market_norm.empty else None,
-                          "; ".join(market_errors) or None,
-                      )
-                  )'''
-              ),
-              "        ",
-          )
-          text = text[:start] + market_block + text[end:]
-
-          method_start = text.index(
-              "    @staticmethod\n    def _normalize_market("
-          )
-          method_end = text.index("\n\n    def _normalize_etf(", method_start)
-          method = textwrap.indent(
-              textwrap.dedent(
-                  '''\
-                  @staticmethod
-                  def _normalize_market(
-                      frame: pd.DataFrame, trade_date: date
-                  ) -> pd.DataFrame:
-                      if frame.empty:
-                          return pd.DataFrame()
-                      rename = {
-                          "代码": "security_code",
-                          "名称": "security_name",
-                          "最新价": "close",
-                          "涨跌幅": "pct_change",
-                          "成交额": "amount",
-                          "流通市值": "float_market_cap",
-                          "换手率": "turnover_rate",
-                      }
-                      result = frame.rename(columns=rename)
-                      required = [
-                          "security_code",
-                          "security_name",
-                          "close",
-                          "pct_change",
-                          "amount",
-                      ]
-                      if any(column not in result for column in required):
-                          return pd.DataFrame()
-                      wanted = [
-                          *required,
-                          "float_market_cap",
-                          "turnover_rate",
-                          "source_id",
-                          "source_count",
-                      ]
-                      result = result[
-                          [column for column in wanted if column in result]
-                      ].copy()
-                      result["security_code"] = (
-                          result["security_code"].astype(str).str.zfill(6)
-                      )
-                      for column in [
-                          "close",
-                          "pct_change",
-                          "amount",
-                          "float_market_cap",
-                          "turnover_rate",
-                      ]:
-                          if column in result:
-                              result[column] = _numeric(result[column])
-                      result["trade_date"] = trade_date
-                      if "source_id" not in result:
-                          result["source_id"] = "market_spot"
-                      if "source_count" not in result:
-                          result["source_count"] = 1
-                      return result.dropna(
-                          subset=["security_code", "pct_change"]
-                      )
-                  '''
-              ),
-              "    ",
-          )
-          text = text[:method_start] + method + text[method_end:]
-          path.write_text(text, encoding="utf-8")
-          PY
-          git checkout 3dcbb79578d1c28d74d4555ffe39dcfa8f4bb748 -- .github/workflows/radar_daily.yml
-
-      - name: Validate
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev,browser]"
-          ruff check --fix src/a_stock_radar/market_fetcher.py tests/test_market_fetcher.py
+
+      - name: Install Chromium
+        if: steps.params.outputs.mode == 'live'
+        run: python -m playwright install --with-deps chromium
+
+      - name: Install Mihomo
+        if: steps.params.outputs.mode == 'live'
+        run: ./scripts/install_mihomo.sh
+
+      - name: Render Mihomo configuration
+        if: steps.params.outputs.mode == 'live'
+        run: python scripts/render_mihomo_config.py
+
+      - name: Prepare clean runtime outputs
+        if: steps.params.outputs.mode == 'live'
+        shell: bash
+        run: |
+          rm -rf diagnostics runtime/mihomo/providers data/raw
+          mkdir -p diagnostics runtime/mihomo/providers data/raw
+
+      - name: Start Mihomo local proxy
+        if: steps.params.outputs.mode == 'live'
+        shell: bash
+        run: |
+          mkdir -p diagnostics runtime/mihomo
+          ./runtime/mihomo/bin/mihomo \
+            -d runtime/mihomo \
+            -f runtime/mihomo/config.yaml \
+            > diagnostics/mihomo.log 2>&1 &
+          echo $! > runtime/mihomo/mihomo.pid
+
+      - name: Verify local SOCKS proxy
+        id: proxy_ready
+        if: steps.params.outputs.mode == 'live'
+        continue-on-error: true
+        run: python scripts/wait_for_mihomo.py
+
+      - name: Run tests
+        run: |
           python -m pytest -q
           ruff check src tests scripts
 
-      - name: Commit implementation
+      - name: Generate report
+        shell: bash
+        env:
+          RADAR_PROXY_READY: ${{ steps.proxy_ready.outcome == 'success' && 'true' || 'false' }}
+          RADAR_BROWSER_TIMEOUT_MS: "45000"
+          PYTHONUNBUFFERED: "1"
+        run: |
+          if [ "${{ steps.params.outputs.mode }}" = "live" ]; then
+            export RADAR_BROWSER_FALLBACK=true
+            if [ "$RADAR_PROXY_READY" = "true" ]; then
+              export RADAR_BROWSER_PROXY=socks5://127.0.0.1:7891
+              export ALL_PROXY=socks5h://127.0.0.1:7891
+              export HTTP_PROXY=http://127.0.0.1:7890
+              export HTTPS_PROXY=http://127.0.0.1:7890
+              export NO_PROXY=127.0.0.1,localhost
+              echo "Proxy verified; live sources will use Mihomo."
+            else
+              unset RADAR_BROWSER_PROXY ALL_PROXY HTTP_PROXY HTTPS_PROXY
+              export NO_PROXY=127.0.0.1,localhost
+              echo "Proxy verification failed; falling back to direct HTTP and direct Playwright."
+            fi
+          else
+            export RADAR_BROWSER_FALLBACK=false
+            unset RADAR_BROWSER_PROXY ALL_PROXY HTTP_PROXY HTTPS_PROXY
+          fi
+
+          ARGS=(run --stage "${{ steps.params.outputs.stage }}" --data-mode "${{ steps.params.outputs.mode }}")
+          if [ -n "${{ steps.params.outputs.date_arg }}" ]; then
+            ARGS+=(--date "${{ steps.params.outputs.date_arg }}")
+          fi
+          python -m a_stock_radar.cli "${ARGS[@]}"
+
+      - name: Preserve raw snapshots for audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: raw-snapshots-${{ github.run_id }}-${{ github.run_attempt }}
+          path: data/raw
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Upload proxy and browser diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fetch-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: diagnostics
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Stop Mihomo
+        if: always() && steps.params.outputs.mode == 'live'
+        shell: bash
+        run: |
+          if [ -f runtime/mihomo/mihomo.pid ]; then
+            kill "$(cat runtime/mihomo/mihomo.pid)" || true
+          fi
+
+      - name: Persist compact history and reports
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
-            .github/workflows/radar_daily.yml \
-            src/a_stock_radar/market_fetcher.py \
-            src/a_stock_radar/sources.py \
-            tests/test_market_fetcher.py
-          git commit -m "feat: use aggregated free market sources"
-          git push origin HEAD:agent/fix-live-source-resilience
+          git add data/history reports/latest reports/daily site/api/v3
+          if ! git diff --cached --quiet; then
+            git commit -m "data: update radar ${{ steps.params.outputs.stage }} [skip ci]"
+            git push
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

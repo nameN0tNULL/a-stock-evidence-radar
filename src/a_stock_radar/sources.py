@@ -11,6 +11,7 @@ import pandas as pd
 
 from .browser_fetcher import EastmoneyBrowserAdapter
 from .exchange_fetcher import OfficialExchangeFetcher
+from .market_fetcher import FreeMarketAggregator, TencentMarketAdapter
 from .models import SourceQuality
 from .taxonomy import ThemeMapper
 
@@ -67,6 +68,8 @@ class AkshareProvider:
         except ImportError as exc:  # pragma: no cover - installation issue
             raise RuntimeError("akshare is required for live mode") from exc
         self.ak = ak
+        self.tencent_market_adapter = TencentMarketAdapter()
+        self.market_aggregator = FreeMarketAggregator()
         self.browser_adapter = (
             EastmoneyBrowserAdapter() if EastmoneyBrowserAdapter.enabled_from_env() else None
         )
@@ -83,33 +86,48 @@ class AkshareProvider:
 
     def fetch(self, trade_date: date) -> SourceBundle:
         qualities: list[SourceQuality] = []
-        market, market_error = self._safe(self.ak.stock_zh_a_spot_em)
-        market_via_browser = False
-        if market.empty and self.browser_adapter is not None:
-            browser_market, browser_error = self._safe(self.browser_adapter.fetch_market_spot)
-            if not browser_market.empty:
-                market = browser_market
-                market_via_browser = True
-                market_error = (
-                    f"AKShare direct failed: {market_error or 'empty response'}; "
-                    "recovered through Playwright via local Clash SOCKS"
+        browser_market_fetch = (
+            self.browser_adapter.fetch_market_spot
+            if self.browser_adapter is not None
+            else None
+        )
+        market_result = self.market_aggregator.fetch(
+            tencent_fetch=self.tencent_market_adapter.fetch_market_spot,
+            eastmoney_fetch=self.ak.stock_zh_a_spot_em,
+            browser_fetch=browser_market_fetch,
+            sina_fetch=self.ak.stock_zh_a_spot,
+        )
+        market_norm = self._normalize_market(market_result.frame, trade_date)
+        market_errors: list[str] = []
+        for attempt in market_result.attempts:
+            if attempt.error:
+                market_errors.append(
+                    f"{attempt.display_name}: {attempt.error}"
                 )
-            elif browser_error:
-                market_error = "; ".join(
-                    filter(None, [market_error, f"Playwright fallback: {browser_error}"])
+            qualities.append(
+                _quality(
+                    attempt.source_id,
+                    attempt.display_name,
+                    trade_date,
+                    not attempt.frame.empty,
+                    len(attempt.frame),
+                    False,
+                    "L2",
+                    trade_date if not attempt.frame.empty else None,
+                    attempt.error,
                 )
-        market_norm = self._normalize_market(market, trade_date)
+            )
         qualities.append(
             _quality(
-                "market_spot_browser" if market_via_browser else "market_spot",
-                "A股实时行情聚合（浏览器代理回退）" if market_via_browser else "A股实时行情聚合",
+                "market_aggregate",
+                "A股免费行情多源聚合",
                 trade_date,
                 not market_norm.empty,
                 len(market_norm),
                 False,
                 "L2",
                 trade_date if not market_norm.empty else None,
-                market_error,
+                "; ".join(market_errors) or None,
             )
         )
 
@@ -232,7 +250,9 @@ class AkshareProvider:
         return SourceBundle(market_norm, etf_norm, margin_norm, detail_norm, qualities, "live")
 
     @staticmethod
-    def _normalize_market(frame: pd.DataFrame, trade_date: date) -> pd.DataFrame:
+    def _normalize_market(
+        frame: pd.DataFrame, trade_date: date
+    ) -> pd.DataFrame:
         if frame.empty:
             return pd.DataFrame()
         rename = {
@@ -245,17 +265,46 @@ class AkshareProvider:
             "换手率": "turnover_rate",
         }
         result = frame.rename(columns=rename)
-        required = ["security_code", "security_name", "close", "pct_change", "amount"]
+        required = [
+            "security_code",
+            "security_name",
+            "close",
+            "pct_change",
+            "amount",
+        ]
         if any(column not in result for column in required):
             return pd.DataFrame()
-        result = result[[c for c in [*required, "float_market_cap", "turnover_rate"] if c in result]].copy()
-        result["security_code"] = result["security_code"].astype(str).str.zfill(6)
-        for column in ["close", "pct_change", "amount", "float_market_cap", "turnover_rate"]:
+        wanted = [
+            *required,
+            "float_market_cap",
+            "turnover_rate",
+            "source_id",
+            "source_count",
+        ]
+        result = result[
+            [column for column in wanted if column in result]
+        ].copy()
+        result["security_code"] = (
+            result["security_code"].astype(str).str.zfill(6)
+        )
+        for column in [
+            "close",
+            "pct_change",
+            "amount",
+            "float_market_cap",
+            "turnover_rate",
+        ]:
             if column in result:
                 result[column] = _numeric(result[column])
         result["trade_date"] = trade_date
-        result["source_id"] = "market_spot"
-        return result.dropna(subset=["security_code", "pct_change"])
+        if "source_id" not in result:
+            result["source_id"] = "market_spot"
+        if "source_count" not in result:
+            result["source_count"] = 1
+        return result.dropna(
+            subset=["security_code", "pct_change"]
+        )
+
 
     def _normalize_etf(
         self,

@@ -10,7 +10,6 @@ from typing import Any
 import pandas as pd
 import requests
 
-
 MARKET_COLUMNS = [
     "代码",
     "名称",
