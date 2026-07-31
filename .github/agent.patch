@@ -1,0 +1,450 @@
+diff --git a/src/a_stock_radar/browser_fetcher.py b/src/a_stock_radar/browser_fetcher.py
+--- a/src/a_stock_radar/browser_fetcher.py
++++ b/src/a_stock_radar/browser_fetcher.py
+@@ -24,6 +24,8 @@ class BrowserFetchConfig:
+     timeout_ms: int = 45_000
+     headless: bool = True
+     diagnostics_dir: Path = Path("diagnostics/browser")
++    page_retries: int = 3
++    retry_delay_ms: int = 750
+ 
+     @classmethod
+     def from_env(cls) -> BrowserFetchConfig:
+@@ -32,6 +34,8 @@ class BrowserFetchConfig:
+             timeout_ms=int(os.getenv("RADAR_BROWSER_TIMEOUT_MS", "45000")),
+             headless=os.getenv("RADAR_BROWSER_HEADLESS", "true").lower() not in {"0", "false", "no"},
+             diagnostics_dir=Path(os.getenv("RADAR_DIAGNOSTICS_DIR", "diagnostics/browser")),
++            page_retries=max(1, int(os.getenv("RADAR_BROWSER_PAGE_RETRIES", "3"))),
++            retry_delay_ms=max(0, int(os.getenv("RADAR_BROWSER_RETRY_DELAY_MS", "750"))),
+         )
+ 
+ 
+@@ -65,6 +69,9 @@ class BrowserJsonSession:
+             self._save_diagnostics(target)
+             raise
+ 
++    def wait_before_retry(self, delay_ms: int) -> None:
++        self.page.wait_for_timeout(delay_ms)
++
+     def _save_diagnostics(self, target: str) -> None:
+         self.diagnostics_dir.mkdir(parents=True, exist_ok=True)
+         slug = re.sub(r"[^a-zA-Z0-9_-]+", "_", target)[:100]
+@@ -146,12 +153,24 @@ class EastmoneyBrowserAdapter:
+     """Browser fallback for the two Eastmoney sources used by M1."""
+ 
+-    MARKET_URL = "https://82.push2.eastmoney.com/api/qt/clist/get"
+-    ETF_URL = "https://push2delay.eastmoney.com/api/qt/clist/get"
++    MARKET_URLS = (
++        "https://82.push2.eastmoney.com/api/qt/clist/get",
++        "https://33.push2.eastmoney.com/api/qt/clist/get",
++        "https://push2.eastmoney.com/api/qt/clist/get",
++    )
++    ETF_URLS = (
++        "https://push2delay.eastmoney.com/api/qt/clist/get",
++        "https://33.push2.eastmoney.com/api/qt/clist/get",
++        "https://push2.eastmoney.com/api/qt/clist/get",
++    )
++    MARKET_URL = MARKET_URLS[0]
++    ETF_URL = ETF_URLS[0]
+ 
+     def __init__(self, fetcher: BrowserJsonFetcher | None = None):
+         self.fetcher = fetcher or BrowserJsonFetcher()
++        config = getattr(self.fetcher, "config", BrowserFetchConfig.from_env())
++        self.page_retries = max(1, int(config.page_retries))
++        self.retry_delay_ms = max(0, int(config.retry_delay_ms))
+ 
+     @classmethod
+     def enabled_from_env(cls) -> bool:
+@@ -174,7 +193,7 @@ class EastmoneyBrowserAdapter:
+                 "f2,f3,f6,f8,f12,f14,f20,f21"
+             ),
+         }
+-        records = self._fetch_all(self.MARKET_URL, params)
++        records = self._fetch_all(self.MARKET_URLS, params)
+         if not records:
+             return pd.DataFrame()
+         return pd.DataFrame(
+@@ -207,7 +226,7 @@ class EastmoneyBrowserAdapter:
+             "fs": "b:MK0021,b:MK0022,b:MK0023,b:MK0024,b:MK0827",
+             "fields": "f2,f3,f6,f12,f14,f38,f402,f441",
+         }
+-        records = self._fetch_all(self.ETF_URL, params)
++        records = self._fetch_all(self.ETF_URLS, params)
+         if not records:
+             return pd.DataFrame()
+         return pd.DataFrame(
+@@ -225,23 +244,64 @@ class EastmoneyBrowserAdapter:
+             }
+         )
+ 
+-    def _fetch_all(self, url: str, base_params: dict[str, Any]) -> list[dict[str, Any]]:
++    def _fetch_page(
++        self,
++        session: Any,
++        urls: tuple[str, ...],
++        params: dict[str, Any],
++    ) -> dict[str, Any]:
++        errors: list[str] = []
++        for attempt in range(1, self.page_retries + 1):
++            for offset in range(len(urls)):
++                url = urls[(attempt - 1 + offset) % len(urls)]
++                try:
++                    return session.fetch_json(url, params)
++                except Exception as exc:
++                    errors.append(f"{url}: {type(exc).__name__}: {exc}")
++            if attempt < self.page_retries and self.retry_delay_ms:
++                waiter = getattr(session, "wait_before_retry", None)
++                if callable(waiter):
++                    waiter(self.retry_delay_ms * attempt)
++        page_number = params.get("pn", "?")
++        details = "; ".join(errors[-6:])
++        raise RuntimeError(
++            f"Eastmoney page {page_number} failed after "
++            f"{self.page_retries} attempts across {len(urls)} hosts: {details}"
++        )
++
++    def _fetch_all(
++        self,
++        urls: tuple[str, ...],
++        base_params: dict[str, Any],
++    ) -> list[dict[str, Any]]:
+         page_size = int(base_params.get("pz", 100))
+-        records: list[dict[str, Any]] = []
++        records_by_code: dict[str, dict[str, Any]] = {}
++        total: int | None = None
+         with self.fetcher.session() as session:
+             page_number = 1
+-            total = page_size
+-            while len(records) < total:
++            while total is None or len(records_by_code) < total:
+                 params = dict(base_params)
+                 params["pn"] = page_number
+-                payload = session.fetch_json(url, params)
+-                page_records, total = _diff_records(payload)
++                payload = self._fetch_page(session, urls, params)
++                page_records, page_total = _diff_records(payload)
+                 if not page_records:
+-                    break
+-                records.extend(page_records)
++                    if page_number == 1:
++                        return []
++                    break
++                total = max(total or 0, page_total or len(records_by_code) + len(page_records))
++                previous_count = len(records_by_code)
++                for index, item in enumerate(page_records):
++                    code = item.get("f12")
++                    key = str(code) if code not in {None, ""} else f"{page_number}:{index}"
++                    records_by_code.setdefault(key, item)
++                if len(records_by_code) == previous_count:
++                    raise RuntimeError(
++                        f"Eastmoney pagination repeated page {page_number}; "
++                        "refusing to return a silently incomplete snapshot"
++                    )
+                 if len(page_records) < page_size:
+                     break
+                 page_number += 1
+                 if page_number > 100:
+                     raise RuntimeError("pagination exceeded 100 pages")
++        records = list(records_by_code.values())
++        if total and len(records) < total:
++            raise RuntimeError(
++                f"Eastmoney pagination incomplete: fetched {len(records)} of {total} records"
++            )
+         return records
+diff --git a/src/a_stock_radar/exchange_fetcher.py b/src/a_stock_radar/exchange_fetcher.py
+--- a/src/a_stock_radar/exchange_fetcher.py
++++ b/src/a_stock_radar/exchange_fetcher.py
+@@ -13,6 +13,8 @@ import requests
+ from requests.adapters import HTTPAdapter
+ from urllib3.util.retry import Retry
+ 
++from .browser_fetcher import BrowserJsonFetcher
++
+ 
+ class ExchangeFetchError(RuntimeError):
+     """Raised when an official exchange response is unavailable or malformed."""
+@@ -27,6 +29,20 @@ class OfficialFetchResult:
+     route: str | None = None
+ 
+ 
++class _BrowserJsonResponse:
++    def __init__(self, payload: dict[str, Any], url: str) -> None:
++        self._payload = payload
++        self.url = url
++        self.status_code = 200
++        self.headers = {"content-type": "application/json"}
++        self.content = json.dumps(payload, ensure_ascii=False).encode("utf-8")
++        self.text = self.content.decode("utf-8")
++
++    def json(self) -> dict[str, Any]:
++        return self._payload
++
++
+ class OfficialExchangeFetcher:
+@@ -49,6 +65,11 @@ class OfficialExchangeFetcher:
+         self.diagnostics.mkdir(parents=True, exist_ok=True)
+         self.direct_session = self._session(trust_env=False)
+         self.proxy_session = self._session(trust_env=True)
++        self.browser_fetcher = (
++            BrowserJsonFetcher()
++            if os.getenv("RADAR_BROWSER_FALLBACK", "false").lower() in {"1", "true", "yes"}
++            else None
++        )
+ 
+     @staticmethod
+     def _session(*, trust_env: bool) -> requests.Session:
+@@ -119,6 +140,37 @@ class OfficialExchangeFetcher:
+                 )
+                 return response, route
+             except (requests.RequestException, ExchangeFetchError) as exc:
+                 errors.append(f"{route}: {type(exc).__name__}: {exc}")
++        if (
++            expected == "json"
++            and self.browser_fetcher is not None
++            and url.startswith("https://query.sse.com.cn/")
++        ):
++            try:
++                with self.browser_fetcher.session() as browser_session:
++                    page = getattr(browser_session, "page", None)
++                    if page is not None:
++                        page.set_extra_http_headers(
++                            {
++                                key: value
++                                for key, value in headers.items()
++                                if key.lower() != "host"
++                            }
++                        )
++                    payload = browser_session.fetch_json(url, params)
++                prepared = requests.Request("GET", url, params=params).prepare()
++                route = (
++                    "browser-proxy"
++                    if self.browser_fetcher.config.proxy_server
++                    else "browser-direct"
++                )
++                response = _BrowserJsonResponse(payload, prepared.url or url)
++                self._record(
++                    source,
++                    candidate,
++                    {
++                        "ok": True,
++                        "route": route,
++                        "url": response.url,
++                        "status": response.status_code,
++                        "content_type": response.headers.get("content-type"),
++                        "content_length": len(response.content),
++                    },
++                )
++                return response, route
++            except Exception as exc:
++                errors.append(f"browser-fallback: {type(exc).__name__}: {exc}")
+         self._record(source, candidate, {"ok": False, "errors": errors, "url": url})
+         raise ExchangeFetchError("; ".join(errors))
+@@ -432,10 +484,13 @@ class OfficialExchangeFetcher:
+                     raise ExchangeFetchError(
+                         f"SZSE margin expected 6 fields, received {frame.shape[1]}"
+                     )
++                # The SZSE summary endpoint publishes monetary values in 亿元 and
++                # lending quantities in 亿股/亿份. Normalize them to yuan and shares
++                # so they can be aggregated with the SSE series without a unit mismatch.
+                 frame.columns = [
+                     "融资买入额",
+                     "融资余额",
+@@ -450,7 +505,7 @@ class OfficialExchangeFetcher:
+                     frame[column] = pd.to_numeric(
+                         frame[column].astype(str).str.replace(",", "", regex=False),
+                         errors="coerce",
+-                    )
++                    ) * 100_000_000
+                 if frame.empty:
+                     errors.append(f"{candidate.isoformat()}: parsed zero rows")
+                     continue
+diff --git a/tests/test_browser_fetcher.py b/tests/test_browser_fetcher.py
+--- a/tests/test_browser_fetcher.py
++++ b/tests/test_browser_fetcher.py
+@@ -64,6 +64,29 @@ class FakeFetcher:
+         yield FakeSession()
+ 
+ 
++class FlakyPagedSession:
++    def __init__(self) -> None:
++        self.calls: list[tuple[str, int]] = []
++
++    def fetch_json(self, url, params):
++        page = int(params["pn"])
++        self.calls.append((url, page))
++        if page == 2 and url.startswith("https://82."):
++            raise RuntimeError("net::ERR_EMPTY_RESPONSE")
++        code = "000001" if page == 1 else "000002"
++        return {"data": {"total": 2, "diff": [{"f12": code}]}}
++
++    def wait_before_retry(self, delay_ms: int) -> None:
++        return None
++
++
++class FlakyPagedFetcher:
++    def __init__(self) -> None:
++        self.config = type("Config", (), {"page_retries": 2, "retry_delay_ms": 0})()
++        self.session_instance = FlakyPagedSession()
++
++    @contextmanager
++    def session(self):
++        yield self.session_instance
++
++
+ def test_eastmoney_browser_adapter_normalizes_expected_columns() -> None:
+     adapter = EastmoneyBrowserAdapter(fetcher=FakeFetcher())
+     market = adapter.fetch_market_spot()
+@@ -74,3 +97,16 @@ def test_eastmoney_browser_adapter_normalizes_expected_columns() -> None:
+     assert market.loc[0, "涨跌幅"] == 0.5
+     assert etf.loc[0, "代码"] == "510300"
+     assert etf.loc[0, "最新份额"] == 1000000
++
++
++def test_eastmoney_pagination_fails_over_to_alternate_host() -> None:
++    fetcher = FlakyPagedFetcher()
++    adapter = EastmoneyBrowserAdapter(fetcher=fetcher)
++
++    records = adapter._fetch_all(
++        adapter.MARKET_URLS[:2],
++        {"pn": 1, "pz": 1},
++    )
++
++    assert [item["f12"] for item in records] == ["000001", "000002"]
++    assert ("https://82.push2.eastmoney.com/api/qt/clist/get", 2) in fetcher.session_instance.calls
++    assert ("https://33.push2.eastmoney.com/api/qt/clist/get", 2) in fetcher.session_instance.calls
+diff --git a/tests/test_exchange_fetcher.py b/tests/test_exchange_fetcher.py
+--- a/tests/test_exchange_fetcher.py
++++ b/tests/test_exchange_fetcher.py
+@@ -1,10 +1,13 @@
+ from __future__ import annotations
+ 
++from contextlib import contextmanager
+ from datetime import date
+ from pathlib import Path
+ from typing import Any
+ 
++import requests
++
+ from a_stock_radar.exchange_fetcher import OfficialExchangeFetcher
+ 
+ 
+@@ -22,6 +25,34 @@ class FakeResponse:
+         return self._payload
+ 
+ 
++class FailingSession:
++    def get(self, *args, **kwargs):  # noqa: ANN002, ANN003, ANN202
++        raise requests.HTTPError("403 Forbidden")
++
++
++class FakeBrowserSession:
++    page = None
++
++    def fetch_json(self, url, params):  # noqa: ANN001, ANN202
++        return {"result": [{"SEC_CODE": "510050"}]}
++
++
++class FakeBrowserFetcher:
++    config = type("Config", (), {"proxy_server": "socks5://127.0.0.1:7891"})()
++
++    @contextmanager
++    def session(self):
++        yield FakeBrowserSession()
++
++
+ def _fetcher(tmp_path: Path, monkeypatch) -> OfficialExchangeFetcher:  # noqa: ANN001
+     monkeypatch.setenv("RADAR_DIAGNOSTICS_DIR", str(tmp_path))
+     monkeypatch.setenv("RADAR_EXCHANGE_LOOKBACK_DAYS", "3")
+@@ -104,4 +135,25 @@ def test_szse_margin_empty_result_does_not_assign_columns(
+     result = fetcher.fetch_szse_margin_summary(date(2026, 7, 29))
+ 
+     assert result.actual_date == date(2026, 7, 28)
+-    assert result.frame.loc[0, "融资融券余额"] == 6
++    assert result.frame.loc[0, "融资融券余额"] == 600_000_000
++
++
++def test_sse_json_uses_browser_after_request_routes_fail(
++    tmp_path: Path, monkeypatch
++) -> None:  # noqa: ANN001
++    fetcher = _fetcher(tmp_path, monkeypatch)
++    fetcher.direct_session = FailingSession()
++    fetcher.proxy_session = FailingSession()
++    fetcher.browser_fetcher = FakeBrowserFetcher()
++
++    response, route = fetcher._get(
++        "sse-etf-shares",
++        date(2026, 7, 29),
++        fetcher.SSE_QUERY_URL,
++        params={"STAT_DATE": "2026-07-29"},
++        headers={"Referer": "https://www.sse.com.cn/"},
++        expected="json",
++    )
++
++    assert route == "browser-proxy"
++    assert response.json()["result"][0]["SEC_CODE"] == "510050"
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -1,54 +1,27 @@
+ name: CI
+ 
+ on:
+-  push:
+-    branches:
+-      - "agent/**"
++  push:
+   pull_request:
+ 
+ permissions:
+-  contents: write
++  contents: read
+ 
+ jobs:
+   test:
+     runs-on: ubuntu-latest
+     steps:
+       - uses: actions/checkout@v6
+-        with:
+-          fetch-depth: 0
+-
+-      - name: Apply pending agent patch
+-        id: patch
+-        shell: bash
+-        run: |
+-          if [ -f .github/agent.patch ]; then
+-            git apply --whitespace=fix .github/agent.patch
+-            rm .github/agent.patch
+-            echo "applied=true" >> "$GITHUB_OUTPUT"
+-          else
+-            echo "applied=false" >> "$GITHUB_OUTPUT"
+-          fi
+-
+       - uses: actions/setup-python@v6
+         with:
+           python-version: "3.12"
+           cache: pip
+ 
+-      - name: Install dependencies
++      - name: Install
+         run: |
+           python -m pip install --upgrade pip
+           python -m pip install -e ".[dev,browser]"
+ 
+-      - name: Run tests
+-        run: python -m pytest -q
+-
+-      - name: Run Ruff
+-        run: ruff check src tests scripts
+-
+-      - name: Commit validated patch
+-        if: github.event_name == 'push' && steps.patch.outputs.applied == 'true'
+-        shell: bash
++      - name: Test
+         run: |
+-          git config user.name "github-actions[bot]"
+-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+-          git add -A
+-          git commit -m "fix: harden live source ingestion [skip ci]"
+-          git push origin "HEAD:${GITHUB_REF_NAME}"
++          python -m pytest -q
++          ruff check src tests scripts
