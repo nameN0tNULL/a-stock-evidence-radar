@@ -2,7 +2,7 @@
 
 > 报告阶段：confirmed  
 > 数据模式：live  
-> 生成时间：2026-07-30 16:56:07.173634+00:00  
+> 生成时间：2026-07-31 17:03:12.415163+00:00  
 > 本报告用于学习、观察和复盘，不构成投资建议。
 
 ## 0. 报告状态与数据源
@@ -10,23 +10,23 @@
 
 | 数据源 | 证据级别 | 状态 | 日期一致 | 行数 | 说明 |
 |---|---:|---|---|---:|---|
-| A股实时行情聚合 | L2 | 缺失 | 否 | 0 | ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')); Playwright fallback: Error: Page.goto: net::ERR_EMPTY_RESPONSE at https://82.push2.eastmoney.com/api/qt/clist/get?pn=29&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21
+| A股实时行情聚合 | L2 | 缺失 | 否 | 0 | ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')); Playwright fallback: Error: Page.goto: net::ERR_EMPTY_RESPONSE at https://82.push2.eastmoney.com/api/qt/clist/get?pn=24&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21
 Call log:
-  - navigating to "https://82.push2.eastmoney.com/api/qt/clist/get?pn=29&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21", waiting until "domcontentloaded"
+  - navigating to "https://82.push2.eastmoney.com/api/qt/clist/get?pn=24&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21", waiting until "domcontentloaded"
  |
-| ETF行情与IOPV聚合 | L2 | 可用 | 是 | 1559 | - |
-| 上交所ETF基金份额 | L1 | 缺失 | 否 | 0 | 2026-07-31: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-31; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-31; 2026-07-30: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-30; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-30; 2026-07-29: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-29; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-29; 2026-07-28: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-28; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-28; 2026-07-27: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-27; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-27; 2026-07-24: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-24; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/commonQuery.do?isPagination=true&pageHelp.pageSize=10000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=1&sqlId=COMMON_SSE_ZQPZ_ETFZL_XXPL_ETFGM_SEARCH_L&STAT_DATE=2026-07-24 |
-| 深交所ETF基金份额 | L1 | 可用 | 否 | 704 | requested 2026-07-31 was not published; using 2026-07-30 via direct |
-| 上交所融资融券汇总 | L1 | 缺失 | 否 | 0 | 2026-07-31: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260731&endDate=20260731&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260731&endDate=20260731&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; 2026-07-30: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260730&endDate=20260730&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260730&endDate=20260730&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; 2026-07-29: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260729&endDate=20260729&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260729&endDate=20260729&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; 2026-07-28: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260728&endDate=20260728&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260728&endDate=20260728&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; 2026-07-27: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260727&endDate=20260727&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260727&endDate=20260727&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; 2026-07-24: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260724&endDate=20260724&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=&detailsDate=&stockCode=&beginDate=20260724&endDate=20260724&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=5 |
-| 深交所融资融券汇总 | L1 | 可用 | 否 | 1 | requested 2026-07-31 was not published; using 2026-07-29 via direct |
-| 沪深融资融券明细 | L1 | 可用 | 否 | 2097 | 2026-07-31: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260731&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260731&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; 2026-07-30: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260730&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260730&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; 2026-07-29: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260729&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260729&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; 2026-07-28: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260728&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260728&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; 2026-07-27: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260727&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260727&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; 2026-07-24: ExchangeFetchError: direct: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260724&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; environment-proxy: HTTPError: 403 Client Error: Forbidden for url: https://query.sse.com.cn/marketdata/tradedata/queryMargin.do?isPagination=true&tabType=mxtype&detailsDate=20260724&stockCode=&beginDate=&endDate=&pageHelp.pageSize=5000&pageHelp.pageNo=1&pageHelp.beginPage=1&pageHelp.cacheSize=1&pageHelp.endPage=21; requested 2026-07-31 was not published; using 2026-07-29 via direct |
+| ETF行情与IOPV聚合 | L2 | 可用 | 是 | 1560 | - |
+| 上交所ETF基金份额 | L1 | 可用 | 是 | 885 | - |
+| 深交所ETF基金份额 | L1 | 可用 | 是 | 704 | - |
+| 上交所融资融券汇总 | L1 | 可用 | 否 | 1 | requested 2026-07-31 was not published; using 2026-07-30 via direct |
+| 深交所融资融券汇总 | L1 | 可用 | 否 | 1 | requested 2026-07-31 was not published; using 2026-07-30 via direct |
+| 沪深融资融券明细 | L1 | 可用 | 否 | 4090 | requested 2026-07-31 was not published; using 2026-07-30 via direct; requested 2026-07-31 was not published; using 2026-07-30 via direct |
 
 **本日报不能确认的事项：**
 - 无法确认具体交易者身份，也无法识别所谓真实意图。
 - 成交额只表示成交活跃程度，不能解释为市场净流入或净流出。
 - ETF份额变化和融资余额变化描述已经发生的敞口变化，不代表未来价格结果。
 - M1不使用北向日净额，也不包含衍生品和公司资本行为证据。
-- 以下来源缺失或异常：A股实时行情聚合、上交所ETF基金份额、上交所融资融券汇总。
+- 以下来源缺失或异常：A股实时行情聚合。
 - 行情聚合数据属于结构化接口结果，应以交易所正式披露为最终依据。
 
 ## 1. 今日市场基础状态
@@ -39,7 +39,7 @@ Call log:
 
 - 市场上涨覆盖率：数据不足
 - 市场成交额：数据不足
-- 全市场融资余额：1.28万元
+- 全市场融资余额：1.32万亿元
 - 融资余额近5日变化：数据不足
 - ETF证据采用份额变化乘以净值代理进行估算；它描述工具型或配置型资金敞口，不识别具体交易者身份。
 
@@ -50,10 +50,10 @@ Call log:
 **数据置信度：low**
 
 【已确认事实】
-- 现有证据未形成明确一致方向。
+- ETF组价格改善覆盖率为 100.0%。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- 当前没有达到规则阈值的显著反向证据。
 
 【无法确认】
 - ETF份额历史有效样本为 9 日，尚不足以形成长期百分位判断。
@@ -72,10 +72,10 @@ Call log:
 **数据置信度：low**
 
 【已确认事实】
-- 现有证据未形成明确一致方向。
+- ETF组价格改善覆盖率为 60.4%。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- 当前没有达到规则阈值的显著反向证据。
 
 【无法确认】
 - ETF份额历史有效样本为 9 日，尚不足以形成长期百分位判断。
@@ -94,10 +94,10 @@ Call log:
 **数据置信度：low**
 
 【已确认事实】
-- 现有证据未形成明确一致方向。
+- ETF组价格改善覆盖率为 68.2%。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- 当前没有达到规则阈值的显著反向证据。
 
 【无法确认】
 - ETF份额历史有效样本为 9 日，尚不足以形成长期百分位判断。
@@ -116,10 +116,10 @@ Call log:
 **数据置信度：low**
 
 【已确认事实】
-- 现有证据未形成明确一致方向。
+- ETF组价格改善覆盖率为 90.1%。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- 当前没有达到规则阈值的显著反向证据。
 
 【无法确认】
 - ETF份额历史有效样本为 9 日，尚不足以形成长期百分位判断。
@@ -138,14 +138,14 @@ Call log:
 **数据置信度：low**
 
 【已确认事实】
-- 现有证据未形成明确一致方向。
+- ETF组价格改善覆盖率为 100.0%。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- 当前没有达到规则阈值的显著反向证据。
 
 【无法确认】
 - ETF份额历史有效样本为 9 日，尚不足以形成长期百分位判断。
-- 该主题缺少证券—板块融资映射，不能把全市场融资变化直接归因到该主题。
+- 主题融资历史有效样本为 2 日，暂不输出高置信度方向。
 - 无法确认具体交易者身份。
 - ETF份额变化可能包含申赎套利、做市和对冲活动。
 - 当前状态不能用于推断未来价格必然方向。
@@ -160,10 +160,10 @@ Call log:
 **数据置信度：low**
 
 【已确认事实】
-- 现有证据未形成明确一致方向。
+- ETF组价格改善覆盖率为 91.0%。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- 当前没有达到规则阈值的显著反向证据。
 
 【无法确认】
 - ETF份额历史有效样本为 9 日，尚不足以形成长期百分位判断。
@@ -182,10 +182,10 @@ Call log:
 **数据置信度：low**
 
 【已确认事实】
-- 现有证据未形成明确一致方向。
+- ETF组价格改善覆盖率为 100.0%。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- 当前没有达到规则阈值的显著反向证据。
 
 【无法确认】
 - ETF份额历史有效样本为 9 日，尚不足以形成长期百分位判断。
@@ -204,10 +204,10 @@ Call log:
 **数据置信度：low**
 
 【已确认事实】
-- 现有证据未形成明确一致方向。
+- ETF组价格改善覆盖率为 73.5%。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- 当前没有达到规则阈值的显著反向证据。
 
 【无法确认】
 - ETF份额历史有效样本为 9 日，尚不足以形成长期百分位判断。
@@ -226,10 +226,10 @@ Call log:
 **数据置信度：low**
 
 【已确认事实】
-- 现有证据未形成明确一致方向。
+- ETF组价格改善覆盖率为 98.1%。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- 当前没有达到规则阈值的显著反向证据。
 
 【无法确认】
 - ETF份额历史有效样本为 9 日，尚不足以形成长期百分位判断。
@@ -248,10 +248,10 @@ Call log:
 **数据置信度：low**
 
 【已确认事实】
-- 现有证据未形成明确一致方向。
+- ETF组价格改善覆盖率为 62.3%。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- 当前没有达到规则阈值的显著反向证据。
 
 【无法确认】
 - ETF份额历史有效样本为 9 日，尚不足以形成长期百分位判断。
@@ -270,10 +270,10 @@ Call log:
 **数据置信度：low**
 
 【已确认事实】
-- 现有证据未形成明确一致方向。
+- ETF组价格改善覆盖率为 86.2%。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- 当前没有达到规则阈值的显著反向证据。
 
 【无法确认】
 - ETF份额历史有效样本为 9 日，尚不足以形成长期百分位判断。
@@ -295,7 +295,7 @@ Call log:
 - 现有证据未形成明确一致方向。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- 当前没有达到规则阈值的显著反向证据。
 
 【无法确认】
 - ETF份额历史有效样本为 9 日，尚不足以形成长期百分位判断。
@@ -317,7 +317,7 @@ Call log:
 - 现有证据未形成明确一致方向。
 
 【反向证据】
-- ETF组价格改善覆盖率仅为 0.0%。
+- ETF组价格改善覆盖率仅为 31.6%。
 
 【无法确认】
 - ETF份额历史有效样本为 9 日，尚不足以形成长期百分位判断。

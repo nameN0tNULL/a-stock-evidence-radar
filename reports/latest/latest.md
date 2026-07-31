@@ -1,8 +1,8 @@
 # A股市场资金证据雷达日报：2026-07-31
 
-> 报告阶段：preliminary  
+> 报告阶段：confirmed  
 > 数据模式：live  
-> 生成时间：2026-07-31 15:07:39.533744+00:00  
+> 生成时间：2026-07-31 17:03:12.415163+00:00  
 > 本报告用于学习、观察和复盘，不构成投资建议。
 
 ## 0. 报告状态与数据源
@@ -10,13 +10,13 @@
 
 | 数据源 | 证据级别 | 状态 | 日期一致 | 行数 | 说明 |
 |---|---:|---|---|---:|---|
-| A股实时行情聚合 | L2 | 缺失 | 否 | 0 | ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')); Playwright fallback: Error: Page.goto: net::ERR_EMPTY_RESPONSE at https://82.push2.eastmoney.com/api/qt/clist/get?pn=27&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21
+| A股实时行情聚合 | L2 | 缺失 | 否 | 0 | ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')); Playwright fallback: Error: Page.goto: net::ERR_EMPTY_RESPONSE at https://82.push2.eastmoney.com/api/qt/clist/get?pn=24&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21
 Call log:
-  - navigating to "https://82.push2.eastmoney.com/api/qt/clist/get?pn=27&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21", waiting until "domcontentloaded"
+  - navigating to "https://82.push2.eastmoney.com/api/qt/clist/get?pn=24&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21", waiting until "domcontentloaded"
  |
 | ETF行情与IOPV聚合 | L2 | 可用 | 是 | 1560 | - |
 | 上交所ETF基金份额 | L1 | 可用 | 是 | 885 | - |
-| 深交所ETF基金份额 | L1 | 可用 | 否 | 704 | requested 2026-07-31 was not published; using 2026-07-30 via direct |
+| 深交所ETF基金份额 | L1 | 可用 | 是 | 704 | - |
 | 上交所融资融券汇总 | L1 | 可用 | 否 | 1 | requested 2026-07-31 was not published; using 2026-07-30 via direct |
 | 深交所融资融券汇总 | L1 | 可用 | 否 | 1 | requested 2026-07-31 was not published; using 2026-07-30 via direct |
 | 沪深融资融券明细 | L1 | 可用 | 否 | 4090 | requested 2026-07-31 was not published; using 2026-07-30 via direct; requested 2026-07-31 was not published; using 2026-07-30 via direct |
