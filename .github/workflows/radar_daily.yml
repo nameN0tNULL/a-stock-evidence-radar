@@ -1,218 +1,337 @@
-name: Build and deploy radar
+name: Probe free A-share data sources
 
 on:
-  workflow_dispatch:
-    inputs:
-      trade_date:
-        description: "YYYY-MM-DD；留空使用最近工作日"
-        required: false
-        type: string
-      stage:
-        description: "报告阶段"
-        required: true
-        default: confirmed
-        type: choice
-        options: [preliminary, confirmed]
-      data_mode:
-        description: "live 为真实数据；mock 仅用于演示"
-        required: true
-        default: live
-        type: choice
-        options: [live, mock]
-  schedule:
-    - cron: "30 20 * * 1-5"
-      timezone: "Asia/Shanghai"
-    - cron: "15 23 * * 1-5"
-      timezone: "Asia/Shanghai"
+  pull_request:
+    branches: [main]
 
 concurrency:
-  group: a-stock-radar-production
-  cancel-in-progress: false
+  group: free-source-probe-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
+  probe:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     permissions:
-      contents: write
-    outputs:
-      stage: ${{ steps.params.outputs.stage }}
-    env:
-      MIHOMO_VERSION: ${{ vars.MIHOMO_VERSION || 'v1.19.28' }}
-      MIHOMO_PROVIDER_URL: ${{ vars.MIHOMO_PROVIDER_URL || 'https://mergelist.vercel.app/api/all' }}
-      MIHOMO_HEALTHCHECK_URL: ${{ vars.MIHOMO_HEALTHCHECK_URL || 'https://82.push2.eastmoney.com/api/qt/clist/get?pn=1&pz=1&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A1+t%3A2&fields=f2%2Cf3%2Cf12%2Cf14' }}
-      MIHOMO_NODE_TEST_URL: ${{ vars.MIHOMO_NODE_TEST_URL || 'https://82.push2.eastmoney.com/api/qt/clist/get?pn=1&pz=1&po=1&np=1&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A1+t%3A2&fields=f2%2Cf3%2Cf12%2Cf14' }}
-      MIHOMO_NODE_TEST_LIMIT: ${{ vars.MIHOMO_NODE_TEST_LIMIT || '20' }}
-      MIHOMO_NODE_REQUEST_TIMEOUT: ${{ vars.MIHOMO_NODE_REQUEST_TIMEOUT || '18' }}
-      MIHOMO_NODE_BROWSER_TIMEOUT_MS: ${{ vars.MIHOMO_NODE_BROWSER_TIMEOUT_MS || '25000' }}
-      MIHOMO_NODE_PLAYWRIGHT_CHECK: ${{ vars.MIHOMO_NODE_PLAYWRIGHT_CHECK || 'true' }}
-      RADAR_EXCHANGE_ROUTE: ${{ vars.RADAR_EXCHANGE_ROUTE || 'direct-first' }}
-      RADAR_EXCHANGE_LOOKBACK_DAYS: ${{ vars.RADAR_EXCHANGE_LOOKBACK_DAYS || '7' }}
-      RADAR_EXCHANGE_TIMEOUT: ${{ vars.RADAR_EXCHANGE_TIMEOUT || '20' }}
-      MIHOMO_SOCKS_PORT: "7891"
-      MIHOMO_MIXED_PORT: "7890"
-      MIHOMO_CONTROLLER_PORT: "9090"
-      RADAR_DIAGNOSTICS_DIR: diagnostics
-
+      contents: read
     steps:
       - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Resolve parameters
-        id: params
-        shell: bash
-        run: |
-          STAGE="${{ inputs.stage }}"
-          MODE="${{ inputs.data_mode }}"
-          DATE_ARG="${{ inputs.trade_date }}"
-          if [ -z "$STAGE" ]; then
-            if [ "${{ github.event.schedule }}" = "30 20 * * 1-5" ]; then
-              STAGE="preliminary"
-            else
-              STAGE="confirmed"
-            fi
-          fi
-          if [ -z "$MODE" ]; then MODE="live"; fi
-          echo "stage=$STAGE" >> "$GITHUB_OUTPUT"
-          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
-          echo "date_arg=$DATE_ARG" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
 
-      - name: Install Python dependencies
+      - name: Install probe dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e ".[dev,browser]"
+          python -m pip install requests pandas akshare==1.18.64 baostock mootdx
 
-      - name: Install Chromium
-        if: steps.params.outputs.mode == 'live'
-        run: python -m playwright install --with-deps chromium
-
-      - name: Install Mihomo
-        if: steps.params.outputs.mode == 'live'
-        run: ./scripts/install_mihomo.sh
-
-      - name: Render Mihomo configuration
-        if: steps.params.outputs.mode == 'live'
-        run: python scripts/render_mihomo_config.py
-
-      - name: Prepare clean runtime outputs
-        if: steps.params.outputs.mode == 'live'
+      - name: Probe free sources
         shell: bash
         run: |
-          rm -rf diagnostics runtime/mihomo/providers data/raw
-          mkdir -p diagnostics runtime/mihomo/providers data/raw
+          mkdir -p source-probe
+          python - <<'PY'
+          from __future__ import annotations
 
-      - name: Start Mihomo local proxy
-        if: steps.params.outputs.mode == 'live'
-        shell: bash
-        run: |
-          mkdir -p diagnostics runtime/mihomo
-          ./runtime/mihomo/bin/mihomo \
-            -d runtime/mihomo \
-            -f runtime/mihomo/config.yaml \
-            > diagnostics/mihomo.log 2>&1 &
-          echo $! > runtime/mihomo/mihomo.pid
+          import json
+          import math
+          import multiprocessing as mp
+          import time
+          import traceback
+          from datetime import datetime, timezone
+          from pathlib import Path
 
-      - name: Verify local SOCKS proxy
-        id: proxy_ready
-        if: steps.params.outputs.mode == 'live'
-        continue-on-error: true
-        run: python scripts/wait_for_mihomo.py
+          import pandas as pd
+          import requests
 
-      - name: Run tests
-        run: |
-          python -m pytest -q
-          ruff check src tests scripts
+          OUT = Path("source-probe")
+          results: dict[str, object] = {
+              "started_at": datetime.now(timezone.utc).isoformat(),
+              "runner": "github-actions/ubuntu-latest",
+              "sources": {},
+          }
 
-      - name: Generate report
-        shell: bash
-        env:
-          RADAR_PROXY_READY: ${{ steps.proxy_ready.outcome == 'success' && 'true' || 'false' }}
-          RADAR_BROWSER_TIMEOUT_MS: "45000"
-          PYTHONUNBUFFERED: "1"
-        run: |
-          if [ "${{ steps.params.outputs.mode }}" = "live" ]; then
-            export RADAR_BROWSER_FALLBACK=true
-            if [ "$RADAR_PROXY_READY" = "true" ]; then
-              export RADAR_BROWSER_PROXY=socks5://127.0.0.1:7891
-              export ALL_PROXY=socks5h://127.0.0.1:7891
-              export HTTP_PROXY=http://127.0.0.1:7890
-              export HTTPS_PROXY=http://127.0.0.1:7890
-              export NO_PROXY=127.0.0.1,localhost
-              echo "Proxy verified; live sources will use Mihomo."
-            else
-              unset RADAR_BROWSER_PROXY ALL_PROXY HTTP_PROXY HTTPS_PROXY
-              export NO_PROXY=127.0.0.1,localhost
-              echo "Proxy verification failed; falling back to direct HTTP and direct Playwright."
-            fi
-          else
-            export RADAR_BROWSER_FALLBACK=false
-            unset RADAR_BROWSER_PROXY ALL_PROXY HTTP_PROXY HTTPS_PROXY
-          fi
+          def record(name: str, payload: dict[str, object]) -> None:
+              results["sources"][name] = payload
+              print(name, json.dumps(payload, ensure_ascii=False, default=str))
 
-          ARGS=(run --stage "${{ steps.params.outputs.stage }}" --data-mode "${{ steps.params.outputs.mode }}")
-          if [ -n "${{ steps.params.outputs.date_arg }}" ]; then
-            ARGS+=(--date "${{ steps.params.outputs.date_arg }}")
-          fi
-          python -m a_stock_radar.cli "${ARGS[@]}"
+          def count_diff(data: object) -> int:
+              if isinstance(data, list):
+                  return len(data)
+              if isinstance(data, dict):
+                  return len(data)
+              return 0
 
-      - name: Preserve raw snapshots for audit
+          def probe_tencent() -> dict[str, object]:
+              started = time.monotonic()
+              url = "https://proxy.finance.qq.com/cgi/cgi-bin/rank/hs/getBoardRankList"
+              session = requests.Session()
+              session.headers.update({
+                  "User-Agent": "Mozilla/5.0 source-reliability-probe/1.0",
+                  "Referer": "https://stockapp.finance.qq.com/",
+              })
+              page_size = 200
+              rows: list[dict[str, object]] = []
+              failures: list[dict[str, object]] = []
+              total = None
+              pages = None
+              for page in range(100):
+                  params = {
+                      "_appver": "11.17.0",
+                      "board_code": "aStock",
+                      "sort_type": "price",
+                      "direct": "down",
+                      "offset": str(page * page_size),
+                      "count": str(page_size),
+                  }
+                  page_data = None
+                  for attempt in range(3):
+                      try:
+                          response = session.get(url, params=params, timeout=12)
+                          response.raise_for_status()
+                          payload = response.json()
+                          page_data = payload.get("data") or {}
+                          break
+                      except Exception as exc:
+                          if attempt == 2:
+                              failures.append({"page": page, "error": f"{type(exc).__name__}: {exc}"})
+                          time.sleep(0.4 * (attempt + 1))
+                  if page_data is None:
+                      break
+                  if total is None:
+                      total = int(page_data.get("total") or 0)
+                      pages = math.ceil(total / page_size) if total else 0
+                  page_rows = page_data.get("rank_list") or []
+                  rows.extend(page_rows)
+                  if page + 1 >= (pages or 0):
+                      break
+                  time.sleep(0.12)
+              codes = [str(row.get("code") or "") for row in rows]
+              unique = {code for code in codes if code}
+              return {
+                  "ok": bool(total and len(unique) >= total * 0.99 and not failures),
+                  "total": total,
+                  "rows": len(rows),
+                  "unique_codes": len(unique),
+                  "duplicates": len(codes) - len(unique),
+                  "pages_expected": pages,
+                  "failures": failures,
+                  "sample_keys": sorted(rows[0].keys()) if rows else [],
+                  "elapsed_seconds": round(time.monotonic() - started, 2),
+              }
+
+          def eastmoney_request(host: str, fs: str) -> dict[str, object]:
+              url = f"https://{host}/api/qt/clist/get"
+              params = {
+                  "pn": "1",
+                  "pz": "50000",
+                  "po": "1",
+                  "np": "2",
+                  "ut": "bd1d9ddb04089700cf9c27f6f7426281",
+                  "fltt": "2",
+                  "invt": "2",
+                  "fid": "f3",
+                  "fs": fs,
+                  "fields": "f2,f3,f4,f5,f6,f7,f8,f12,f13,f14,f15,f16,f17,f18",
+              }
+              started = time.monotonic()
+              try:
+                  response = requests.get(
+                      url,
+                      params=params,
+                      headers={
+                          "User-Agent": "Mozilla/5.0 source-reliability-probe/1.0",
+                          "Referer": "https://quote.eastmoney.com/",
+                      },
+                      timeout=12,
+                  )
+                  status = response.status_code
+                  response.raise_for_status()
+                  payload = response.json()
+                  data = payload.get("data") or {}
+                  diff = data.get("diff")
+                  return {
+                      "ok": bool(diff),
+                      "status": status,
+                      "total": data.get("total"),
+                      "rows": count_diff(diff),
+                      "elapsed_seconds": round(time.monotonic() - started, 2),
+                  }
+              except Exception as exc:
+                  return {
+                      "ok": False,
+                      "error": f"{type(exc).__name__}: {exc}",
+                      "elapsed_seconds": round(time.monotonic() - started, 2),
+                  }
+
+          def probe_eastmoney() -> dict[str, object]:
+              filters = {
+                  "all": "m:0 t:6,m:0 t:80,m:1 t:2,m:1 t:23,m:0 t:81 s:2048",
+                  "sh": "m:1 t:2,m:1 t:23",
+                  "sz": "m:0 t:6,m:0 t:80",
+                  "bj": "m:0 t:81 s:2048",
+              }
+              return {
+                  host: {name: eastmoney_request(host, fs) for name, fs in filters.items()}
+                  for host in ("82.push2.eastmoney.com", "33.push2.eastmoney.com", "push2.eastmoney.com")
+              }
+
+          def run_process(target, timeout: int) -> dict[str, object]:
+              queue: mp.Queue = mp.Queue()
+              proc = mp.Process(target=target, args=(queue,))
+              started = time.monotonic()
+              proc.start()
+              proc.join(timeout)
+              if proc.is_alive():
+                  proc.terminate()
+                  proc.join(5)
+                  return {"ok": False, "error": f"timeout after {timeout}s", "elapsed_seconds": round(time.monotonic() - started, 2)}
+              if not queue.empty():
+                  payload = queue.get()
+                  payload["elapsed_seconds"] = round(time.monotonic() - started, 2)
+                  return payload
+              return {"ok": False, "error": f"child exit code {proc.exitcode}", "elapsed_seconds": round(time.monotonic() - started, 2)}
+
+          def sina_child(queue: mp.Queue) -> None:
+              try:
+                  import akshare as ak
+                  frame = ak.stock_zh_a_spot()
+                  codes = frame["代码"].astype(str) if "代码" in frame else pd.Series(dtype=str)
+                  queue.put({
+                      "ok": len(frame) > 5000,
+                      "rows": len(frame),
+                      "unique_codes": int(codes.nunique()),
+                      "columns": list(frame.columns),
+                  })
+              except Exception as exc:
+                  queue.put({"ok": False, "error": f"{type(exc).__name__}: {exc}"})
+
+          def official_universe_child(queue: mp.Queue) -> None:
+              try:
+                  import akshare as ak
+                  payload = {}
+                  for name, func in (
+                      ("sh", ak.stock_info_sh_name_code),
+                      ("sz", ak.stock_info_sz_name_code),
+                      ("bj", ak.stock_info_bj_name_code),
+                  ):
+                      started = time.monotonic()
+                      try:
+                          frame = func()
+                          payload[name] = {
+                              "ok": not frame.empty,
+                              "rows": len(frame),
+                              "columns": list(frame.columns),
+                              "elapsed_seconds": round(time.monotonic() - started, 2),
+                          }
+                      except Exception as exc:
+                          payload[name] = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+                  payload["ok"] = all(item.get("ok") for item in payload.values())
+                  queue.put(payload)
+              except Exception as exc:
+                  queue.put({"ok": False, "error": f"{type(exc).__name__}: {exc}"})
+
+          def baostock_child(queue: mp.Queue) -> None:
+              try:
+                  import baostock as bs
+                  login = bs.login()
+                  if login.error_code != "0":
+                      queue.put({"ok": False, "error": login.error_msg})
+                      return
+                  rs = bs.query_all_stock(day="2026-07-31")
+                  rows = []
+                  while rs.error_code == "0" and rs.next():
+                      rows.append(rs.get_row_data())
+                  samples = {}
+                  for symbol in ("sh.600000", "sz.000001", "bj.430047"):
+                      q = bs.query_history_k_data_plus(
+                          symbol,
+                          "date,code,open,high,low,close,volume,amount,pctChg",
+                          start_date="2026-07-31",
+                          end_date="2026-07-31",
+                          frequency="d",
+                          adjustflag="3",
+                      )
+                      data = []
+                      while q.error_code == "0" and q.next():
+                          data.append(q.get_row_data())
+                      samples[symbol] = {"error_code": q.error_code, "rows": len(data), "data": data[:1]}
+                  bs.logout()
+                  queue.put({
+                      "ok": rs.error_code == "0" and len(rows) > 5000,
+                      "universe_rows": len(rows),
+                      "fields": rs.fields,
+                      "samples": samples,
+                  })
+              except Exception as exc:
+                  queue.put({"ok": False, "error": f"{type(exc).__name__}: {exc}"})
+
+          def mootdx_child(queue: mp.Queue) -> None:
+              try:
+                  from mootdx import consts
+                  from mootdx.quotes import Quotes
+                  client = Quotes.factory(
+                      market="std",
+                      multithread=True,
+                      heartbeat=False,
+                      bestip=True,
+                      timeout=5,
+                      quiet=True,
+                  )
+                  sh = client.stocks(market=consts.MARKET_SH)
+                  sz = client.stocks(market=consts.MARKET_SZ)
+                  codes = []
+                  for frame in (sh, sz):
+                      if frame is not None and not frame.empty and "code" in frame:
+                          codes.extend(frame["code"].astype(str).tolist())
+                  stock_like = [code for code in codes if len(code) == 6 and code[:1] in {"0", "3", "4", "6", "8", "9"}]
+                  sample = list(dict.fromkeys(stock_like))[:500]
+                  quotes = client.quotes(symbol=sample)
+                  queue.put({
+                      "ok": quotes is not None and len(quotes) >= len(sample) * 0.9,
+                      "sh_security_rows": len(sh) if sh is not None else 0,
+                      "sz_security_rows": len(sz) if sz is not None else 0,
+                      "stock_like_codes": len(set(stock_like)),
+                      "quote_requested": len(sample),
+                      "quote_rows": len(quotes) if quotes is not None else 0,
+                      "columns": list(quotes.columns) if quotes is not None else [],
+                  })
+              except Exception as exc:
+                  queue.put({
+                      "ok": False,
+                      "error": f"{type(exc).__name__}: {exc}",
+                      "traceback": traceback.format_exc(limit=4),
+                  })
+
+          for name, function in (
+              ("tencent_rank", probe_tencent),
+              ("eastmoney_large_page_and_shards", probe_eastmoney),
+          ):
+              try:
+                  record(name, function())
+              except Exception as exc:
+                  record(name, {"ok": False, "error": f"{type(exc).__name__}: {exc}"})
+
+          record("sina_full_market", run_process(sina_child, 180))
+          record("official_exchange_universes", run_process(official_universe_child, 120))
+          record("baostock", run_process(baostock_child, 120))
+          record("mootdx_tdx", run_process(mootdx_child, 180))
+
+          results["finished_at"] = datetime.now(timezone.utc).isoformat()
+          (OUT / "results.json").write_text(json.dumps(results, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
+
+          lines = ["# Free A-share source probe", "", f"Generated: {results['finished_at']}", ""]
+          for name, payload in results["sources"].items():
+              lines.extend([f"## {name}", "", "```json", json.dumps(payload, ensure_ascii=False, indent=2, default=str), "```", ""])
+          (OUT / "results.md").write_text("\n".join(lines), encoding="utf-8")
+          PY
+
+      - name: Upload probe results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: raw-snapshots-${{ github.run_id }}-${{ github.run_attempt }}
-          path: data/raw
-          retention-days: 30
-          if-no-files-found: warn
-
-      - name: Upload proxy and browser diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: fetch-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
-          path: diagnostics
+          name: free-source-probe-${{ github.run_id }}
+          path: source-probe
           retention-days: 14
           if-no-files-found: warn
-
-      - name: Stop Mihomo
-        if: always() && steps.params.outputs.mode == 'live'
-        shell: bash
-        run: |
-          if [ -f runtime/mihomo/mihomo.pid ]; then
-            kill "$(cat runtime/mihomo/mihomo.pid)" || true
-          fi
-
-      - name: Persist compact history and reports
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/history reports/latest reports/daily site/api/v3
-          if ! git diff --cached --quiet; then
-            git commit -m "data: update radar ${{ steps.params.outputs.stage }} [skip ci]"
-            git push
-          fi
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: site
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
