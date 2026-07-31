@@ -3,11 +3,13 @@ from __future__ import annotations
 import hashlib
 import json
 import time
+from collections.abc import Callable, Iterable
 from dataclasses import asdict, dataclass
-from datetime import date, time as dt_time
+from datetime import date
+from datetime import time as dt_time
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Callable, Iterable
+from typing import Any
 
 import pandas as pd
 
@@ -91,6 +93,8 @@ def normalize_security_symbol(symbol: str) -> tuple[str, str, str]:
             "XBSE": "BJ",
         }
         exchange = suffix_map.get(suffix)
+        if exchange is None:
+            raise ValueError(f"Unsupported A-share exchange suffix: {symbol}")
     else:
         code = cleaned
 
@@ -306,7 +310,9 @@ def compute_trade_print_features(frame: pd.DataFrame) -> dict[str, Any]:
     )
 
     positive_notional = frame.loc[frame["notional"] > 0, "notional"]
-    large_threshold = float(positive_notional.quantile(0.90)) if not positive_notional.empty else None
+    large_threshold = (
+        float(positive_notional.quantile(0.90)) if not positive_notional.empty else None
+    )
     if large_threshold is None or total_notional == 0:
         large_trade_share = 0.0
     else:
