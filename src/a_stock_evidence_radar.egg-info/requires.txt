@@ -1,0 +1,16 @@
+akshare==1.18.64
+jinja2<4,>=3.1
+numpy<3,>=2.0
+openpyxl<4,>=3.1
+pandas<3,>=2.2
+pydantic<3,>=2.10
+PyYAML<7,>=6
+requests<3,>=2.32
+
+[browser]
+playwright<2,>=1.55
+PySocks<2,>=1.7
+
+[dev]
+pytest<10,>=8
+ruff<1,>=0.11

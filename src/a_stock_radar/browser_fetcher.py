@@ -22,6 +22,8 @@ class BrowserFetchConfig:
     timeout_ms: int = 45_000
     headless: bool = True
     diagnostics_dir: Path = Path("diagnostics/browser")
+    page_retries: int = 3
+    retry_delay_ms: int = 750
 
     @classmethod
     def from_env(cls) -> BrowserFetchConfig:
@@ -30,6 +32,8 @@ class BrowserFetchConfig:
             timeout_ms=int(os.getenv("RADAR_BROWSER_TIMEOUT_MS", "45000")),
             headless=os.getenv("RADAR_BROWSER_HEADLESS", "true").lower() not in {"0", "false", "no"},
             diagnostics_dir=Path(os.getenv("RADAR_DIAGNOSTICS_DIR", "diagnostics/browser")),
+            page_retries=max(1, int(os.getenv("RADAR_BROWSER_PAGE_RETRIES", "3"))),
+            retry_delay_ms=max(0, int(os.getenv("RADAR_BROWSER_RETRY_DELAY_MS", "750"))),
         )
 
 
@@ -62,6 +66,9 @@ class BrowserJsonSession:
         except Exception:
             self._save_diagnostics(target)
             raise
+
+    def wait_before_retry(self, delay_ms: int) -> None:
+        self.page.wait_for_timeout(delay_ms)
 
     def _save_diagnostics(self, target: str) -> None:
         self.diagnostics_dir.mkdir(parents=True, exist_ok=True)
@@ -149,11 +156,24 @@ def _diff_records(payload: dict[str, Any]) -> tuple[list[dict[str, Any]], int]:
 class EastmoneyBrowserAdapter:
     """Browser fallback for the two Eastmoney sources used by M1."""
 
-    MARKET_URL = "https://82.push2.eastmoney.com/api/qt/clist/get"
-    ETF_URL = "https://push2delay.eastmoney.com/api/qt/clist/get"
+    MARKET_URLS = (
+        "https://82.push2.eastmoney.com/api/qt/clist/get",
+        "https://33.push2.eastmoney.com/api/qt/clist/get",
+        "https://push2.eastmoney.com/api/qt/clist/get",
+    )
+    ETF_URLS = (
+        "https://push2delay.eastmoney.com/api/qt/clist/get",
+        "https://33.push2.eastmoney.com/api/qt/clist/get",
+        "https://push2.eastmoney.com/api/qt/clist/get",
+    )
+    MARKET_URL = MARKET_URLS[0]
+    ETF_URL = ETF_URLS[0]
 
     def __init__(self, fetcher: BrowserJsonFetcher | None = None):
         self.fetcher = fetcher or BrowserJsonFetcher()
+        config = getattr(self.fetcher, "config", BrowserFetchConfig.from_env())
+        self.page_retries = max(1, int(config.page_retries))
+        self.retry_delay_ms = max(0, int(config.retry_delay_ms))
 
     @classmethod
     def enabled_from_env(cls) -> bool:
@@ -174,7 +194,7 @@ class EastmoneyBrowserAdapter:
                 "f2,f3,f6,f8,f12,f14,f20,f21"
             ),
         }
-        records = self._fetch_all(self.MARKET_URL, params)
+        records = self._fetch_all(self.MARKET_URLS, params)
         if not records:
             return pd.DataFrame()
         return pd.DataFrame(
@@ -203,7 +223,7 @@ class EastmoneyBrowserAdapter:
             "fs": "b:MK0021,b:MK0022,b:MK0023,b:MK0024,b:MK0827",
             "fields": "f2,f3,f6,f12,f14,f38,f402,f441",
         }
-        records = self._fetch_all(self.ETF_URL, params)
+        records = self._fetch_all(self.ETF_URLS, params)
         if not records:
             return pd.DataFrame()
         return pd.DataFrame(
@@ -219,23 +239,69 @@ class EastmoneyBrowserAdapter:
             }
         )
 
-    def _fetch_all(self, url: str, base_params: dict[str, Any]) -> list[dict[str, Any]]:
+    def _fetch_page(
+        self,
+        session: Any,
+        urls: tuple[str, ...],
+        params: dict[str, Any],
+    ) -> dict[str, Any]:
+        errors: list[str] = []
+        for attempt in range(1, self.page_retries + 1):
+            for offset in range(len(urls)):
+                url = urls[(attempt - 1 + offset) % len(urls)]
+                try:
+                    return session.fetch_json(url, params)
+                except Exception as exc:
+                    errors.append(f"{url}: {type(exc).__name__}: {exc}")
+            if attempt < self.page_retries and self.retry_delay_ms:
+                waiter = getattr(session, "wait_before_retry", None)
+                if callable(waiter):
+                    waiter(self.retry_delay_ms * attempt)
+        page_number = params.get("pn", "?")
+        details = "; ".join(errors[-6:])
+        raise RuntimeError(
+            f"Eastmoney page {page_number} failed after "
+            f"{self.page_retries} attempts across {len(urls)} hosts: {details}"
+        )
+
+    def _fetch_all(
+        self,
+        urls: tuple[str, ...],
+        base_params: dict[str, Any],
+    ) -> list[dict[str, Any]]:
         page_size = int(base_params.get("pz", 100))
-        records: list[dict[str, Any]] = []
+        records_by_code: dict[str, dict[str, Any]] = {}
+        total: int | None = None
         with self.fetcher.session() as session:
             page_number = 1
-            total = page_size
-            while len(records) < total:
+            while total is None or len(records_by_code) < total:
                 params = dict(base_params)
                 params["pn"] = page_number
-                payload = session.fetch_json(url, params)
-                page_records, total = _diff_records(payload)
+                payload = self._fetch_page(session, urls, params)
+                page_records, page_total = _diff_records(payload)
                 if not page_records:
+                    if page_number == 1:
+                        return []
                     break
-                records.extend(page_records)
+                total = max(total or 0, page_total or len(records_by_code) + len(page_records))
+                previous_count = len(records_by_code)
+                for index, item in enumerate(page_records):
+                    code = item.get("f12")
+                    key = str(code) if code not in {None, ""} else f"{page_number}:{index}"
+                    records_by_code.setdefault(key, item)
+                if len(records_by_code) == previous_count:
+                    raise RuntimeError(
+                        f"Eastmoney pagination repeated page {page_number}; "
+                        "refusing to return a silently incomplete snapshot"
+                    )
                 if len(page_records) < page_size:
                     break
                 page_number += 1
                 if page_number > 100:
                     raise RuntimeError("pagination exceeded 100 pages")
+        records = list(records_by_code.values())
+        if total and len(records) < total:
+            raise RuntimeError(
+                f"Eastmoney pagination incomplete: fetched {len(records)} of {total} records"
+            )
         return records

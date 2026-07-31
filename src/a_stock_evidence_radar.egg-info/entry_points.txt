@@ -1,0 +1,2 @@
+[console_scripts]
+a-stock-radar = a_stock_radar.cli:main
