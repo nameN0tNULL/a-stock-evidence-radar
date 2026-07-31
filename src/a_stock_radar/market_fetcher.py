@@ -35,14 +35,29 @@ class MarketSourceAttempt:
             return False
         expected = self.expected_rows
         if not expected:
-            return len(self.frame) >= 5000
+            return self.frame["代码"].nunique() >= 5000
         return self.frame["代码"].nunique() >= math.ceil(expected * 0.99)
+
+
+@dataclass(frozen=True)
+class MarketAgreement:
+    overlap_rows: int = 0
+    close_mismatch_rows: int = 0
+    pct_mismatch_rows: int = 0
+
+    @property
+    def mismatch_ratio(self) -> float:
+        if self.overlap_rows <= 0:
+            return 0.0
+        mismatches = max(self.close_mismatch_rows, self.pct_mismatch_rows)
+        return mismatches / self.overlap_rows
 
 
 @dataclass(frozen=True)
 class MarketAggregateResult:
     frame: pd.DataFrame
     attempts: tuple[MarketSourceAttempt, ...]
+    agreement: MarketAgreement = MarketAgreement()
 
 
 class TencentMarketAdapter:
@@ -62,7 +77,9 @@ class TencentMarketAdapter:
         self.page_size = page_size or int(os.getenv("RADAR_TENCENT_PAGE_SIZE", "200"))
         self.timeout = timeout or float(os.getenv("RADAR_TENCENT_TIMEOUT", "15"))
         self.retries = retries or int(os.getenv("RADAR_TENCENT_RETRIES", "3"))
-        self.retry_delay = retry_delay or float(os.getenv("RADAR_TENCENT_RETRY_DELAY", "0.4"))
+        self.retry_delay = retry_delay or float(
+            os.getenv("RADAR_TENCENT_RETRY_DELAY", "0.4")
+        )
         self.session.headers.update(
             {
                 "User-Agent": "Mozilla/5.0 (compatible; a-stock-evidence-radar/1.0)",
@@ -173,11 +190,62 @@ class TencentMarketAdapter:
         return frame[[*MARKET_COLUMNS, "source_id"]].reset_index(drop=True)
 
 
-class FreeMarketAggregator:
-    """Combine free market sources and call slow sources only to repair coverage."""
+def normalize_sina_market_frame(frame: pd.DataFrame) -> pd.DataFrame:
+    """Normalize AKShare's Sina full-market snapshot into the shared schema."""
+    if frame is None or frame.empty:
+        return pd.DataFrame(columns=[*MARKET_COLUMNS, "source_id"])
 
-    def __init__(self, minimum_rows: int = 5000) -> None:
+    aliases = {
+        "symbol": "代码",
+        "code": "代码",
+        "name": "名称",
+        "trade": "最新价",
+        "pricechange": "涨跌额",
+        "changepercent": "涨跌幅",
+        "amount": "成交额",
+        "nmc": "流通市值",
+        "turnoverratio": "换手率",
+    }
+    result = frame.rename(
+        columns={key: value for key, value in aliases.items() if key in frame}
+    )
+    required = ["代码", "名称", "最新价", "涨跌幅", "成交额"]
+    missing = [column for column in required if column not in result]
+    if missing:
+        raise ValueError(f"Sina response missing columns: {', '.join(missing)}")
+
+    result = result.copy()
+    result["代码"] = result["代码"].astype(str).str.extract(r"(\d{6})", expand=False)
+    for column in ["最新价", "涨跌幅", "成交额", "流通市值", "换手率"]:
+        if column in result:
+            result[column] = pd.to_numeric(result[column], errors="coerce")
+    result = result.dropna(subset=["代码"]).drop_duplicates("代码", keep="first")
+    for column in MARKET_COLUMNS:
+        if column not in result:
+            result[column] = pd.NA
+    result["source_id"] = "market_sina"
+    normalized = result[[*MARKET_COLUMNS, "source_id"]].reset_index(drop=True)
+    normalized.attrs["source_id"] = "market_sina"
+    return normalized
+
+
+class FreeMarketAggregator:
+    """Combine free market sources in observed reliability order."""
+
+    def __init__(
+        self,
+        minimum_rows: int = 5000,
+        verify_secondary: bool | None = None,
+    ) -> None:
         self.minimum_rows = minimum_rows
+        if verify_secondary is None:
+            verify_secondary = os.getenv("RADAR_MARKET_VERIFY_SECONDARY", "false").lower() in {
+                "1",
+                "true",
+                "yes",
+                "on",
+            }
+        self.verify_secondary = verify_secondary
 
     def fetch(
         self,
@@ -194,32 +262,46 @@ class FreeMarketAggregator:
         if not tencent.frame.empty:
             frames.append(tencent.frame)
 
-        if not tencent.complete:
-            eastmoney = self._attempt("market_eastmoney", "东方财富A股行情", eastmoney_fetch)
+        if not tencent.complete or self.verify_secondary:
+            sina = self._attempt(
+                "market_sina",
+                "新浪沪深京行情",
+                lambda: normalize_sina_market_frame(sina_fetch()),
+            )
+            attempts.append(sina)
+            if not sina.frame.empty:
+                frames.append(sina.frame)
+
+        merged = merge_market_frames(frames)
+        if merged.empty or merged["代码"].nunique() < self.minimum_rows:
+            eastmoney = self._attempt(
+                "market_eastmoney", "东方财富A股行情", eastmoney_fetch
+            )
             attempts.append(eastmoney)
             if not eastmoney.frame.empty:
-                frames.append(self._tag(eastmoney.frame, eastmoney.source_id))
+                frames.append(eastmoney.frame)
+                merged = merge_market_frames(frames)
 
-            if eastmoney.frame.empty and browser_fetch is not None:
+            if (
+                merged.empty or merged["代码"].nunique() < self.minimum_rows
+            ) and browser_fetch is not None:
                 browser = self._attempt(
                     "market_eastmoney_browser",
-                    "东方财富A股行情（浏览器回退）",
+                    "东方财富A股行情（浏览器末级回退）",
                     browser_fetch,
                 )
                 attempts.append(browser)
                 if not browser.frame.empty:
-                    frames.append(self._tag(browser.frame, browser.source_id))
+                    frames.append(browser.frame)
+                    merged = merge_market_frames(frames)
 
-        merged = merge_market_frames(frames)
-        needs_sina = merged.empty or merged["代码"].nunique() < self.minimum_rows
-        if needs_sina:
-            sina = self._attempt("market_sina", "新浪A股行情", sina_fetch)
-            attempts.append(sina)
-            if not sina.frame.empty:
-                frames.append(self._tag(sina.frame, sina.source_id))
-                merged = merge_market_frames(frames)
-
-        return MarketAggregateResult(merged, tuple(attempts))
+        sina_frame = next(
+            (item.frame for item in attempts if item.source_id == "market_sina"),
+            pd.DataFrame(),
+        )
+        agreement = compare_market_frames(tencent.frame, sina_frame)
+        merged.attrs["agreement"] = agreement
+        return MarketAggregateResult(merged, tuple(attempts), agreement)
 
     @staticmethod
     def _tag(frame: pd.DataFrame, source_id: str) -> pd.DataFrame:
@@ -239,7 +321,12 @@ class FreeMarketAggregator:
                 raise ValueError("source returned None")
             tagged = self._tag(frame, source_id)
             expected = frame.attrs.get("expected_rows")
-            return MarketSourceAttempt(source_id, display_name, tagged, expected_rows=expected)
+            return MarketSourceAttempt(
+                source_id,
+                display_name,
+                tagged,
+                expected_rows=expected,
+            )
         except Exception as exc:
             return MarketSourceAttempt(
                 source_id,
@@ -247,6 +334,35 @@ class FreeMarketAggregator:
                 pd.DataFrame(),
                 error=f"{type(exc).__name__}: {exc}",
             )
+
+
+def compare_market_frames(
+    primary: pd.DataFrame,
+    secondary: pd.DataFrame,
+    close_tolerance: float = 0.02,
+    pct_tolerance: float = 0.10,
+) -> MarketAgreement:
+    """Compare overlapping quotes without rejecting small timing differences."""
+    if primary.empty or secondary.empty or "代码" not in primary or "代码" not in secondary:
+        return MarketAgreement()
+    left = primary[["代码", "最新价", "涨跌幅"]].drop_duplicates("代码")
+    right = secondary[["代码", "最新价", "涨跌幅"]].drop_duplicates("代码")
+    overlap = left.merge(right, on="代码", suffixes=("_primary", "_secondary"))
+    if overlap.empty:
+        return MarketAgreement()
+    close_diff = (
+        pd.to_numeric(overlap["最新价_primary"], errors="coerce")
+        - pd.to_numeric(overlap["最新价_secondary"], errors="coerce")
+    ).abs()
+    pct_diff = (
+        pd.to_numeric(overlap["涨跌幅_primary"], errors="coerce")
+        - pd.to_numeric(overlap["涨跌幅_secondary"], errors="coerce")
+    ).abs()
+    return MarketAgreement(
+        overlap_rows=len(overlap),
+        close_mismatch_rows=int((close_diff > close_tolerance).sum()),
+        pct_mismatch_rows=int((pct_diff > pct_tolerance).sum()),
+    )
 
 
 def merge_market_frames(frames: list[pd.DataFrame]) -> pd.DataFrame:
@@ -289,6 +405,10 @@ def merge_market_frames(frames: list[pd.DataFrame]) -> pd.DataFrame:
 
     result.index.name = "代码"
     result.reset_index(inplace=True)
-    result["source_id"] = result["代码"].map(lambda code: "+".join(provenance[str(code)]))
-    result["source_count"] = result["代码"].map(lambda code: len(provenance[str(code)]))
+    result["source_id"] = result["代码"].map(
+        lambda code: "+".join(provenance[str(code)])
+    )
+    result["source_count"] = result["代码"].map(
+        lambda code: len(provenance[str(code)])
+    )
     return result[[*MARKET_COLUMNS, "source_id", "source_count"]]
