@@ -401,7 +401,8 @@ def merge_market_frames(frames: list[pd.DataFrame]) -> pd.DataFrame:
                 result[column] = values
             else:
                 missing = result[column].isna()
-                result.loc[missing, column] = values.loc[missing]
+                if missing.any():
+                    result.loc[missing, column] = values.loc[missing]
 
     result.index.name = "代码"
     result.reset_index(inplace=True)
