@@ -1,5 +1,5 @@
 {
-  "trade_date": "2026-07-31",
+  "trade_date": "2026-08-03",
   "label": "数据不足",
   "confidence_level": "low",
   "confidence_score": 65.6,
@@ -9,16 +9,16 @@
     },
     "margin": {
       "available": true,
-      "financing_balance": 1322212177528.98,
-      "financing_buy": 101245345299.49,
-      "change_1d": -14483280718.76001,
-      "change_ratio_1d": -0.010835138721684586,
+      "financing_balance": 1327398281202.7,
+      "financing_buy": 129354380113.66,
+      "change_1d": 5186103673.719971,
+      "change_ratio_1d": 0.003922293079626627,
       "change_ratio_5d": null,
       "change_ratio_20d": null,
       "change_percentile": null,
-      "positive_persistence_days": 0,
-      "negative_persistence_days": 2,
-      "history_samples": 2
+      "positive_persistence_days": 1,
+      "negative_persistence_days": 0,
+      "history_samples": 3
     }
   },
   "supporting_evidence": [],
