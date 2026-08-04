@@ -2,9 +2,9 @@
   {
     "source_id": "market_spot",
     "display_name": "A股实时行情聚合",
-    "trade_date": "2026-08-04",
+    "trade_date": "2026-08-05",
     "available": false,
-    "expected_date": "2026-08-04",
+    "expected_date": "2026-08-05",
     "actual_date": null,
     "freshness_ok": false,
     "schema_ok": false,
@@ -12,15 +12,15 @@
     "anomaly_count": 0,
     "official": false,
     "evidence_level": "L2",
-    "error_message": "ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')); Playwright fallback: Error: Page.goto: net::ERR_EMPTY_RESPONSE at https://82.push2.eastmoney.com/api/qt/clist/get?pn=30&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21\nCall log:\n  - navigating to \"https://82.push2.eastmoney.com/api/qt/clist/get?pn=30&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21\", waiting until \"domcontentloaded\"\n"
+    "error_message": "ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')); Playwright fallback: Error: Page.goto: net::ERR_EMPTY_RESPONSE at https://82.push2.eastmoney.com/api/qt/clist/get?pn=1&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21\nCall log:\n  - navigating to \"https://82.push2.eastmoney.com/api/qt/clist/get?pn=1&pz=100&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f2%2Cf3%2Cf6%2Cf8%2Cf12%2Cf14%2Cf20%2Cf21\", waiting until \"domcontentloaded\"\n"
   },
   {
     "source_id": "etf_spot",
     "display_name": "ETF行情与IOPV聚合",
-    "trade_date": "2026-08-04",
+    "trade_date": "2026-08-05",
     "available": true,
-    "expected_date": "2026-08-04",
-    "actual_date": "2026-08-04",
+    "expected_date": "2026-08-05",
+    "actual_date": "2026-08-05",
     "freshness_ok": true,
     "schema_ok": true,
     "row_count": 1565,
@@ -32,39 +32,39 @@
   {
     "source_id": "sse_etf_shares",
     "display_name": "上交所ETF基金份额",
-    "trade_date": "2026-08-04",
+    "trade_date": "2026-08-05",
     "available": true,
-    "expected_date": "2026-08-04",
+    "expected_date": "2026-08-05",
     "actual_date": "2026-08-04",
-    "freshness_ok": true,
+    "freshness_ok": false,
     "schema_ok": true,
     "row_count": 888,
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": null
+    "error_message": "requested 2026-08-05 was not published; using 2026-08-04 via direct"
   },
   {
     "source_id": "szse_etf_shares",
     "display_name": "深交所ETF基金份额",
-    "trade_date": "2026-08-04",
+    "trade_date": "2026-08-05",
     "available": true,
-    "expected_date": "2026-08-04",
-    "actual_date": "2026-08-03",
+    "expected_date": "2026-08-05",
+    "actual_date": "2026-08-04",
     "freshness_ok": false,
     "schema_ok": true,
     "row_count": 706,
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": "requested 2026-08-04 was not published; using 2026-08-03 via direct"
+    "error_message": "requested 2026-08-05 was not published; using 2026-08-04 via direct"
   },
   {
     "source_id": "sse_margin",
     "display_name": "上交所融资融券汇总",
-    "trade_date": "2026-08-04",
+    "trade_date": "2026-08-05",
     "available": true,
-    "expected_date": "2026-08-04",
+    "expected_date": "2026-08-05",
     "actual_date": "2026-08-03",
     "freshness_ok": false,
     "schema_ok": true,
@@ -72,14 +72,14 @@
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": "requested 2026-08-04 was not published; using 2026-08-03 via direct"
+    "error_message": "requested 2026-08-05 was not published; using 2026-08-03 via direct"
   },
   {
     "source_id": "szse_margin",
     "display_name": "深交所融资融券汇总",
-    "trade_date": "2026-08-04",
+    "trade_date": "2026-08-05",
     "available": true,
-    "expected_date": "2026-08-04",
+    "expected_date": "2026-08-05",
     "actual_date": "2026-08-03",
     "freshness_ok": false,
     "schema_ok": true,
@@ -87,14 +87,14 @@
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": "requested 2026-08-04 was not published; using 2026-08-03 via direct"
+    "error_message": "requested 2026-08-05 was not published; using 2026-08-03 via direct"
   },
   {
     "source_id": "margin_detail",
     "display_name": "沪深融资融券明细",
-    "trade_date": "2026-08-04",
+    "trade_date": "2026-08-05",
     "available": true,
-    "expected_date": "2026-08-04",
+    "expected_date": "2026-08-05",
     "actual_date": "2026-08-03",
     "freshness_ok": false,
     "schema_ok": true,
@@ -102,6 +102,6 @@
     "anomaly_count": 0,
     "official": true,
     "evidence_level": "L1",
-    "error_message": "requested 2026-08-04 was not published; using 2026-08-03 via direct; requested 2026-08-04 was not published; using 2026-08-03 via direct"
+    "error_message": "requested 2026-08-05 was not published; using 2026-08-03 via direct; requested 2026-08-05 was not published; using 2026-08-03 via direct"
   }
 ]
