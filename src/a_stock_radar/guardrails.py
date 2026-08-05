@@ -41,6 +41,6 @@ def validate_report(text: str) -> list[str]:
         errors.append("缺少风险声明")
     if "替代解释" not in text:
         errors.append("缺少替代解释")
-    if "样本不足时不显示概率" not in text:
+    if "样本少于门槛时不显示概率" not in text:
         errors.append("缺少历史概率样本门槛说明")
     return errors
