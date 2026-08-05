@@ -16,6 +16,7 @@ from .features import (
 )
 from .models import ReportPayload
 from .reporting import ReportRenderer
+from .review import build_daily_review
 from .sources import AkshareProvider, MockProvider, SourceBundle, UnavailableProvider
 from .states import classify_market_state, classify_sector_states
 from .storage import FileStore
@@ -103,7 +104,11 @@ def run_pipeline(
 
     history_prefix = "mock" if bundle.data_mode == "mock" else "live"
     market_summary = summarize_market(bundle.market, trade_date)
-    market_history = store.replace_date_rows(f"{history_prefix}_market_history", market_summary, ["trade_date"])
+    market_history = store.replace_date_rows(
+        f"{history_prefix}_market_history",
+        market_summary,
+        ["trade_date"],
+    )
     etf_history = store.replace_date_rows(
         f"{history_prefix}_etf_history",
         bundle.etf,
@@ -160,13 +165,23 @@ def run_pipeline(
         settings.thresholds,
         settings.minimum_percentile_samples,
     )
+    daily_review = build_daily_review(
+        settings.root,
+        trade_date,
+        market_history,
+        market_state,
+        sector_states,
+        bundle.qualities,
+        settings.thresholds,
+    )
 
     unavailable = [item.display_name for item in bundle.qualities if not item.available]
     global_unknowns = [
         "无法确认具体交易者身份，也无法识别所谓真实意图。",
-        "成交额只表示成交活跃程度，不能解释为市场净流入或净流出。",
+        "成交额和分笔成交失衡只描述活跃程度或主动性近似，不能解释为市场净流入。",
         "ETF份额变化和融资余额变化描述已经发生的敞口变化，不代表未来价格结果。",
-        "M1不使用北向日净额，也不包含衍生品和公司资本行为证据。",
+        "龙虎榜与营业部事实尚未接入生产管线，当前不输出席位身份判断。",
+        "当前版本尚未纳入股指衍生品和公司资本行为证据。",
     ]
     if unavailable:
         global_unknowns.append("以下来源缺失或异常：" + "、".join(unavailable) + "。")
@@ -182,13 +197,17 @@ def run_pipeline(
         data_version=os.getenv("GITHUB_SHA", "local")[:12],
         market_state=market_state,
         sector_states=sector_states,
+        daily_review=daily_review,
         source_quality=bundle.qualities,
         global_unknowns=global_unknowns,
         glossary={
+            "参与者原型": "根据公开数据推断的行为类别，不是具体账户或自然人身份。",
+            "对手关系": "描述可能相互成交的行为类型，不代表已识别真实交易双方。",
             "ETF份额变化": "基金日终份额的增减；份额增加通常对应净申购，但可能包含套利和做市。",
             "融资余额": "尚未偿还的融资交易金额，用于描述杠杆交易资金敞口。",
             "市场宽度": "上涨证券数量占有效证券数量的比例。",
-            "历史百分位": "当前指标在自身历史样本中的相对位置，不是未来概率。",
+            "历史条件概率": "历史相同状态下结果出现的样本频率；不是因果结论或保证。",
+            "可证伪条件": "出现后应降低置信度或撤销当前假设的观察条件。",
         },
     )
     renderer = ReportRenderer(Path(__file__).parent / "templates")
