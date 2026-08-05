@@ -42,9 +42,9 @@ def parse_official_turnover(values: list[str] | None) -> dict[str, float]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="A股市场资金证据雷达 M1")
+    parser = argparse.ArgumentParser(description="A股市场参与者与证据复盘")
     subparsers = parser.add_subparsers(dest="command", required=True)
-    run = subparsers.add_parser("run", help="抓取、计算并生成静态日报")
+    run = subparsers.add_parser("run", help="读取产品源、计算并生成静态日报")
     run.add_argument("--date", help="交易日期 YYYY-MM-DD；默认当前最近工作日")
     run.add_argument(
         "--stage",
@@ -54,15 +54,18 @@ def build_parser() -> argparse.ArgumentParser:
     )
     run.add_argument(
         "--data-mode",
-        choices=["live", "auto", "mock"],
+        choices=["live", "auto", "curated", "legacy", "mock"],
         default="live",
-        help="live 不使用虚构降级；mock 仅用于演示",
+        help=(
+            "live/curated 使用开盘啦、东方财富龙虎榜、大智慧、财联社及外部分析产物；"
+            "legacy 仅用于旧行情聚合兼容；mock 仅用于演示"
+        ),
     )
     run.add_argument("--root", help="项目根目录")
 
     ticks = subparsers.add_parser(
         "collect-ticks",
-        help="采集最近交易日的免费分笔成交；不会标记为完整 Level-2",
+        help="旧兼容工具：采集免费分笔成交；不会标记为完整Level-2或替代大智慧DDE/ACE",
     )
     ticks.add_argument("--date", required=True, help="由操作方确认的交易日期 YYYY-MM-DD")
     ticks.add_argument("--symbols", nargs="+", required=True, help="例如 sz000001 sh600000")
