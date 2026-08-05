@@ -1,31 +1,67 @@
-sources:
-  market_spot:
-    display_name: A股实时行情聚合
+strategy: curated_products
+
+products:
+  kaipanla:
+    display_name: 开盘啦每日复盘与市场概况
+    role: market_replay
     evidence_level: L2
     official: false
-    adapter: akshare.stock_zh_a_spot_em
-  sse_etf_shares:
-    display_name: 上交所ETF基金份额
-    evidence_level: L1
-    official: true
-    adapter: akshare.fund_etf_scale_sse
-  szse_etf_shares:
-    display_name: 深交所ETF基金份额
-    evidence_level: L1
-    official: true
-    adapter: akshare.fund_scale_daily_szse
-  etf_spot:
-    display_name: ETF行情与IOPV聚合
+    import_dir: imports/kaipanla
+    env_path: RADAR_KAIPANLA_EXPORT
+    required: true
+
+  eastmoney_lhb:
+    display_name: 东方财富龙虎榜
+    role: seat_facts_and_history
     evidence_level: L2
     official: false
-    adapter: akshare.fund_etf_spot_em
-  sse_margin:
-    display_name: 上交所融资融券汇总
-    evidence_level: L1
-    official: true
-    adapter: akshare.stock_margin_sse
-  szse_margin:
-    display_name: 深交所融资融券汇总
-    evidence_level: L1
-    official: true
-    adapter: akshare.stock_margin_szse
+    adapter: akshare.stock_lhb_detail_em
+    companion_adapters:
+      - akshare.stock_lhb_jgmmtj_em
+      - akshare.stock_lhb_hyyyb_em
+      - akshare.stock_lhb_yybph_em
+      - akshare.stock_lhb_traderstatistic_em
+
+  dazhihui:
+    display_name: 大智慧DDE/ACE
+    role: level2_behavior
+    evidence_level: L3
+    official: false
+    import_dir: imports/dazhihui
+    env_path: RADAR_DAZHIHUI_DDE_EXPORT
+    access: licensed_export_or_authorized_endpoint
+
+  cls:
+    display_name: 财联社龙虎榜
+    role: seat_fact_corroboration
+    evidence_level: L2
+    official: false
+    import_dir: imports/cls
+    env_path: RADAR_CLS_LHB_EXPORT
+    access: authorized_export_only
+
+  daily_stock_analysis:
+    display_name: daily_stock_analysis
+    role: report_architecture
+    evidence_level: L4
+    official: false
+    import_dir: imports/daily_stock_analysis
+    env_path: RADAR_DAILY_STOCK_ANALYSIS_ARTIFACT
+    fact_source: false
+
+  tradingagents_cn:
+    display_name: TradingAgents-CN
+    role: debate_reference
+    evidence_level: L4
+    official: false
+    import_dir: imports/tradingagents_cn
+    env_path: RADAR_TRADINGAGENTS_CN_ARTIFACT
+    fact_source: false
+
+legacy_sources:
+  enabled_only_when_data_mode_is_legacy: true
+  adapters:
+    - tencent_market
+    - sina_market
+    - eastmoney_market
+    - official_exchange_etf_and_margin
