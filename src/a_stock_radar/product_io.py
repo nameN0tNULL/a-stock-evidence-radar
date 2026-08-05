@@ -56,11 +56,11 @@ def read_table(path: Path | None) -> tuple[pd.DataFrame, str | None]:
     try:
         suffix = path.suffix.lower()
         if suffix == ".csv":
-            return pd.read_csv(path), None
+            return pd.read_csv(path, dtype=str), None
         if suffix in {".xlsx", ".xls"}:
-            return pd.read_excel(path), None
+            return pd.read_excel(path, dtype=str), None
         if suffix == ".jsonl":
-            return pd.read_json(path, lines=True), None
+            return pd.read_json(path, lines=True, dtype=False), None
         if suffix == ".json":
             payload = json.loads(path.read_text(encoding="utf-8"))
             return pd.DataFrame(_rows(payload)), None
