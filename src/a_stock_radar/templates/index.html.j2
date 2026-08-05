@@ -3,68 +3,167 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>A股市场资金证据雷达</title>
+  <title>A股市场参与者与证据复盘</title>
   <style>
-    :root { color-scheme: light; --bg:#f4f5f7; --card:#fff; --text:#172033; --muted:#687386; --line:#dfe3ea; --accent:#334155; }
+    :root { color-scheme:light; --bg:#f3f5f7; --card:#fff; --text:#172033; --muted:#687386; --line:#dfe3ea; --accent:#24445f; --soft:#eef4f8; --warn:#8a5a14; --bad:#8b3a3a; --good:#25614f; }
     * { box-sizing:border-box; }
     body { margin:0; background:var(--bg); color:var(--text); font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif; line-height:1.65; }
-    main { max-width:1180px; margin:auto; padding:28px 18px 60px; }
-    h1 { margin:0 0 6px; font-size:30px; }
-    h2 { margin-top:34px; border-bottom:1px solid var(--line); padding-bottom:8px; }
-    h3 { margin:0 0 10px; }
+    main { max-width:1260px; margin:auto; padding:28px 18px 64px; }
+    h1 { margin:0 0 4px; font-size:30px; }
+    h2 { margin-top:38px; padding-bottom:8px; border-bottom:1px solid var(--line); }
+    h3 { margin:0 0 9px; }
+    h4 { margin:18px 0 7px; }
     .muted { color:var(--muted); }
-    .notice { border:1px solid #cbd5e1; background:#f8fafc; padding:14px 16px; border-radius:10px; margin:16px 0; }
+    .notice { border:1px solid #cbd5e1; background:#f8fafc; padding:14px 16px; border-radius:12px; margin:16px 0; }
     .demo { border-color:#d6b562; background:#fffaf0; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px; }
-    .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; box-shadow:0 1px 3px rgba(15,23,42,.04); }
-    .metric { font-size:24px; font-weight:700; margin-top:4px; }
-    .pill { display:inline-block; border:1px solid var(--line); border-radius:999px; padding:2px 9px; font-size:13px; color:var(--muted); }
-    .state-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:14px; }
-    ul { padding-left:20px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+    .wide-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:14px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:17px; box-shadow:0 1px 3px rgba(15,23,42,.04); }
+    .metric { font-size:24px; font-weight:750; margin-top:4px; }
+    .pill { display:inline-block; border:1px solid var(--line); border-radius:999px; padding:2px 9px; font-size:13px; color:var(--muted); margin-right:5px; }
+    .available { color:var(--good); border-color:#9bc9bb; background:#f2fbf7; }
+    .partial { color:var(--warn); border-color:#d8bd8d; background:#fffaf0; }
+    .missing { color:var(--bad); border-color:#d8aaaa; background:#fff7f7; }
+    .probability { font-size:28px; font-weight:760; color:var(--accent); }
+    .section-label { color:var(--muted); font-size:13px; text-transform:uppercase; letter-spacing:.04em; }
+    .relation { border-left:4px solid #90aabd; }
+    ul { padding-left:20px; margin-top:7px; }
     table { width:100%; border-collapse:collapse; background:var(--card); }
-    th,td { border-bottom:1px solid var(--line); padding:9px; text-align:left; vertical-align:top; font-size:14px; }
+    th,td { border-bottom:1px solid var(--line); padding:9px; text-align:left; vertical-align:top; font-size:13px; }
+    th { position:sticky; top:0; background:#f7f9fb; }
+    .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:12px; }
     details { margin-top:10px; }
-    footer { margin-top:40px; color:var(--muted); font-size:13px; }
+    code { background:#f1f5f9; padding:1px 4px; border-radius:4px; }
+    footer { margin-top:44px; color:var(--muted); font-size:13px; }
     a { color:#334e68; }
   </style>
 </head>
 <body>
 <main>
-  <h1>A股市场资金证据雷达</h1>
-  <div class="muted">{{ report.trade_date }} · {{ report.report_stage }} · {{ report.data_mode }}</div>
+  <h1>A股市场参与者与证据复盘</h1>
+  <div class="muted">{{ report.trade_date }} · {{ report.report_stage }} · {{ report.data_mode }} · {{ report.daily_review.review_version }}</div>
   {% if report.report_stage == "demo" %}<div class="notice demo"><strong>演示模式：</strong>页面数据不代表真实市场。</div>{% endif %}
-  <div class="notice">先看数据状态和已确认事实，再看解释。系统不识别所谓“主力真实意图”，也不输出交易建议。</div>
+  <div class="notice">本页先展示事实与来源，再展示参与者原型、可能对手关系和可证伪路径。所有身份与意图内容均为有限证据下的行为假设，不是账户识别或交易建议。</div>
 
   <div class="grid">
-    <div class="card"><div class="muted">市场状态</div><div class="metric">{{ report.market_state.label }}</div><span class="pill">置信度 {{ report.market_state.confidence_level }}</span></div>
-    <div class="card"><div class="muted">上涨覆盖率</div><div class="metric">{{ report.market_state.metrics.market.breadth_ratio|pct if report.market_state.metrics.market.available else "数据不足" }}</div></div>
-    <div class="card"><div class="muted">市场成交额</div><div class="metric">{{ report.market_state.metrics.market.total_amount|money if report.market_state.metrics.market.available else "数据不足" }}</div></div>
-    <div class="card"><div class="muted">融资余额近5日</div><div class="metric">{{ report.market_state.metrics.margin.change_ratio_5d|pct if report.market_state.metrics.margin.available else "数据不足" }}</div></div>
+    <div class="card"><div class="section-label">市场阶段</div><div class="metric">{{ report.daily_review.market_phase }}</div><span class="pill">数据置信度 {{ report.market_state.confidence_level }}</span></div>
+    <div class="card"><div class="section-label">上涨覆盖率</div><div class="metric">{{ report.market_state.metrics.market.breadth_ratio|pct if report.market_state.metrics.market.available else "数据不足" }}</div></div>
+    <div class="card"><div class="section-label">市场成交额</div><div class="metric">{{ report.market_state.metrics.market.total_amount|money if report.market_state.metrics.market.available else "数据不足" }}</div></div>
+    <div class="card"><div class="section-label">融资余额近5日</div><div class="metric">{{ report.market_state.metrics.margin.change_ratio_5d|pct if report.market_state.metrics.margin.available else "数据不足" }}</div></div>
   </div>
 
-  <h2>数据源状态</h2>
-  <table><thead><tr><th>来源</th><th>级别</th><th>状态</th><th>日期</th><th>说明</th></tr></thead><tbody>
-  {% for source in report.source_quality %}<tr><td>{{ source.display_name }}</td><td>{{ source.evidence_level }}</td><td>{{ "可用" if source.available else "缺失" }}</td><td>{{ source.actual_date or "-" }}</td><td>{{ source.error_message or "-" }}</td></tr>{% endfor %}
-  </tbody></table>
+  <h2>证据层覆盖</h2>
+  <div class="grid">
+    {% for layer in report.daily_review.evidence_layers %}
+    <div class="card">
+      <h3>{{ layer.display_name }}</h3>
+      <span class="pill {{ layer.status }}">{{ layer.status }}</span>
+      <p>{{ layer.summary }}</p>
+      {% if layer.limitations %}<details><summary>限制</summary><ul>{% for item in layer.limitations %}<li>{{ item }}</li>{% endfor %}</ul></details>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
 
-  <h2>板块状态</h2>
+  <h2>今日复盘结构</h2>
+  <div class="card">
+    <p><strong>{{ report.daily_review.market_phase_summary }}</strong></p>
+    <div class="wide-grid">
+      <div><h4>支持证据</h4><ul>{% for item in report.market_state.supporting_evidence %}<li>{{ item }}</li>{% endfor %}</ul></div>
+      <div><h4>反向与未知</h4><ul>{% for item in report.market_state.counter_evidence %}<li>{{ item }}</li>{% endfor %}{% for item in report.market_state.unknowns %}<li>{{ item }}</li>{% endfor %}</ul></div>
+    </div>
+  </div>
+
+  <h2>参与者原型</h2>
+  <div class="wide-grid">
+    {% for item in report.daily_review.participant_hypotheses %}
+    <article class="card">
+      <h3>{{ item.display_name }}</h3>
+      <span class="pill">{{ item.activity }}</span><span class="pill">{{ item.confidence_level }} · {{ "%.0f"|format(item.confidence_score) }}</span>
+      <p>{{ item.observation }}</p>
+      <h4>支持证据</h4><ul>{% if item.supporting_evidence %}{% for text in item.supporting_evidence %}<li>{{ text }}</li>{% endfor %}{% else %}<li>当前没有达到门槛的直接支持证据。</li>{% endif %}</ul>
+      <details><summary>替代解释与无法确认</summary><ul>{% for text in item.alternative_explanations %}<li>{{ text }}</li>{% endfor %}{% for text in item.cannot_confirm %}<li>{{ text }}</li>{% endfor %}</ul></details>
+    </article>
+    {% endfor %}
+  </div>
+
+  <h2>可能的对手关系</h2>
+  <div class="wide-grid">
+    {% for item in report.daily_review.counterparty_relations %}
+    <article class="card relation">
+      <h3>{{ item.left_archetype }} ↔ {{ item.right_archetype }}</h3>
+      <span class="pill">{{ item.confidence_level }} · {{ "%.0f"|format(item.confidence_score) }}</span>
+      <p>{{ item.interaction }}</p>
+      <h4>确认条件</h4><ul>{% for text in item.confirmation_conditions %}<li>{{ text }}</li>{% endfor %}</ul>
+      <details><summary>替代解释与否定条件</summary><ul>{% for text in item.alternative_explanations %}<li>{{ text }}</li>{% endfor %}{% for text in item.invalidation_conditions %}<li>{{ text }}</li>{% endfor %}</ul></details>
+    </article>
+    {% else %}
+    <div class="card">当前证据不足，未生成对手关系假设。</div>
+    {% endfor %}
+  </div>
+
+  <h2>未来路径与历史条件概率</h2>
+  <div class="wide-grid">
+    {% for path in report.daily_review.scenario_paths %}
+    <article class="card">
+      <div class="section-label">路径 {{ loop.index }}</div>
+      <h3>{{ path.title }}</h3>
+      <div class="probability">{{ path.probability|probability }}</div>
+      <div class="muted">{{ path.probability_status }} · 样本 {{ path.sample_size }}</div>
+      <p>{{ path.narrative }}</p>
+      <h4>观察确认</h4><ul>{% for text in path.confirmation_conditions %}<li>{{ text }}</li>{% endfor %}</ul>
+      <details><summary>替代解释与撤销条件</summary><ul>{% for text in path.alternative_explanations %}<li>{{ text }}</li>{% endfor %}{% for text in path.invalidation_conditions %}<li>{{ text }}</li>{% endfor %}</ul></details>
+    </article>
+    {% endfor %}
+  </div>
+
+  <h2>席位事实与微观行为</h2>
+  <div class="wide-grid">
+    <div class="card">
+      <h3>龙虎榜与营业部</h3>
+      {% if report.daily_review.seat_facts %}<ul>{% for fact in report.daily_review.seat_facts %}<li>{{ fact.security_code }} {{ fact.fact_type }}</li>{% endfor %}</ul>{% else %}<p>尚未接入生产管线，因此不输出席位身份判断。</p><p class="muted">营业部或交易单元不等于最终投资者。</p>{% endif %}
+    </div>
+    <div class="card">
+      <h3>分笔成交</h3>
+      {% set micro = report.daily_review.microstructure %}
+      {% if micro.available %}
+      <div class="metric">{{ micro.signed_notional_imbalance|pct }}</div><div class="muted">供应方标记成交金额失衡</div>
+      <ul><li>覆盖 {{ micro.symbol_count }} 只证券</li><li>分类覆盖率 {{ micro.classification_coverage|pct }}</li><li>14:57后成交占比 {{ micro.closing_auction_notional_share|pct }}</li></ul>
+      {% else %}<p>当日没有可用分笔成交证据。</p>{% endif %}
+      <details><summary>解释边界</summary><ul>{% for item in micro.limitations %}<li>{{ item }}</li>{% endfor %}</ul></details>
+    </div>
+  </div>
+
+  <h2>板块证据矩阵</h2>
   {% for label, states in groups.items() %}
   <h3>{{ label }}</h3>
-  <div class="state-grid">
+  <div class="wide-grid">
     {% for state in states %}
     <article class="card">
       <h3>{{ state.sector_name }}</h3><span class="pill">{{ state.confidence_level }}</span>
-      <p><strong>已确认事实</strong></p><ul>{% for item in state.supporting_evidence %}<li>{{ item }}</li>{% endfor %}</ul>
-      {% if state.counter_evidence %}<p><strong>反向证据</strong></p><ul>{% for item in state.counter_evidence %}<li>{{ item }}</li>{% endfor %}</ul>{% endif %}
-      <details><summary>无法确认与后续条件</summary><ul>{% for item in state.unknowns %}<li>{{ item }}</li>{% endfor %}{% for item in state.next_confirmation_conditions %}<li>{{ item }}</li>{% endfor %}</ul></details>
+      <h4>支持</h4><ul>{% for item in state.supporting_evidence %}<li>{{ item }}</li>{% endfor %}</ul>
+      {% if state.counter_evidence %}<h4>反向</h4><ul>{% for item in state.counter_evidence %}<li>{{ item }}</li>{% endfor %}</ul>{% endif %}
+      <details><summary>未知与确认条件</summary><ul>{% for item in state.unknowns %}<li>{{ item }}</li>{% endfor %}{% for item in state.next_confirmation_conditions %}<li>{{ item }}</li>{% endfor %}</ul></details>
     </article>
     {% endfor %}
   </div>
   {% endfor %}
 
+  <h2>字段级来源</h2>
+  <div class="table-wrap"><table><thead><tr><th>字段</th><th>值</th><th>来源</th><th>级别</th><th>状态</th><th>计算</th><th>限制</th></tr></thead><tbody>
+  {% for item in report.daily_review.field_provenance %}
+  <tr><td><code>{{ item.field_path }}</code><br>{{ item.display_name }}</td><td>{{ item.value if item.value is not none else "-" }} {{ item.unit or "" }}</td><td>{{ item.source_ids|join("+") or "-" }}</td><td>{{ item.evidence_level }}{% if item.official %} · 官方{% endif %}</td><td>{{ item.status }}</td><td>{{ item.transform }}</td><td>{{ item.limitations|join("；") or "-" }}</td></tr>
+  {% endfor %}
+  </tbody></table></div>
+
+  <h2>确认与可证伪清单</h2>
+  <div class="wide-grid">
+    <div class="card"><h3>后续确认</h3><ul>{% for item in report.daily_review.confirmation_checklist %}<li>{{ item }}</li>{% endfor %}</ul></div>
+    <div class="card"><h3>降低置信度或撤销</h3><ul>{% for item in report.daily_review.falsification_checklist %}<li>{{ item }}</li>{% endfor %}</ul></div>
+  </div>
+
   <h2>限制</h2>
   <div class="card"><ul>{% for item in report.global_unknowns %}<li>{{ item }}</li>{% endfor %}</ul></div>
-  <footer>仅用于学习、观察和复盘，不构成投资建议。<br><a href="api/v3/latest.json">查看结构化 JSON</a> · <a href="report.md">查看 Markdown 日报</a></footer>
+  <footer>仅用于学习、观察和复盘，不构成投资建议。<br><a href="api/v4/latest.json">完整 JSON</a> · <a href="api/v4/daily-review.json">每日复盘 API</a> · <a href="api/v4/field-provenance.json">字段来源 API</a> · <a href="report.md">Markdown 日报</a></footer>
 </main>
 </body>
 </html>
