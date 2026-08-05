@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "a-stock-evidence-radar"
-version = "0.3.0"
-description = "A-share market ETF, margin and trade-print evidence radar"
+version = "0.4.0"
+description = "A-share participants, counterparties and evidence review radar"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -27,7 +27,7 @@ browser = ["playwright>=1.55,<2", "PySocks>=1.7,<2"]
 a-stock-radar = "a_stock_radar.cli:main"
 
 [tool.setuptools]
-package-dir = {"" = "src"}
+package-dir = {"" = "src"]
 include-package-data = true
 
 [tool.setuptools.packages.find]
