@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "a-stock-evidence-radar"
-version = "0.4.0"
-description = "A-share participants, counterparties and evidence review radar"
+version = "0.5.0"
+description = "A-share evidence review using curated market product sources"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
