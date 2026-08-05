@@ -27,7 +27,7 @@ browser = ["playwright>=1.55,<2", "PySocks>=1.7,<2"]
 a-stock-radar = "a_stock_radar.cli:main"
 
 [tool.setuptools]
-package-dir = {"" = "src"]
+package-dir = {"" = "src"}
 include-package-data = true
 
 [tool.setuptools.packages.find]
