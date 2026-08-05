@@ -5,16 +5,8 @@ from datetime import date, timedelta
 
 import pandas as pd
 
+from a_stock_radar import review
 from a_stock_radar.models import MarketState, SourceQuality
-from a_stock_radar.review import (
-    OUTCOME_CONTINUATION,
-    OUTCOME_DETERIORATION,
-    OUTCOME_ROTATION,
-    build_daily_review,
-    build_historical_conditionals,
-    load_microstructure_summary,
-)
-
 
 THRESHOLDS = {
     "market": {
@@ -120,7 +112,7 @@ def source_qualities(trade_date: date) -> list[SourceQuality]:
 
 
 def test_historical_conditionals_are_empirical_and_sum_to_one() -> None:
-    records = build_historical_conditionals(
+    records = review.build_historical_conditionals(
         build_history(),
         "广泛改善",
         THRESHOLDS,
@@ -129,9 +121,9 @@ def test_historical_conditionals_are_empirical_and_sum_to_one() -> None:
 
     one_day = [item for item in records if item.horizon == "1d"]
     assert {item.outcome for item in one_day} == {
-        OUTCOME_CONTINUATION,
-        OUTCOME_ROTATION,
-        OUTCOME_DETERIORATION,
+        review.OUTCOME_CONTINUATION,
+        review.OUTCOME_ROTATION,
+        review.OUTCOME_DETERIORATION,
     }
     assert all(item.status == "available" for item in one_day)
     assert sum(item.conditional_probability or 0 for item in one_day) == 1
@@ -139,7 +131,7 @@ def test_historical_conditionals_are_empirical_and_sum_to_one() -> None:
 
 
 def test_historical_probability_is_hidden_when_samples_are_insufficient() -> None:
-    records = build_historical_conditionals(
+    records = review.build_historical_conditionals(
         build_history(6),
         "广泛改善",
         THRESHOLDS,
@@ -183,7 +175,7 @@ def test_microstructure_summary_reads_only_non_rejected_manifests(tmp_path) -> N
         encoding="utf-8",
     )
 
-    result = load_microstructure_summary(tmp_path, trade_date)
+    result = review.load_microstructure_summary(tmp_path, trade_date)
 
     assert result.available is True
     assert result.symbol_count == 1
@@ -196,7 +188,7 @@ def test_microstructure_summary_reads_only_non_rejected_manifests(tmp_path) -> N
 
 def test_daily_review_contains_layers_hypotheses_scenarios_and_provenance(tmp_path) -> None:
     trade_date = date(2026, 7, 31)
-    review = build_daily_review(
+    result = review.build_daily_review(
         tmp_path,
         trade_date,
         build_history(),
@@ -206,14 +198,17 @@ def test_daily_review_contains_layers_hypotheses_scenarios_and_provenance(tmp_pa
         THRESHOLDS,
     )
 
-    assert review.market_phase == "广泛改善"
-    assert len(review.participant_hypotheses) == 5
-    assert len(review.scenario_paths) == 3
-    assert any(item.layer_id == "seat_facts" and item.status == "missing" for item in review.evidence_layers)
+    assert result.market_phase == "广泛改善"
+    assert len(result.participant_hypotheses) == 5
+    assert len(result.scenario_paths) == 3
+    assert any(
+        item.layer_id == "seat_facts" and item.status == "missing"
+        for item in result.evidence_layers
+    )
     assert any(
         item.field_path == "market_state.metrics.market.total_amount"
-        for item in review.field_provenance
+        for item in result.field_provenance
     )
-    assert review.seat_facts == []
-    assert review.confirmation_checklist
-    assert review.falsification_checklist
+    assert result.seat_facts == []
+    assert result.confirmation_checklist
+    assert result.falsification_checklist
