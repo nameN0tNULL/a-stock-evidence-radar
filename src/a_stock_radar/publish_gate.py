@@ -64,7 +64,7 @@ def validate_publishable_payload(
     if (payload.get("market_state") or {}).get("label") == "数据不足":
         errors.append("market state is 数据不足")
 
-    source_id = "kaipanla_review" if mode == "curated" else "market_aggregate"
+    source_id = "market_eastmoney_snapshot" if mode == "curated" else "market_aggregate"
     source = _source(payload, source_id)
     if not source:
         errors.append(f"required market source is missing from source_quality: {source_id}")
