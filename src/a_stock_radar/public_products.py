@@ -97,23 +97,18 @@ class PublicProductClient:
     @staticmethod
     def _article_date(text: str) -> datetime | None:
         patterns = (
-            (
-                r"(?:时间\s*[:：]\s*)?(20\d{2})-(\d{2})-(\d{2})\s+"
-                r"(\d{2}):(\d{2})(?::(\d{2}))?",
-                False,
-            ),
-            (
-                r"(?:发布时间\s*[:：]\s*)?(20\d{2})年(\d{1,2})月(\d{1,2})日\s*"
-                r"(\d{1,2}):(\d{2})(?::(\d{2}))?",
-                True,
-            ),
+            r"(?:时间\s*[:：]\s*)?(20\d{2})-(\d{2})-(\d{2})\s+"
+            r"(\d{2}):(\d{2})(?::(\d{2}))?",
+            r"(?:发布时间\s*[:：]\s*)?(20\d{2})年(\d{1,2})月(\d{1,2})日\s*"
+            r"(\d{1,2}):(\d{2})(?::(\d{2}))?",
         )
-        for pattern, _ in patterns:
+        for pattern in patterns:
             match = re.search(pattern, text)
             if not match:
                 continue
-            values = [int(value or 0) for value in match.groups()]
-            year, month, day, hour, minute, second = values
+            year, month, day, hour, minute, second = [
+                int(value or 0) for value in match.groups()
+            ]
             try:
                 return datetime(
                     year,
@@ -292,9 +287,14 @@ class PublicProductClient:
             value = float(net_match.group(2))
             scale = 1e8 if net_match.group(3) in {"亿元", "亿"} else 1e4
             net_amount = value * scale * (1 if net_match.group(1) == "买入" else -1)
-        label_pattern = r"([\u4e00-\u9fa5A-Za-z0-9（）()·-]{2,32})净{}"
-        buyer_labels = re.findall(label_pattern.format("买入"), text)
-        seller_labels = re.findall(label_pattern.format("卖出"), text)
+        buyer_labels = re.findall(
+            r"([\u4e00-\u9fa5A-Za-z0-9（）()·-]{2,32})净买入",
+            text,
+        )
+        seller_labels = re.findall(
+            r"([\u4e00-\u9fa5A-Za-z0-9（）()·-]{2,32})净卖出",
+            text,
+        )
         return {
             "security_code": codes[0] if codes else None,
             "security_name": security_name,
