@@ -22,3 +22,5 @@ confirmation:
 quality:
   high: 80
   medium: 55
+review:
+  minimum_scenario_samples: 20

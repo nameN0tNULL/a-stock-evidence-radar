@@ -1,7 +1,8 @@
-# A股市场资金证据雷达日报：{{ report.trade_date }}
+# A股市场参与者与证据复盘：{{ report.trade_date }}
 
 > 报告阶段：{{ report.report_stage }}  
 > 数据模式：{{ report.data_mode }}  
+> 复盘模型：{{ report.daily_review.review_version }}  
 > 生成时间：{{ report.generated_at }}  
 > 本报告用于学习、观察和复盘，不构成投资建议。
 
@@ -11,90 +12,186 @@
 **当前为演示数据。页面中的数值不代表真实市场。**
 {% endif %}
 
-| 数据源 | 证据级别 | 状态 | 日期一致 | 行数 | 说明 |
-|---|---:|---|---|---:|---|
+| 数据源 | 证据级别 | 是否官方 | 状态 | 实际日期 | 行数 | 说明 |
+|---|---:|---:|---|---|---:|---|
 {% for source in report.source_quality %}
-| {{ source.display_name }} | {{ source.evidence_level }} | {{ "可用" if source.available else "缺失" }} | {{ "是" if source.freshness_ok else "否" }} | {{ source.row_count }} | {{ source.error_message or "-" }} |
+| {{ source.display_name }} | {{ source.evidence_level }} | {{ "是" if source.official else "否" }} | {{ "可用" if source.available else "缺失" }} | {{ source.actual_date or "-" }} | {{ source.row_count }} | {{ source.error_message or "-" }} |
 {% endfor %}
 
-**本日报不能确认的事项：**
+### 证据层覆盖
+
+| 层级 | 状态 | 摘要 | 限制 |
+|---|---|---|---|
+{% for layer in report.daily_review.evidence_layers %}
+| {{ layer.display_name }} | {{ layer.status }} | {{ layer.summary }} | {{ layer.limitations|join("；") or "-" }} |
+{% endfor %}
+
+## 1. 今日市场基础状态与复盘结构
+
+**市场阶段：{{ report.daily_review.market_phase }}；数据置信度：{{ report.market_state.confidence_level }}（{{ "%.1f"|format(report.market_state.confidence_score) }}/100）。**
+
+{{ report.daily_review.market_phase_summary }}
+
+{% set market_metrics = report.market_state.metrics.market %}
+{% set margin_metrics = report.market_state.metrics.margin %}
+
+| 指标 | 当前值 | 解释边界 |
+|---|---:|---|
+| 上涨覆盖率 | {{ market_metrics.breadth_ratio|pct if market_metrics.available else "数据不足" }} | 描述上涨是否普遍，不识别交易者身份 |
+| 全市场涨跌幅中位数 | {{ "%.2f%%"|format(market_metrics.median_return) if market_metrics.available else "数据不足" }} | 描述典型证券表现 |
+| 市值加权收益 | {{ "%.2f%%"|format(market_metrics.cap_weighted_return) if market_metrics.available and market_metrics.cap_weighted_return is not none else "数据不足" }} | 与中位数比较权重集中程度 |
+| 市场成交额 | {{ market_metrics.total_amount|money if market_metrics.available else "数据不足" }} | 只表示成交活跃程度，不是净流入 |
+| 融资余额 | {{ margin_metrics.financing_balance|money if margin_metrics.available else "数据不足" }} | 描述已经发生的杠杆敞口 |
+| 融资余额近5日 | {{ margin_metrics.change_ratio_5d|pct if margin_metrics.available else "数据不足" }} | 连续同口径历史不足时保持缺失 |
+
+### 支持与反向证据
+
+{% for item in report.market_state.supporting_evidence %}
+- 支持：{{ item }}
+{% endfor %}
+{% for item in report.market_state.counter_evidence %}
+- 反向：{{ item }}
+{% endfor %}
+{% for item in report.market_state.unknowns %}
+- 未知：{{ item }}
+{% endfor %}
+
+## 2. 可识别资金证据总览：参与者原型
+
+> 下列内容是行为原型假设，不是账户、机构或自然人身份识别。
+
+{% for item in report.daily_review.participant_hypotheses %}
+### {{ item.display_name }}
+
+- 活动状态：**{{ item.activity }}**
+- 置信度：**{{ item.confidence_level }}（{{ "%.1f"|format(item.confidence_score) }}/100）**
+- 观察：{{ item.observation }}
+- 支持证据：{{ item.supporting_evidence|join("；") or "当前没有达到门槛的直接支持证据。" }}
+- 替代解释：{{ item.alternative_explanations|join("；") or "-" }}
+- 无法确认：{{ item.cannot_confirm|join("；") or "-" }}
+- 来源字段：`{{ item.source_fields|join("`、`") }}`
+
+{% endfor %}
+
+## 3. 参与者与对手关系
+
+> “对手关系”描述可能相互成交的行为类别，不代表已经识别真实交易双方。
+
+{% if report.daily_review.counterparty_relations %}
+{% for item in report.daily_review.counterparty_relations %}
+### {{ item.left_archetype }} ↔ {{ item.right_archetype }}
+
+- 可能互动：{{ item.interaction }}
+- 置信度：{{ item.confidence_level }}（{{ "%.1f"|format(item.confidence_score) }}/100）
+- 支持证据：{{ item.supporting_evidence|join("；") or "-" }}
+- 替代解释：{{ item.alternative_explanations|join("；") or "-" }}
+- 确认条件：{{ item.confirmation_conditions|join("；") }}
+- 否定条件：{{ item.invalidation_conditions|join("；") }}
+
+{% endfor %}
+{% else %}
+- 当前证据不足，未生成对手关系假设。
+{% endif %}
+
+## 4. 路径假设与历史条件概率
+
+{% for path in report.daily_review.scenario_paths %}
+### 路径 {{ loop.index }}：{{ path.title }}
+
+- 历史条件概率：**{{ path.probability|probability }}**
+- 概率状态：{{ path.probability_status }}；样本数：{{ path.sample_size }}
+- 路径说明：{{ path.narrative }}
+- 支持证据：{{ path.supporting_evidence|join("；") or "-" }}
+- 替代解释：{{ path.alternative_explanations|join("；") or "-" }}
+- 观察确认：{{ path.confirmation_conditions|join("；") }}
+- 出现以下情况应降低或撤销该路径：{{ path.invalidation_conditions|join("；") }}
+
+{% endfor %}
+
+### 历史条件统计明细
+
+| 当前条件 | 观察窗口 | 结果类型 | 条件概率 | 基准概率 | 提升 | 样本数 | 状态 |
+|---|---|---|---:|---:|---:|---:|---|
+{% for item in report.daily_review.historical_conditionals %}
+| {{ item.condition }} | {{ item.horizon }} | {{ item.outcome }} | {{ item.conditional_probability|probability }} | {{ item.baseline_probability|probability }} | {{ item.lift|pct if item.lift is not none else "-" }} | {{ item.sample_size }} | {{ item.status }} |
+{% endfor %}
+
+历史条件概率是过去相同规则状态下的样本频率，不代表因果关系；样本少于门槛时不显示概率。
+
+## 5. 龙虎榜席位事实与微观行为
+
+### 龙虎榜和营业部事实
+
+{% if report.daily_review.seat_facts %}
+{% for fact in report.daily_review.seat_facts %}
+- {{ fact.security_code }} {{ fact.security_name or "" }}：{{ fact.fact_type }}；买方标签 {{ fact.buyer_labels|join("、") or "-" }}；卖方标签 {{ fact.seller_labels|join("、") or "-" }}。
+{% endfor %}
+{% else %}
+- 当前生产管线尚未接入龙虎榜席位事实，因此不输出营业部或交易单元判断。
+- 即使后续接入，营业部也不等于最终投资者，历史席位标签不能证明当天账户身份。
+{% endif %}
+
+### 分笔成交行为
+
+{% set micro = report.daily_review.microstructure %}
+{% if micro.available %}
+- 覆盖证券：{{ micro.symbol_count }} 只；其中日终核验 {{ micro.confirmed_symbol_count }} 只，暂定 {{ micro.provisional_symbol_count }} 只。
+- 分笔成交额：{{ micro.total_notional|money }}。
+- 供应方标记成交金额失衡：{{ micro.signed_notional_imbalance|pct }}。
+- 买卖方向分类覆盖率：{{ micro.classification_coverage|pct }}。
+- 14:57以后成交额占比：{{ micro.closing_auction_notional_share|pct }}。
+{% for item in micro.limitations %}
+- 限制：{{ item }}
+{% endfor %}
+{% else %}
+- 当日没有可用分笔成交证据。
+{% for item in micro.limitations %}
+- 限制：{{ item }}
+{% endfor %}
+{% endif %}
+
+## 6. 板块状态与证据矩阵
+
+{% for label, states in groups.items() %}
+### {{ label }}
+
+{% for state in states %}
+#### {{ state.sector_name }} · 置信度 {{ state.confidence_level }}
+
+- 支持：{{ state.supporting_evidence|join("；") }}
+- 反向：{{ state.counter_evidence|join("；") or "当前没有达到规则阈值的显著反向证据。" }}
+- 未知：{{ state.unknowns|join("；") }}
+- 后续确认：{{ state.next_confirmation_conditions|join("；") }}
+
+{% endfor %}
+{% endfor %}
+
+## 7. 字段级数据来源
+
+| 字段 | 值 | 单位 | 来源 | 级别 | 官方 | 状态 | 计算或转换 | 限制 |
+|---|---|---|---|---:|---:|---|---|---|
+{% for item in report.daily_review.field_provenance %}
+| `{{ item.field_path }}` | {{ item.value if item.value is not none else "-" }} | {{ item.unit or "-" }} | {{ item.source_ids|join("+") or "-" }} | {{ item.evidence_level }} | {{ "是" if item.official else "否" }} | {{ item.status }} | {{ item.transform }} | {{ item.limitations|join("；") or "-" }} |
+{% endfor %}
+
+## 8. 后续确认条件与可证伪清单
+
+### 后续确认条件
+
+{% for item in report.daily_review.confirmation_checklist %}
+- {{ item }}
+{% endfor %}
+
+### 可证伪条件
+
+{% for item in report.daily_review.falsification_checklist %}
+- {{ item }}
+{% endfor %}
+
+## 9. 风险与限制声明
+
 {% for item in report.global_unknowns %}
 - {{ item }}
 {% endfor %}
 
-## 1. 今日市场基础状态
-
-**状态：{{ report.market_state.label }}；数据置信度：{{ report.market_state.confidence_level }}。**
-
-{% for item in report.market_state.supporting_evidence %}
-- 已确认：{{ item }}
-{% endfor %}
-{% for item in report.market_state.counter_evidence %}
-- 反向证据：{{ item }}
-{% endfor %}
-{% for item in report.market_state.unknowns %}
-- 无法确认：{{ item }}
-{% endfor %}
-
-## 2. 可识别资金证据总览
-
-{% set market_metrics = report.market_state.metrics.market %}
-{% set margin_metrics = report.market_state.metrics.margin %}
-- 市场上涨覆盖率：{{ market_metrics.breadth_ratio|pct if market_metrics.available else "数据不足" }}
-- 市场成交额：{{ market_metrics.total_amount|money if market_metrics.available else "数据不足" }}
-- 全市场融资余额：{{ margin_metrics.financing_balance|money if margin_metrics.available else "数据不足" }}
-- 融资余额近5日变化：{{ margin_metrics.change_ratio_5d|pct if margin_metrics.available else "数据不足" }}
-- ETF证据采用份额变化乘以净值代理进行估算；它描述工具型或配置型资金敞口，不识别具体交易者身份。
-
-{% for label, states in groups.items() %}
-## {{ loop.index + 2 }}. {{ label }}
-
-{% for state in states %}
-### {{ state.sector_name }}
-
-**数据置信度：{{ state.confidence_level }}**
-
-【已确认事实】
-{% for item in state.supporting_evidence %}
-- {{ item }}
-{% endfor %}
-
-【反向证据】
-{% if state.counter_evidence %}
-{% for item in state.counter_evidence %}
-- {{ item }}
-{% endfor %}
-{% else %}
-- 当前没有达到规则阈值的显著反向证据。
-{% endif %}
-
-【无法确认】
-{% for item in state.unknowns %}
-- {{ item }}
-{% endfor %}
-
-【后续确认条件】
-{% for item in state.next_confirmation_conditions %}
-- {{ item }}
-{% endfor %}
-
-{% endfor %}
-{% endfor %}
-
-## 10. 后续确认条件
-
-- 优先观察ETF份额变化能否持续3至5个交易日，而不是只看单日成交放大。
-- 观察融资余额变化是否与ETF份额证据同方向；方向冲突时保持“多证据分歧”。
-- 观察价格改善是否具有覆盖广度，避免把单只ETF或少数权重的表现解释为整个主题改善。
-- 当关键L1数据缺失时，继续输出“数据不足”，不使用陈旧值替代当日事实。
-
-## 11. 小白学习笔记
-
-- **ETF份额变化**：份额增加通常意味着发生了净申购，但也可能包含套利、做市和对冲。
-- **融资余额变化**：描述杠杆交易资金敞口变化，不等同于机构资金。
-- **市场宽度**：上涨证券占有效证券的比例，用来判断改善是否普遍。
-- **历史百分位**：只表示当前指标在自身历史中的相对位置，不代表未来上涨概率。
-
-## 12. 风险与限制声明
-
-本系统只整理公开市场数据和规则结果。它不能确认具体交易者身份，不能确认所谓真实意图，也不能根据当前证据推断未来价格必然方向。数据接口可能延迟、修订或中断；第三方聚合数据应以交易所和基金管理人的正式披露为最终依据。本报告仅用于学习、观察和复盘，不构成投资建议。
+本系统只整理公开市场数据、确定性计算和可检查的统计推断。它不能确认具体交易者身份，不能确认所谓真实意图，也不能根据当前证据推断未来价格必然方向。数据接口可能延迟、修订或中断；第三方聚合数据应以交易所、基金管理人和上市公司的正式披露为最终依据。本报告仅用于学习、观察和复盘，不构成投资建议。

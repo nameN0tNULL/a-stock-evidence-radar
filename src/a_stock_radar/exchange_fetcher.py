@@ -13,6 +13,8 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+from .browser_fetcher import BrowserJsonFetcher
+
 
 class ExchangeFetchError(RuntimeError):
     """Raised when an official exchange response is unavailable or malformed."""
@@ -24,6 +26,19 @@ class OfficialFetchResult:
     actual_date: date | None
     error: str | None = None
     route: str | None = None
+
+
+class _BrowserJsonResponse:
+    def __init__(self, payload: dict[str, Any], url: str) -> None:
+        self._payload = payload
+        self.url = url
+        self.status_code = 200
+        self.headers = {"content-type": "application/json"}
+        self.content = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        self.text = self.content.decode("utf-8")
+
+    def json(self) -> dict[str, Any]:
+        return self._payload
 
 
 class OfficialExchangeFetcher:
@@ -48,6 +63,11 @@ class OfficialExchangeFetcher:
         self.diagnostics.mkdir(parents=True, exist_ok=True)
         self.direct_session = self._session(trust_env=False)
         self.proxy_session = self._session(trust_env=True)
+        self.browser_fetcher = (
+            BrowserJsonFetcher()
+            if os.getenv("RADAR_BROWSER_FALLBACK", "false").lower() in {"1", "true", "yes"}
+            else None
+        )
 
     @staticmethod
     def _session(*, trust_env: bool) -> requests.Session:
@@ -124,6 +144,45 @@ class OfficialExchangeFetcher:
                 return response, route
             except (requests.RequestException, ExchangeFetchError) as exc:
                 errors.append(f"{route}: {type(exc).__name__}: {exc}")
+        if (
+            expected == "json"
+            and self.browser_fetcher is not None
+            and url.startswith("https://query.sse.com.cn/")
+        ):
+            try:
+                with self.browser_fetcher.session() as browser_session:
+                    page = getattr(browser_session, "page", None)
+                    if page is not None:
+                        page.set_extra_http_headers(
+                            {
+                                key: value
+                                for key, value in headers.items()
+                                if key.lower() != "host"
+                            }
+                        )
+                    payload = browser_session.fetch_json(url, params)
+                prepared = requests.Request("GET", url, params=params).prepare()
+                route = (
+                    "browser-proxy"
+                    if self.browser_fetcher.config.proxy_server
+                    else "browser-direct"
+                )
+                response = _BrowserJsonResponse(payload, prepared.url or url)
+                self._record(
+                    source,
+                    candidate,
+                    {
+                        "ok": True,
+                        "route": route,
+                        "url": response.url,
+                        "status": response.status_code,
+                        "content_type": response.headers.get("content-type"),
+                        "content_length": len(response.content),
+                    },
+                )
+                return response, route
+            except Exception as exc:
+                errors.append(f"browser-fallback: {type(exc).__name__}: {exc}")
         self._record(source, candidate, {"ok": False, "errors": errors, "url": url})
         raise ExchangeFetchError("; ".join(errors))
 
@@ -461,6 +520,9 @@ class OfficialExchangeFetcher:
                     raise ExchangeFetchError(
                         f"SZSE margin expected 6 fields, received {frame.shape[1]}"
                     )
+                # The SZSE summary endpoint publishes monetary values in 亿元 and
+                # lending quantities in 亿股/亿份. Normalize them to yuan and shares
+                # so they can be aggregated with the SSE series without a unit mismatch.
                 frame.columns = [
                     "融资买入额",
                     "融资余额",
@@ -473,7 +535,7 @@ class OfficialExchangeFetcher:
                     frame[column] = pd.to_numeric(
                         frame[column].astype(str).str.replace(",", "", regex=False),
                         errors="coerce",
-                    )
+                    ) * 100_000_000
                 if frame.empty:
                     errors.append(f"{candidate.isoformat()}: parsed zero rows")
                     continue

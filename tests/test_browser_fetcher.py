@@ -68,6 +68,32 @@ class FakeFetcher:
         yield FakeSession()
 
 
+class FlakyPagedSession:
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, int]] = []
+
+    def fetch_json(self, url, params):
+        page = int(params["pn"])
+        self.calls.append((url, page))
+        if page == 2 and url.startswith("https://82."):
+            raise RuntimeError("net::ERR_EMPTY_RESPONSE")
+        code = "000001" if page == 1 else "000002"
+        return {"data": {"total": 2, "diff": [{"f12": code}]}}
+
+    def wait_before_retry(self, delay_ms: int) -> None:
+        return None
+
+
+class FlakyPagedFetcher:
+    def __init__(self) -> None:
+        self.config = type("Config", (), {"page_retries": 2, "retry_delay_ms": 0})()
+        self.session_instance = FlakyPagedSession()
+
+    @contextmanager
+    def session(self):
+        yield self.session_instance
+
+
 def test_eastmoney_browser_adapter_normalizes_expected_columns() -> None:
     adapter = EastmoneyBrowserAdapter(fetcher=FakeFetcher())
     market = adapter.fetch_market_spot()
@@ -77,3 +103,17 @@ def test_eastmoney_browser_adapter_normalizes_expected_columns() -> None:
     assert market.loc[0, "涨跌幅"] == 0.5
     assert etf.loc[0, "代码"] == "510300"
     assert etf.loc[0, "最新份额"] == 1000000
+
+
+def test_eastmoney_pagination_fails_over_to_alternate_host() -> None:
+    fetcher = FlakyPagedFetcher()
+    adapter = EastmoneyBrowserAdapter(fetcher=fetcher)
+
+    records = adapter._fetch_all(
+        adapter.MARKET_URLS[:2],
+        {"pn": 1, "pz": 1},
+    )
+
+    assert [item["f12"] for item in records] == ["000001", "000002"]
+    assert ("https://82.push2.eastmoney.com/api/qt/clist/get", 2) in fetcher.session_instance.calls
+    assert ("https://33.push2.eastmoney.com/api/qt/clist/get", 2) in fetcher.session_instance.calls

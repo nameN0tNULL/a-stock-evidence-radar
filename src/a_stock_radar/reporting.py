@@ -29,6 +29,10 @@ def format_pct(value: float | None) -> str:
     return "数据不足" if value is None else f"{value:.2%}"
 
 
+def format_probability(value: float | None) -> str:
+    return "样本不足" if value is None else f"{value:.1%}"
+
+
 def format_percentile(value: float | None) -> str:
     return "样本不足" if value is None else f"{value:.0f}%"
 
@@ -61,6 +65,7 @@ class ReportRenderer:
         self.env.filters.update(
             money=format_money,
             pct=format_pct,
+            probability=format_probability,
             percentile=format_percentile,
         )
 
@@ -81,10 +86,12 @@ class ReportRenderer:
         day_dir = root / "reports" / "daily"
         latest_dir = root / "reports" / "latest"
         site_dir = root / "site"
-        api_dir = site_dir / "api" / "v3"
+        api_dir = site_dir / "api" / "v4"
+        legacy_api_dir = site_dir / "api" / "v3"
         day_dir.mkdir(parents=True, exist_ok=True)
         latest_dir.mkdir(parents=True, exist_ok=True)
         api_dir.mkdir(parents=True, exist_ok=True)
+        legacy_api_dir.mkdir(parents=True, exist_ok=True)
 
         stem = f"{payload.trade_date}_{payload.report_stage}"
         (day_dir / f"{stem}.md").write_text(markdown, encoding="utf-8")
@@ -96,7 +103,33 @@ class ReportRenderer:
         serialized = payload.model_dump(mode="json")
         store.write_json(latest_dir / "latest.json", serialized)
         store.write_json(api_dir / "latest.json", serialized)
+        store.write_json(api_dir / "daily-review.json", payload.daily_review.model_dump(mode="json"))
         store.write_json(api_dir / "market-state.json", payload.market_state.model_dump(mode="json"))
+        store.write_json(
+            api_dir / "participant-hypotheses.json",
+            [
+                item.model_dump(mode="json")
+                for item in payload.daily_review.participant_hypotheses
+            ],
+        )
+        store.write_json(
+            api_dir / "counterparty-relations.json",
+            [
+                item.model_dump(mode="json")
+                for item in payload.daily_review.counterparty_relations
+            ],
+        )
+        store.write_json(
+            api_dir / "scenario-paths.json",
+            [item.model_dump(mode="json") for item in payload.daily_review.scenario_paths],
+        )
+        store.write_json(
+            api_dir / "field-provenance.json",
+            [
+                item.model_dump(mode="json")
+                for item in payload.daily_review.field_provenance
+            ],
+        )
         store.write_json(
             api_dir / "sector-states.json",
             [item.model_dump(mode="json") for item in payload.sector_states],
@@ -106,3 +139,18 @@ class ReportRenderer:
             [item.model_dump(mode="json") for item in payload.source_quality],
         )
         store.write_json(api_dir / "glossary.json", payload.glossary)
+
+        store.write_json(legacy_api_dir / "latest.json", serialized)
+        store.write_json(
+            legacy_api_dir / "market-state.json",
+            payload.market_state.model_dump(mode="json"),
+        )
+        store.write_json(
+            legacy_api_dir / "sector-states.json",
+            [item.model_dump(mode="json") for item in payload.sector_states],
+        )
+        store.write_json(
+            legacy_api_dir / "source-quality.json",
+            [item.model_dump(mode="json") for item in payload.source_quality],
+        )
+        store.write_json(legacy_api_dir / "glossary.json", payload.glossary)

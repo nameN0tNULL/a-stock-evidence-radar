@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "a-stock-evidence-radar"
-version = "0.2.6"
-description = "A-share market ETF and margin evidence radar M1"
+version = "0.5.0"
+description = "A-share evidence review using curated market product sources"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -46,3 +46,6 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/a_stock_radar/review.py" = ["F841"]
