@@ -16,7 +16,7 @@ def payload(
     rows: int = 5534,
     label: str = "广泛改善",
 ) -> dict:
-    source_id = "kaipanla_review" if mode == "curated" else "market_aggregate"
+    source_id = "market_eastmoney_snapshot" if mode == "curated" else "market_aggregate"
     return {
         "trade_date": "2026-08-06",
         "report_stage": stage,
@@ -78,7 +78,7 @@ def test_publish_gate_rejects_mock_report() -> None:
     assert any("mock/demo" in error for error in result.errors)
 
 
-def test_publish_gate_uses_kaipanla_for_curated_mode() -> None:
+def test_publish_gate_uses_eastmoney_market_for_curated_mode() -> None:
     result = validate_publishable_payload(
         payload(mode="curated", rows=4500),
         expected_stage="confirmed",
