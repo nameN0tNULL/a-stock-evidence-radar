@@ -74,7 +74,7 @@ class HostedProductSourceProvider:
             normalized = normalize_kaipanla(raw, trade_date)
             if normalized.empty:
                 return pd.DataFrame(), "Eastmoney market snapshot schema was not recognized"
-            normalized["source_id"] = "eastmoney_market_snapshot"
+            normalized["source_id"] = "market_eastmoney_snapshot"
             return normalized, None
         except Exception as exc:
             return pd.DataFrame(), f"{type(exc).__name__}: {exc}"
@@ -172,7 +172,7 @@ class HostedProductSourceProvider:
                 bundle.market = market
         bundle.qualities.append(
             self._quality(
-                "eastmoney_market_snapshot",
+                "market_eastmoney_snapshot",
                 "东方财富A股全市场快照",
                 trade_date,
                 market,
