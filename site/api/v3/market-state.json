@@ -2,23 +2,13 @@
   "trade_date": "2026-08-06",
   "label": "数据不足",
   "confidence_level": "low",
-  "confidence_score": 50.0,
+  "confidence_score": 15.7,
   "metrics": {
     "market": {
       "available": false
     },
     "margin": {
-      "available": true,
-      "financing_balance": 1329406749909.38,
-      "financing_buy": 107854312350.64,
-      "change_1d": 6148672908.0,
-      "change_ratio_1d": 0.004646616570770108,
-      "change_ratio_5d": -0.0054527815542328995,
-      "change_ratio_20d": null,
-      "change_percentile": null,
-      "positive_persistence_days": 2,
-      "negative_persistence_days": 0,
-      "history_samples": 6
+      "available": false
     }
   },
   "supporting_evidence": [],
