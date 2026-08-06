@@ -1,0 +1,99 @@
+name: Publish licensed Dazhihui export
+
+on:
+  workflow_dispatch:
+    inputs:
+      trade_date:
+        description: "YYYY-MM-DD；留空使用最近工作日"
+        required: false
+        type: string
+  schedule:
+    # 11:30 UTC = 19:30 Asia/Shanghai. Disabled unless repository variable is true.
+    - cron: "30 11 * * 1-5"
+
+concurrency:
+  group: dazhihui-authorized-export
+  cancel-in-progress: false
+
+jobs:
+  export:
+    if: github.event_name == 'workflow_dispatch' || vars.RADAR_ENABLE_DAZHIHUI_BRIDGE == 'true'
+    runs-on: [self-hosted, Windows, X64, dazhihui]
+    permissions:
+      contents: read
+    env:
+      RADAR_DAZHIHUI_EXPORT_SCRIPT: ${{ vars.RADAR_DAZHIHUI_EXPORT_SCRIPT }}
+      RADAR_DAZHIHUI_EXPORT_PATH: ${{ vars.RADAR_DAZHIHUI_EXPORT_PATH }}
+      RADAR_DAZHIHUI_UPLOAD_METHOD: ${{ vars.RADAR_DAZHIHUI_UPLOAD_METHOD || 'PUT' }}
+      RADAR_DAZHIHUI_UPLOAD_URL: ${{ secrets.RADAR_DAZHIHUI_UPLOAD_URL }}
+      RADAR_DAZHIHUI_UPLOAD_TOKEN: ${{ secrets.RADAR_DAZHIHUI_UPLOAD_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install bridge dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+
+      - name: Resolve trade date and export path
+        id: params
+        shell: pwsh
+        env:
+          INPUT_DATE: ${{ inputs.trade_date }}
+        run: |
+          $resolved = python -c "from a_stock_radar.cli import resolve_date; import os; print(resolve_date(os.environ.get('INPUT_DATE') or None))"
+          if (-not $resolved) { throw "Unable to resolve trade date" }
+          $template = $env:RADAR_DAZHIHUI_EXPORT_PATH
+          if ([string]::IsNullOrWhiteSpace($template)) {
+            throw "Repository variable RADAR_DAZHIHUI_EXPORT_PATH is required"
+          }
+          $compact = $resolved.Replace('-', '')
+          $exportPath = $template.Replace('{date}', $resolved).Replace('{compact_date}', $compact)
+          "trade_date=$resolved" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "export_path=$exportPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Run user-owned licensed exporter
+        if: env.RADAR_DAZHIHUI_EXPORT_SCRIPT != ''
+        shell: pwsh
+        run: |
+          $script = $env:RADAR_DAZHIHUI_EXPORT_SCRIPT
+          if (-not (Test-Path -LiteralPath $script)) {
+            throw "Configured exporter script does not exist: $script"
+          }
+          & $script `
+            -TradeDate "${{ steps.params.outputs.trade_date }}" `
+            -OutputPath "${{ steps.params.outputs.export_path }}"
+          if ($LASTEXITCODE -ne 0) {
+            throw "Licensed exporter exited with code $LASTEXITCODE"
+          }
+
+      - name: Validate and publish authorized DDE/ACE export
+        shell: pwsh
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:RADAR_DAZHIHUI_UPLOAD_URL)) {
+            throw "Secret RADAR_DAZHIHUI_UPLOAD_URL is required"
+          }
+          python scripts/publish_product_export.py `
+            --file "${{ steps.params.outputs.export_path }}" `
+            --url "$env:RADAR_DAZHIHUI_UPLOAD_URL" `
+            --date "${{ steps.params.outputs.trade_date }}" `
+            --method "$env:RADAR_DAZHIHUI_UPLOAD_METHOD" `
+            --token "$env:RADAR_DAZHIHUI_UPLOAD_TOKEN" `
+            --kind dazhihui `
+            --manifest diagnostics/dazhihui_publish.json
+
+      - name: Upload bridge manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dazhihui-export-${{ github.run_id }}-${{ github.run_attempt }}
+          path: diagnostics/dazhihui_publish.json
+          retention-days: 30
+          if-no-files-found: warn
