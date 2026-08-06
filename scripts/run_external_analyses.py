@@ -6,7 +6,8 @@ import os
 import shlex
 import shutil
 import subprocess
-import sys
+import textwrap
+import time
 import venv
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -44,11 +45,23 @@ def _clone(repo: str, ref: str, destination: Path) -> None:
     if destination.exists():
         shutil.rmtree(destination)
     subprocess.run(
-        ["git", "clone", "--filter=blob:none", "--no-checkout", repo, str(destination)],
+        [
+            "git",
+            "clone",
+            "--filter=blob:none",
+            "--no-checkout",
+            repo,
+            str(destination),
+        ],
         check=True,
         text=True,
     )
-    subprocess.run(["git", "checkout", ref], cwd=destination, check=True, text=True)
+    subprocess.run(
+        ["git", "checkout", ref],
+        cwd=destination,
+        check=True,
+        text=True,
+    )
 
 
 def _venv_python(path: Path) -> Path:
@@ -64,20 +77,17 @@ def _install(repo: Path, environment: Path, timeout: int) -> Path:
         timeout=timeout,
     )
     requirements = repo / "requirements.txt"
-    if requirements.exists():
-        subprocess.run(
-            [str(python), "-m", "pip", "install", "-r", str(requirements)],
-            cwd=repo,
-            check=True,
-            timeout=timeout,
-        )
-    else:
-        subprocess.run(
-            [str(python), "-m", "pip", "install", "-e", "."],
-            cwd=repo,
-            check=True,
-            timeout=timeout,
-        )
+    command = (
+        [str(python), "-m", "pip", "install", "-r", str(requirements)]
+        if requirements.exists()
+        else [str(python), "-m", "pip", "install", "-e", "."]
+    )
+    subprocess.run(
+        command,
+        cwd=repo,
+        check=True,
+        timeout=timeout,
+    )
     return python
 
 
@@ -91,9 +101,64 @@ def _artifact_header(name: str, trade_date: date, ref: str) -> str:
     )
 
 
-def run_daily_stock_analysis(root: Path, trade_date: date, timeout: int) -> dict[str, Any]:
+def _latest_generated_artifact(repo: Path, started_at: float) -> Path | None:
+    candidates: list[Path] = []
+    preferred_parts = {"reports", "report", "output", "outputs", "results", "data"}
+    for suffix in ("*.md", "*.json", "*.txt"):
+        for path in repo.rglob(suffix):
+            if ".git" in path.parts or "site-packages" in path.parts:
+                continue
+            try:
+                modified = path.stat().st_mtime
+            except OSError:
+                continue
+            if modified + 1 < started_at:
+                continue
+            if preferred_parts.intersection(part.lower() for part in path.parts):
+                candidates.append(path)
+    return max(candidates, key=lambda item: item.stat().st_mtime) if candidates else None
+
+
+def _write_dsa_artifact(
+    output: Path,
+    trade_date: date,
+    ref: str,
+    repo: Path,
+    started_at: float,
+    completed: subprocess.CompletedProcess[str],
+) -> None:
+    output.parent.mkdir(parents=True, exist_ok=True)
+    generated = _latest_generated_artifact(repo, started_at)
+    if generated is not None:
+        body = generated.read_text(encoding="utf-8", errors="replace")[:60_000]
+        source_note = f"- upstream_artifact: `{generated.relative_to(repo)}`\n\n"
+    else:
+        body = (
+            "## 标准输出\n\n```text\n"
+            + completed.stdout[-30_000:]
+            + "\n```\n\n## 标准错误\n\n```text\n"
+            + completed.stderr[-10_000:]
+            + "\n```\n"
+        )
+        source_note = "- upstream_artifact: no report file found; captured process output\n\n"
+    output.write_text(
+        _artifact_header("daily_stock_analysis 自动日报", trade_date, ref)
+        + source_note
+        + body,
+        encoding="utf-8",
+    )
+
+
+def run_daily_stock_analysis(
+    root: Path,
+    trade_date: date,
+    timeout: int,
+) -> dict[str, Any]:
     if not _enabled("RADAR_ENABLE_DAILY_STOCK_ANALYSIS"):
-        return {"enabled": False, "reason": "RADAR_ENABLE_DAILY_STOCK_ANALYSIS is false"}
+        return {
+            "enabled": False,
+            "reason": "RADAR_ENABLE_DAILY_STOCK_ANALYSIS is false",
+        }
     ref = os.getenv("RADAR_DSA_REF", DSA_REF)
     repo = root / "runtime" / "external" / "daily_stock_analysis"
     environment = root / "runtime" / "venvs" / "daily_stock_analysis"
@@ -109,65 +174,117 @@ def run_daily_stock_analysis(root: Path, trade_date: date, timeout: int) -> dict
         env = os.environ.copy()
         env.setdefault("TRADING_DAY_CHECK_ENABLED", "false")
         env.setdefault("STOCK_LIST", os.getenv("RADAR_ANALYSIS_SYMBOLS", ""))
+        started_at = time.time()
         completed = _run(command, cwd=repo, env=env, timeout=timeout)
         if completed.returncode != 0:
             raise RuntimeError(
                 f"daily_stock_analysis exited {completed.returncode}: "
                 f"{completed.stderr[-2000:]}"
             )
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(
-            _artifact_header("daily_stock_analysis 自动日报", trade_date, ref)
-            + "## 标准输出\n\n```text\n"
-            + completed.stdout[-30000:]
-            + "\n```\n",
-            encoding="utf-8",
+        _write_dsa_artifact(
+            output,
+            trade_date,
+            ref,
+            repo,
+            started_at,
+            completed,
         )
-        return {"enabled": True, "success": True, "ref": ref, "output": str(output)}
+        return {
+            "enabled": True,
+            "success": True,
+            "ref": ref,
+            "output": str(output),
+        }
     except Exception as exc:
-        return {"enabled": True, "success": False, "ref": ref, "error": f"{type(exc).__name__}: {exc}"}
+        return {
+            "enabled": True,
+            "success": False,
+            "ref": ref,
+            "error": f"{type(exc).__name__}: {exc}",
+        }
 
 
 def _trading_agents_runner() -> str:
-    return '''from __future__ import annotations
-import json
-import os
-from pathlib import Path
-from tradingagents.default_config import DEFAULT_CONFIG
-from tradingagents.graph.trading_graph import TradingAgentsGraph
+    return textwrap.dedent(
+        '''
+        from __future__ import annotations
 
-trade_date = os.environ["RADAR_EXTERNAL_TRADE_DATE"]
-symbols = [item.strip() for item in os.environ.get("RADAR_TRADINGAGENTS_SYMBOLS", "").split(",") if item.strip()]
-if not symbols:
-    raise SystemExit("RADAR_TRADINGAGENTS_SYMBOLS is empty")
-config = DEFAULT_CONFIG.copy()
-config["llm_provider"] = os.environ.get("RADAR_TRADINGAGENTS_PROVIDER", config.get("llm_provider", "openai"))
-config["deep_think_llm"] = os.environ.get("RADAR_TRADINGAGENTS_DEEP_MODEL", "gpt-4o-mini")
-config["quick_think_llm"] = os.environ.get("RADAR_TRADINGAGENTS_QUICK_MODEL", "gpt-4o-mini")
-config["max_debate_rounds"] = int(os.environ.get("RADAR_TRADINGAGENTS_DEBATE_ROUNDS", "1"))
-config["max_risk_discuss_rounds"] = int(os.environ.get("RADAR_TRADINGAGENTS_RISK_ROUNDS", "1"))
-config["online_tools"] = True
-results = []
-for symbol in symbols:
-    graph = TradingAgentsGraph(
-        selected_analysts=["market", "news", "fundamentals"],
-        debug=False,
-        config=config,
-    )
-    state, decision = graph.propagate(symbol, trade_date)
-    results.append({"symbol": symbol, "decision": decision, "state": state})
-Path(os.environ["RADAR_TRADINGAGENTS_OUTPUT"]).write_text(
-    json.dumps({"trade_date": trade_date, "results": results}, ensure_ascii=False, indent=2, default=str),
-    encoding="utf-8",
-)
-'''
+        import json
+        import os
+        from pathlib import Path
+
+        from tradingagents.default_config import DEFAULT_CONFIG
+        from tradingagents.graph.trading_graph import TradingAgentsGraph
+
+        trade_date = os.environ["RADAR_EXTERNAL_TRADE_DATE"]
+        symbols = [
+            item.strip()
+            for item in os.environ.get("RADAR_TRADINGAGENTS_SYMBOLS", "").split(",")
+            if item.strip()
+        ]
+        if not symbols:
+            raise SystemExit("RADAR_TRADINGAGENTS_SYMBOLS is empty")
+        config = DEFAULT_CONFIG.copy()
+        config["llm_provider"] = os.environ.get(
+            "RADAR_TRADINGAGENTS_PROVIDER",
+            config.get("llm_provider", "openai"),
+        )
+        config["deep_think_llm"] = os.environ.get(
+            "RADAR_TRADINGAGENTS_DEEP_MODEL",
+            "gpt-4o-mini",
+        )
+        config["quick_think_llm"] = os.environ.get(
+            "RADAR_TRADINGAGENTS_QUICK_MODEL",
+            "gpt-4o-mini",
+        )
+        config["max_debate_rounds"] = int(
+            os.environ.get("RADAR_TRADINGAGENTS_DEBATE_ROUNDS", "1")
+        )
+        config["max_risk_discuss_rounds"] = int(
+            os.environ.get("RADAR_TRADINGAGENTS_RISK_ROUNDS", "1")
+        )
+        config["online_tools"] = True
+        results = []
+        for symbol in symbols:
+            graph = TradingAgentsGraph(
+                selected_analysts=["market", "news", "fundamentals"],
+                debug=False,
+                config=config,
+            )
+            state, decision = graph.propagate(symbol, trade_date)
+            results.append(
+                {"symbol": symbol, "decision": decision, "state": state}
+            )
+        output = Path(os.environ["RADAR_TRADINGAGENTS_OUTPUT"])
+        output.write_text(
+            json.dumps(
+                {"trade_date": trade_date, "results": results},
+                ensure_ascii=False,
+                indent=2,
+                default=str,
+            ),
+            encoding="utf-8",
+        )
+        '''
+    ).strip()
 
 
-def run_tradingagents_cn(root: Path, trade_date: date, timeout: int) -> dict[str, Any]:
+def run_tradingagents_cn(
+    root: Path,
+    trade_date: date,
+    timeout: int,
+) -> dict[str, Any]:
     if not _enabled("RADAR_ENABLE_TRADINGAGENTS_CN"):
-        return {"enabled": False, "reason": "RADAR_ENABLE_TRADINGAGENTS_CN is false"}
+        return {
+            "enabled": False,
+            "reason": "RADAR_ENABLE_TRADINGAGENTS_CN is false",
+        }
     if not os.getenv("RADAR_TRADINGAGENTS_SYMBOLS"):
-        return {"enabled": True, "success": False, "error": "RADAR_TRADINGAGENTS_SYMBOLS is empty"}
+        return {
+            "enabled": True,
+            "success": False,
+            "error": "RADAR_TRADINGAGENTS_SYMBOLS is empty",
+        }
     ref = os.getenv("RADAR_TRADINGAGENTS_REF", TRADING_AGENTS_REF)
     repo = root / "runtime" / "external" / "tradingagents_cn"
     environment = root / "runtime" / "venvs" / "tradingagents_cn"
@@ -183,7 +300,12 @@ def run_tradingagents_cn(root: Path, trade_date: date, timeout: int) -> dict[str
         env["RADAR_TRADINGAGENTS_OUTPUT"] = str(output)
         env.setdefault("MONGODB_ENABLED", "false")
         env.setdefault("REDIS_ENABLED", "false")
-        completed = _run([str(python), str(runner)], cwd=repo, env=env, timeout=timeout)
+        completed = _run(
+            [str(python), str(runner)],
+            cwd=repo,
+            env=env,
+            timeout=timeout,
+        )
         if completed.returncode != 0 or not output.exists():
             raise RuntimeError(
                 f"TradingAgents-CN exited {completed.returncode}: "
@@ -195,13 +317,29 @@ def run_tradingagents_cn(root: Path, trade_date: date, timeout: int) -> dict[str
                 "source": "TradingAgents-CN",
                 "upstream_ref": ref,
                 "role": "debate_reference",
-                "license_note": "User is responsible for complying with upstream personal/commercial licensing terms.",
+                "license_note": (
+                    "User is responsible for complying with upstream "
+                    "personal/commercial licensing terms."
+                ),
             }
         )
-        output.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-        return {"enabled": True, "success": True, "ref": ref, "output": str(output)}
+        output.write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        return {
+            "enabled": True,
+            "success": True,
+            "ref": ref,
+            "output": str(output),
+        }
     except Exception as exc:
-        return {"enabled": True, "success": False, "ref": ref, "error": f"{type(exc).__name__}: {exc}"}
+        return {
+            "enabled": True,
+            "success": False,
+            "ref": ref,
+            "error": f"{type(exc).__name__}: {exc}",
+        }
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -218,17 +356,30 @@ def main() -> int:
     trade_date = date.fromisoformat(args.date)
     result = {
         "trade_date": trade_date.isoformat(),
-        "daily_stock_analysis": run_daily_stock_analysis(root, trade_date, args.timeout),
-        "tradingagents_cn": run_tradingagents_cn(root, trade_date, args.timeout),
+        "daily_stock_analysis": run_daily_stock_analysis(
+            root,
+            trade_date,
+            args.timeout,
+        ),
+        "tradingagents_cn": run_tradingagents_cn(
+            root,
+            trade_date,
+            args.timeout,
+        ),
     }
     diagnostics = root / "diagnostics" / "external_analyses.json"
     diagnostics.parent.mkdir(parents=True, exist_ok=True)
-    diagnostics.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    diagnostics.write_text(
+        json.dumps(result, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
     print(json.dumps(result, ensure_ascii=False, indent=2))
     failures = [
         item
         for item in result.values()
-        if isinstance(item, dict) and item.get("enabled") and item.get("success") is False
+        if isinstance(item, dict)
+        and item.get("enabled")
+        and item.get("success") is False
     ]
     strict = _enabled("RADAR_EXTERNAL_ANALYSES_STRICT")
     return 1 if strict and failures else 0
