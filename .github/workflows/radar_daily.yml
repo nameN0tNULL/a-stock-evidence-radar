@@ -14,16 +14,15 @@ on:
         type: choice
         options: [preliminary, confirmed]
       data_mode:
-        description: "live 为真实数据；mock 仅用于演示"
+        description: "auto/live/curated 使用产品源；legacy 使用旧兼容源；mock 不发布"
         required: true
-        default: live
+        default: auto
         type: choice
-        options: [live, mock]
+        options: [auto, curated, live, legacy, mock]
   schedule:
-    - cron: "30 20 * * 1-5"
-      timezone: "Asia/Shanghai"
-    - cron: "15 23 * * 1-5"
-      timezone: "Asia/Shanghai"
+    # GitHub cron uses UTC: 12:30/15:15 UTC = 20:30/23:15 Asia/Shanghai.
+    - cron: "30 12 * * 1-5"
+    - cron: "15 15 * * 1-5"
 
 concurrency:
   group: a-stock-radar-production
@@ -36,6 +35,7 @@ jobs:
       contents: write
     outputs:
       stage: ${{ steps.params.outputs.stage }}
+      publish: ${{ steps.publish_gate.outputs.publish }}
     env:
       MIHOMO_VERSION: ${{ vars.MIHOMO_VERSION || 'v1.19.28' }}
       MIHOMO_PROVIDER_URL: ${{ vars.MIHOMO_PROVIDER_URL || 'https://mergelist.vercel.app/api/all' }}
@@ -48,6 +48,17 @@ jobs:
       RADAR_EXCHANGE_ROUTE: ${{ vars.RADAR_EXCHANGE_ROUTE || 'direct-first' }}
       RADAR_EXCHANGE_LOOKBACK_DAYS: ${{ vars.RADAR_EXCHANGE_LOOKBACK_DAYS || '7' }}
       RADAR_EXCHANGE_TIMEOUT: ${{ vars.RADAR_EXCHANGE_TIMEOUT || '20' }}
+      RADAR_MIN_MARKET_ROWS: ${{ vars.RADAR_MIN_MARKET_ROWS || '4000' }}
+      RADAR_ENABLE_DAILY_STOCK_ANALYSIS: ${{ vars.RADAR_ENABLE_DAILY_STOCK_ANALYSIS || 'false' }}
+      RADAR_ENABLE_TRADINGAGENTS_CN: ${{ vars.RADAR_ENABLE_TRADINGAGENTS_CN || 'false' }}
+      RADAR_EXTERNAL_ANALYSES_STRICT: ${{ vars.RADAR_EXTERNAL_ANALYSES_STRICT || 'false' }}
+      RADAR_ANALYSIS_SYMBOLS: ${{ vars.RADAR_ANALYSIS_SYMBOLS || '' }}
+      RADAR_TRADINGAGENTS_SYMBOLS: ${{ vars.RADAR_TRADINGAGENTS_SYMBOLS || '' }}
+      RADAR_DSA_REF: ${{ vars.RADAR_DSA_REF || 'ed848da6f0fc1080e1a61a1799b9c7d510a3eaca' }}
+      RADAR_TRADINGAGENTS_REF: ${{ vars.RADAR_TRADINGAGENTS_REF || '74783e8817d6cf6de29867880631cc555153f36b' }}
+      RADAR_TRADINGAGENTS_PROVIDER: ${{ vars.RADAR_TRADINGAGENTS_PROVIDER || 'openai' }}
+      RADAR_TRADINGAGENTS_DEEP_MODEL: ${{ vars.RADAR_TRADINGAGENTS_DEEP_MODEL || 'gpt-4o-mini' }}
+      RADAR_TRADINGAGENTS_QUICK_MODEL: ${{ vars.RADAR_TRADINGAGENTS_QUICK_MODEL || 'gpt-4o-mini' }}
       MIHOMO_SOCKS_PORT: "7891"
       MIHOMO_MIXED_PORT: "7890"
       MIHOMO_CONTROLLER_PORT: "9090"
@@ -66,13 +77,13 @@ jobs:
           MODE="${{ inputs.data_mode }}"
           DATE_ARG="${{ inputs.trade_date }}"
           if [ -z "$STAGE" ]; then
-            if [ "${{ github.event.schedule }}" = "30 20 * * 1-5" ]; then
+            if [ "${{ github.event.schedule }}" = "30 12 * * 1-5" ]; then
               STAGE="preliminary"
             else
               STAGE="confirmed"
             fi
           fi
-          if [ -z "$MODE" ]; then MODE="live"; fi
+          if [ -z "$MODE" ]; then MODE="auto"; fi
           echo "stage=$STAGE" >> "$GITHUB_OUTPUT"
           echo "mode=$MODE" >> "$GITHUB_OUTPUT"
           echo "date_arg=$DATE_ARG" >> "$GITHUB_OUTPUT"
@@ -87,27 +98,41 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev,browser]"
 
+      - name: Resolve effective trade date
+        id: trade_date
+        env:
+          DATE_ARG: ${{ steps.params.outputs.date_arg }}
+        run: |
+          python - <<'PY'
+          import os
+          from a_stock_radar.cli import resolve_date
+          value = resolve_date(os.environ.get("DATE_ARG") or None)
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"trade_date={value.isoformat()}\n")
+          print(value.isoformat())
+          PY
+
       - name: Install Chromium
-        if: steps.params.outputs.mode == 'live'
+        if: steps.params.outputs.mode != 'mock'
         run: python -m playwright install --with-deps chromium
 
       - name: Install Mihomo
-        if: steps.params.outputs.mode == 'live'
+        if: steps.params.outputs.mode != 'mock'
         run: ./scripts/install_mihomo.sh
 
       - name: Render Mihomo configuration
-        if: steps.params.outputs.mode == 'live'
+        if: steps.params.outputs.mode != 'mock'
         run: python scripts/render_mihomo_config.py
 
       - name: Prepare clean runtime outputs
-        if: steps.params.outputs.mode == 'live'
+        if: steps.params.outputs.mode != 'mock'
         shell: bash
         run: |
-          rm -rf diagnostics runtime/mihomo/providers data/raw
+          rm -rf diagnostics runtime/mihomo/providers runtime/external data/raw
           mkdir -p diagnostics runtime/mihomo/providers data/raw
 
       - name: Start Mihomo local proxy
-        if: steps.params.outputs.mode == 'live'
+        if: steps.params.outputs.mode != 'mock'
         shell: bash
         run: |
           mkdir -p diagnostics runtime/mihomo
@@ -119,57 +144,116 @@ jobs:
 
       - name: Verify local SOCKS proxy
         id: proxy_ready
-        if: steps.params.outputs.mode == 'live'
+        if: steps.params.outputs.mode != 'mock'
         continue-on-error: true
         run: python scripts/wait_for_mihomo.py
+
+      - name: Configure production network
+        if: steps.params.outputs.mode != 'mock'
+        shell: bash
+        run: |
+          if [ "${{ steps.proxy_ready.outcome }}" = "success" ]; then
+            echo "RADAR_BROWSER_PROXY=socks5://127.0.0.1:7891" >> "$GITHUB_ENV"
+            echo "ALL_PROXY=socks5h://127.0.0.1:7891" >> "$GITHUB_ENV"
+            echo "HTTP_PROXY=http://127.0.0.1:7890" >> "$GITHUB_ENV"
+            echo "HTTPS_PROXY=http://127.0.0.1:7890" >> "$GITHUB_ENV"
+            echo "NO_PROXY=127.0.0.1,localhost" >> "$GITHUB_ENV"
+            echo "RADAR_PROXY_READY=true" >> "$GITHUB_ENV"
+          else
+            echo "NO_PROXY=127.0.0.1,localhost" >> "$GITHUB_ENV"
+            echo "RADAR_PROXY_READY=false" >> "$GITHUB_ENV"
+          fi
+          echo "RADAR_BROWSER_FALLBACK=true" >> "$GITHUB_ENV"
 
       - name: Run tests
         run: |
           python -m pytest -q
           ruff check src tests scripts
 
+      - name: Synchronize public and authorized product sources
+        if: steps.params.outputs.mode != 'mock' && steps.params.outputs.mode != 'legacy'
+        env:
+          RADAR_KAIPANLA_EXPORT_URL: ${{ secrets.RADAR_KAIPANLA_EXPORT_URL }}
+          RADAR_KAIPANLA_EXPORT_TOKEN: ${{ secrets.RADAR_KAIPANLA_EXPORT_TOKEN }}
+          RADAR_KAIPANLA_EXPORT_SHA256: ${{ secrets.RADAR_KAIPANLA_EXPORT_SHA256 }}
+          RADAR_CLS_LHB_EXPORT_URL: ${{ secrets.RADAR_CLS_LHB_EXPORT_URL }}
+          RADAR_CLS_LHB_EXPORT_TOKEN: ${{ secrets.RADAR_CLS_LHB_EXPORT_TOKEN }}
+          RADAR_CLS_LHB_EXPORT_SHA256: ${{ secrets.RADAR_CLS_LHB_EXPORT_SHA256 }}
+          RADAR_DAZHIHUI_DDE_EXPORT_URL: ${{ secrets.RADAR_DAZHIHUI_DDE_EXPORT_URL }}
+          RADAR_DAZHIHUI_DDE_EXPORT_TOKEN: ${{ secrets.RADAR_DAZHIHUI_DDE_EXPORT_TOKEN }}
+          RADAR_DAZHIHUI_DDE_EXPORT_SHA256: ${{ secrets.RADAR_DAZHIHUI_DDE_EXPORT_SHA256 }}
+          RADAR_DAILY_STOCK_ANALYSIS_ARTIFACT_URL: ${{ secrets.RADAR_DAILY_STOCK_ANALYSIS_ARTIFACT_URL }}
+          RADAR_DAILY_STOCK_ANALYSIS_ARTIFACT_TOKEN: ${{ secrets.RADAR_DAILY_STOCK_ANALYSIS_ARTIFACT_TOKEN }}
+          RADAR_TRADINGAGENTS_CN_ARTIFACT_URL: ${{ secrets.RADAR_TRADINGAGENTS_CN_ARTIFACT_URL }}
+          RADAR_TRADINGAGENTS_CN_ARTIFACT_TOKEN: ${{ secrets.RADAR_TRADINGAGENTS_CN_ARTIFACT_TOKEN }}
+        run: |
+          python scripts/sync_product_sources.py \
+            --date "${{ steps.trade_date.outputs.trade_date }}" \
+            --root .
+
+      - name: Run external open-source analyses
+        if: steps.params.outputs.mode != 'mock' && steps.params.outputs.mode != 'legacy'
+        env:
+          ANSPIRE_API_KEYS: ${{ secrets.ANSPIRE_API_KEYS }}
+          AIHUBMIX_KEY: ${{ secrets.AIHUBMIX_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
+          FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
+          TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+          STOCK_LIST: ${{ vars.RADAR_ANALYSIS_SYMBOLS }}
+        run: |
+          python scripts/run_external_analyses.py \
+            --date "${{ steps.trade_date.outputs.trade_date }}" \
+            --root .
+
       - name: Generate report
         shell: bash
         env:
-          RADAR_PROXY_READY: ${{ steps.proxy_ready.outcome == 'success' && 'true' || 'false' }}
           RADAR_BROWSER_TIMEOUT_MS: "45000"
           PYTHONUNBUFFERED: "1"
         run: |
-          if [ "${{ steps.params.outputs.mode }}" = "live" ]; then
-            export RADAR_BROWSER_FALLBACK=true
-            if [ "$RADAR_PROXY_READY" = "true" ]; then
-              export RADAR_BROWSER_PROXY=socks5://127.0.0.1:7891
-              export ALL_PROXY=socks5h://127.0.0.1:7891
-              export HTTP_PROXY=http://127.0.0.1:7890
-              export HTTPS_PROXY=http://127.0.0.1:7890
-              export NO_PROXY=127.0.0.1,localhost
-              echo "Proxy verified; live sources will use Mihomo."
-            else
-              unset RADAR_BROWSER_PROXY ALL_PROXY HTTP_PROXY HTTPS_PROXY
-              export NO_PROXY=127.0.0.1,localhost
-              echo "Proxy verification failed; falling back to direct HTTP and direct Playwright."
-            fi
-          else
+          if [ "${{ steps.params.outputs.mode }}" = "mock" ]; then
             export RADAR_BROWSER_FALLBACK=false
             unset RADAR_BROWSER_PROXY ALL_PROXY HTTP_PROXY HTTPS_PROXY
           fi
+          python -m a_stock_radar.cli run \
+            --stage "${{ steps.params.outputs.stage }}" \
+            --data-mode "${{ steps.params.outputs.mode }}" \
+            --date "${{ steps.trade_date.outputs.trade_date }}"
 
-          ARGS=(run --stage "${{ steps.params.outputs.stage }}" --data-mode "${{ steps.params.outputs.mode }}")
-          if [ -n "${{ steps.params.outputs.date_arg }}" ]; then
-            ARGS+=(--date "${{ steps.params.outputs.date_arg }}")
-          fi
-          python -m a_stock_radar.cli "${ARGS[@]}"
+      - name: Validate production report
+        id: publish_gate
+        if: steps.params.outputs.mode != 'mock'
+        shell: bash
+        run: |
+          python scripts/validate_publishable_report.py \
+            --report reports/latest/latest.json \
+            --expected-stage "${{ steps.params.outputs.stage }}" \
+            --minimum-market-rows "$RADAR_MIN_MARKET_ROWS"
+          echo "publish=true" >> "$GITHUB_OUTPUT"
 
       - name: Preserve raw snapshots for audit
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: raw-snapshots-${{ github.run_id }}-${{ github.run_attempt }}
-          path: data/raw
+          path: |
+            data/raw
+            imports/kaipanla_public
+            imports/cls
+            imports/dazhihui
+            imports/daily_stock_analysis
+            imports/tradingagents_cn
           retention-days: 30
           if-no-files-found: warn
 
-      - name: Upload proxy and browser diagnostics
+      - name: Upload proxy and integration diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -179,7 +263,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Stop Mihomo
-        if: always() && steps.params.outputs.mode == 'live'
+        if: always() && steps.params.outputs.mode != 'mock'
         shell: bash
         run: |
           if [ -f runtime/mihomo/mihomo.pid ]; then
@@ -187,22 +271,25 @@ jobs:
           fi
 
       - name: Persist compact history and reports
+        if: steps.publish_gate.outputs.publish == 'true'
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/history reports/latest reports/daily site/api/v3
+          git add data/history reports/latest reports/daily site/api/v3 site/api/v4
           if ! git diff --cached --quiet; then
             git commit -m "data: update radar ${{ steps.params.outputs.stage }} [skip ci]"
             git push
           fi
 
       - name: Upload Pages artifact
+        if: steps.publish_gate.outputs.publish == 'true'
         uses: actions/upload-pages-artifact@v4
         with:
           path: site
 
   deploy:
+    if: needs.build.outputs.publish == 'true'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

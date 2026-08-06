@@ -14,8 +14,8 @@ from .features import (
     build_market_features,
     summarize_market,
 )
+from .hosted_product_provider import HostedProductSourceProvider
 from .models import ReportPayload
-from .product_provider import ProductSourceProvider
 from .reporting import ReportRenderer
 from .review import build_daily_review
 from .review_product import enrich_product_review
@@ -53,9 +53,9 @@ def _select_provider(data_mode: str, mapper: ThemeMapper, settings: Settings):
         return MockProvider()
     if data_mode in {"live", "auto", "curated"}:
         try:
-            return ProductSourceProvider(settings.root, settings.sources)
+            return HostedProductSourceProvider(settings.root, settings.sources)
         except RuntimeError as exc:
-            return UnavailableProvider(f"Curated product provider initialization failed: {exc}")
+            return UnavailableProvider(f"Hosted product provider initialization failed: {exc}")
     if data_mode == "legacy":
         try:
             return AkshareProvider(mapper)
@@ -102,6 +102,8 @@ def run_pipeline(
 
     provider = _select_provider(data_mode, mapper, settings)
     bundle = provider.fetch(trade_date)
+    if data_mode == "legacy":
+        bundle.data_mode = "legacy"
     _save_raw_bundle(store, trade_date, bundle)
 
     margin_detail = apply_security_theme_mapping(
@@ -201,10 +203,10 @@ def run_pipeline(
         global_unknowns.append("以下来源缺失或异常：" + "、".join(unavailable) + "。")
     if bundle.data_mode == "curated":
         global_unknowns.append(
-            "开盘啦、大智慧和财联社缺少官方导出或授权产物时保持缺失，不使用腾讯、新浪或私有接口逆向作为替代。"
+            "GitHub Runner 自动读取开盘啦和财联社公开页面、东方财富现成接口；大智慧DDE/ACE只从授权产物桥接，不逆向专有终端。"
         )
     elif bundle.data_mode == "legacy":
-        global_unknowns.append("Legacy行情聚合仅用于兼容，应以交易所正式披露为最终依据。")
+        global_unknowns.append("Legacy模式仅用于兼容，应以正式披露为最终依据。")
 
     effective_stage = "demo" if bundle.data_mode == "mock" else report_stage
     payload = ReportPayload(
@@ -222,8 +224,8 @@ def run_pipeline(
             "参与者原型": "根据公开或授权产品数据推断的行为类别，不是具体账户或自然人身份。",
             "对手关系": "描述可能相互成交的行为类型，不代表已识别真实交易双方。",
             "DDE/ACE": "大智慧基于Level-2数据形成的订单规模行为指标；不是投资者身份或市场净流入。",
-            "龙虎榜席位事实": "东方财富结构化记录和财联社授权快讯中的营业部、机构专用或交易单元信息。",
-            "市场宽度": "开盘啦导出中上涨证券数量占有效证券数量的比例。",
+            "龙虎榜席位事实": "东方财富结构化记录和财联社公开/授权文章中的营业部、机构专用或交易单元信息。",
+            "市场宽度": "东方财富全市场快照中上涨证券占有效证券的比例。",
             "历史条件概率": "历史相同状态下结果出现的样本频率；不是因果结论或保证。",
             "可证伪条件": "出现后应降低置信度或撤销当前假设的观察条件。",
         },

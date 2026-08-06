@@ -4,12 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "a-stock-evidence-radar"
-version = "0.5.0"
-description = "A-share evidence review using curated market product sources"
+version = "0.6.0"
+description = "A-share evidence review using hosted public and authorized product sources"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
   "akshare==1.18.64",
+  "beautifulsoup4>=4.13,<5",
   "jinja2>=3.1,<4",
   "numpy>=2.0,<3",
   "openpyxl>=3.1,<4",

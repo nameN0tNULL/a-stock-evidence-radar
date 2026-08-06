@@ -1,14 +1,24 @@
-strategy: curated_products
+strategy: hosted_curated_products
 
 products:
   kaipanla:
     display_name: 开盘啦每日复盘与市场概况
-    role: market_replay
+    role: market_replay_context
     evidence_level: L2
     official: false
     import_dir: imports/kaipanla
+    public_import_dir: imports/kaipanla_public
     env_path: RADAR_KAIPANLA_EXPORT
-    required: true
+    public_access: public_article_pages
+    full_access: licensed_export_or_authorized_artifact
+    fact_source: partial
+
+  eastmoney_market:
+    display_name: 东方财富A股全市场快照
+    role: structured_market_replay
+    evidence_level: L2
+    official: false
+    adapter: akshare.stock_zh_a_spot_em
 
   eastmoney_lhb:
     display_name: 东方财富龙虎榜
@@ -29,7 +39,7 @@ products:
     official: false
     import_dir: imports/dazhihui
     env_path: RADAR_DAZHIHUI_DDE_EXPORT
-    access: licensed_export_or_authorized_endpoint
+    access: licensed_windows_export_bridge_or_authorized_artifact
 
   cls:
     display_name: 财联社龙虎榜
@@ -38,7 +48,8 @@ products:
     official: false
     import_dir: imports/cls
     env_path: RADAR_CLS_LHB_EXPORT
-    access: authorized_export_only
+    public_access: public_subject_and_article_pages
+    full_access: authorized_artifact
 
   daily_stock_analysis:
     display_name: daily_stock_analysis
@@ -47,6 +58,8 @@ products:
     official: false
     import_dir: imports/daily_stock_analysis
     env_path: RADAR_DAILY_STOCK_ANALYSIS_ARTIFACT
+    runner: scripts/run_external_analyses.py
+    pinned_ref: ed848da6f0fc1080e1a61a1799b9c7d510a3eaca
     fact_source: false
 
   tradingagents_cn:
@@ -56,6 +69,8 @@ products:
     official: false
     import_dir: imports/tradingagents_cn
     env_path: RADAR_TRADINGAGENTS_CN_ARTIFACT
+    runner: scripts/run_external_analyses.py
+    pinned_ref: 74783e8817d6cf6de29867880631cc555153f36b
     fact_source: false
 
 legacy_sources:
