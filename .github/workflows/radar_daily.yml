@@ -14,16 +14,15 @@ on:
         type: choice
         options: [preliminary, confirmed]
       data_mode:
-        description: "live 为真实数据；mock 仅用于演示"
+        description: "auto 自动选择可用生产源；curated/live 强制产品导入；legacy 使用公开兼容源；mock 不发布"
         required: true
-        default: live
+        default: auto
         type: choice
-        options: [live, mock]
+        options: [auto, curated, live, legacy, mock]
   schedule:
-    - cron: "30 20 * * 1-5"
-      timezone: "Asia/Shanghai"
-    - cron: "15 23 * * 1-5"
-      timezone: "Asia/Shanghai"
+    # GitHub cron uses UTC: 12:30/15:15 UTC = 20:30/23:15 Asia/Shanghai.
+    - cron: "30 12 * * 1-5"
+    - cron: "15 15 * * 1-5"
 
 concurrency:
   group: a-stock-radar-production
@@ -36,6 +35,7 @@ jobs:
       contents: write
     outputs:
       stage: ${{ steps.params.outputs.stage }}
+      publish: ${{ steps.publish_gate.outputs.publish }}
     env:
       MIHOMO_VERSION: ${{ vars.MIHOMO_VERSION || 'v1.19.28' }}
       MIHOMO_PROVIDER_URL: ${{ vars.MIHOMO_PROVIDER_URL || 'https://mergelist.vercel.app/api/all' }}
@@ -48,6 +48,7 @@ jobs:
       RADAR_EXCHANGE_ROUTE: ${{ vars.RADAR_EXCHANGE_ROUTE || 'direct-first' }}
       RADAR_EXCHANGE_LOOKBACK_DAYS: ${{ vars.RADAR_EXCHANGE_LOOKBACK_DAYS || '7' }}
       RADAR_EXCHANGE_TIMEOUT: ${{ vars.RADAR_EXCHANGE_TIMEOUT || '20' }}
+      RADAR_MIN_MARKET_ROWS: ${{ vars.RADAR_MIN_MARKET_ROWS || '4000' }}
       MIHOMO_SOCKS_PORT: "7891"
       MIHOMO_MIXED_PORT: "7890"
       MIHOMO_CONTROLLER_PORT: "9090"
@@ -66,13 +67,13 @@ jobs:
           MODE="${{ inputs.data_mode }}"
           DATE_ARG="${{ inputs.trade_date }}"
           if [ -z "$STAGE" ]; then
-            if [ "${{ github.event.schedule }}" = "30 20 * * 1-5" ]; then
+            if [ "${{ github.event.schedule }}" = "30 12 * * 1-5" ]; then
               STAGE="preliminary"
             else
               STAGE="confirmed"
             fi
           fi
-          if [ -z "$MODE" ]; then MODE="live"; fi
+          if [ -z "$MODE" ]; then MODE="auto"; fi
           echo "stage=$STAGE" >> "$GITHUB_OUTPUT"
           echo "mode=$MODE" >> "$GITHUB_OUTPUT"
           echo "date_arg=$DATE_ARG" >> "$GITHUB_OUTPUT"
@@ -88,26 +89,26 @@ jobs:
           python -m pip install -e ".[dev,browser]"
 
       - name: Install Chromium
-        if: steps.params.outputs.mode == 'live'
+        if: steps.params.outputs.mode != 'mock'
         run: python -m playwright install --with-deps chromium
 
       - name: Install Mihomo
-        if: steps.params.outputs.mode == 'live'
+        if: steps.params.outputs.mode != 'mock'
         run: ./scripts/install_mihomo.sh
 
       - name: Render Mihomo configuration
-        if: steps.params.outputs.mode == 'live'
+        if: steps.params.outputs.mode != 'mock'
         run: python scripts/render_mihomo_config.py
 
       - name: Prepare clean runtime outputs
-        if: steps.params.outputs.mode == 'live'
+        if: steps.params.outputs.mode != 'mock'
         shell: bash
         run: |
           rm -rf diagnostics runtime/mihomo/providers data/raw
           mkdir -p diagnostics runtime/mihomo/providers data/raw
 
       - name: Start Mihomo local proxy
-        if: steps.params.outputs.mode == 'live'
+        if: steps.params.outputs.mode != 'mock'
         shell: bash
         run: |
           mkdir -p diagnostics runtime/mihomo
@@ -119,7 +120,7 @@ jobs:
 
       - name: Verify local SOCKS proxy
         id: proxy_ready
-        if: steps.params.outputs.mode == 'live'
+        if: steps.params.outputs.mode != 'mock'
         continue-on-error: true
         run: python scripts/wait_for_mihomo.py
 
@@ -135,7 +136,7 @@ jobs:
           RADAR_BROWSER_TIMEOUT_MS: "45000"
           PYTHONUNBUFFERED: "1"
         run: |
-          if [ "${{ steps.params.outputs.mode }}" = "live" ]; then
+          if [ "${{ steps.params.outputs.mode }}" != "mock" ]; then
             export RADAR_BROWSER_FALLBACK=true
             if [ "$RADAR_PROXY_READY" = "true" ]; then
               export RADAR_BROWSER_PROXY=socks5://127.0.0.1:7891
@@ -143,11 +144,11 @@ jobs:
               export HTTP_PROXY=http://127.0.0.1:7890
               export HTTPS_PROXY=http://127.0.0.1:7890
               export NO_PROXY=127.0.0.1,localhost
-              echo "Proxy verified; live sources will use Mihomo."
+              echo "Proxy verified; production sources will use Mihomo."
             else
               unset RADAR_BROWSER_PROXY ALL_PROXY HTTP_PROXY HTTPS_PROXY
               export NO_PROXY=127.0.0.1,localhost
-              echo "Proxy verification failed; falling back to direct HTTP and direct Playwright."
+              echo "Proxy verification failed; using direct HTTP and direct Playwright."
             fi
           else
             export RADAR_BROWSER_FALLBACK=false
@@ -159,6 +160,17 @@ jobs:
             ARGS+=(--date "${{ steps.params.outputs.date_arg }}")
           fi
           python -m a_stock_radar.cli "${ARGS[@]}"
+
+      - name: Validate production report
+        id: publish_gate
+        if: steps.params.outputs.mode != 'mock'
+        shell: bash
+        run: |
+          python scripts/validate_publishable_report.py \
+            --report reports/latest/latest.json \
+            --expected-stage "${{ steps.params.outputs.stage }}" \
+            --minimum-market-rows "$RADAR_MIN_MARKET_ROWS"
+          echo "publish=true" >> "$GITHUB_OUTPUT"
 
       - name: Preserve raw snapshots for audit
         if: always()
@@ -179,7 +191,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Stop Mihomo
-        if: always() && steps.params.outputs.mode == 'live'
+        if: always() && steps.params.outputs.mode != 'mock'
         shell: bash
         run: |
           if [ -f runtime/mihomo/mihomo.pid ]; then
@@ -187,22 +199,25 @@ jobs:
           fi
 
       - name: Persist compact history and reports
+        if: steps.publish_gate.outputs.publish == 'true'
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/history reports/latest reports/daily site/api/v3
+          git add data/history reports/latest reports/daily site/api/v3 site/api/v4
           if ! git diff --cached --quiet; then
             git commit -m "data: update radar ${{ steps.params.outputs.stage }} [skip ci]"
             git push
           fi
 
       - name: Upload Pages artifact
+        if: steps.publish_gate.outputs.publish == 'true'
         uses: actions/upload-pages-artifact@v4
         with:
           path: site
 
   deploy:
+    if: needs.build.outputs.publish == 'true'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
