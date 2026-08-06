@@ -4,14 +4,16 @@ import hashlib
 import re
 import time
 from dataclasses import dataclass
-from datetime import UTC, date, datetime
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin
+from zoneinfo import ZoneInfo
 
 import requests
 from bs4 import BeautifulSoup
 
+SHANGHAI = ZoneInfo("Asia/Shanghai")
 KAIPANLA_LISTING_URLS = (
     "https://www.kaipanla.com/",
     "https://www.kaipanla.com/featured/1",
@@ -39,7 +41,7 @@ class FetchResult:
 
 
 class PublicProductClient:
-    """Read only public product pages; no login or private-interface reverse engineering."""
+    """Read public product pages without login or private-interface reverse engineering."""
 
     def __init__(
         self,
@@ -86,9 +88,7 @@ class PublicProductClient:
         seen: set[str] = set()
         for anchor in soup.select("a[href]"):
             url = urljoin(base_url, str(anchor.get("href") or ""))
-            if not re.search(pattern, url):
-                continue
-            if url in seen:
+            if not re.search(pattern, url) or url in seen:
                 continue
             seen.add(url)
             links.append(url)
@@ -96,24 +96,46 @@ class PublicProductClient:
 
     @staticmethod
     def _article_date(text: str) -> datetime | None:
-        match = re.search(
-            r"(?:时间\s*[:：]\s*)?(20\d{2}-\d{2}-\d{2})\s+(\d{2}:\d{2}(?::\d{2})?)",
-            text,
+        patterns = (
+            (
+                r"(?:时间\s*[:：]\s*)?(20\d{2})-(\d{2})-(\d{2})\s+"
+                r"(\d{2}):(\d{2})(?::(\d{2}))?",
+                False,
+            ),
+            (
+                r"(?:发布时间\s*[:：]\s*)?(20\d{2})年(\d{1,2})月(\d{1,2})日\s*"
+                r"(\d{1,2}):(\d{2})(?::(\d{2}))?",
+                True,
+            ),
         )
-        if not match:
-            return None
-        try:
-            return datetime.fromisoformat(f"{match.group(1)}T{match.group(2)}").replace(
-                tzinfo=UTC
-            )
-        except ValueError:
-            return None
+        for pattern, _ in patterns:
+            match = re.search(pattern, text)
+            if not match:
+                continue
+            values = [int(value or 0) for value in match.groups()]
+            year, month, day, hour, minute, second = values
+            try:
+                return datetime(
+                    year,
+                    month,
+                    day,
+                    hour,
+                    minute,
+                    second,
+                    tzinfo=SHANGHAI,
+                )
+            except ValueError:
+                continue
+        return None
 
     @staticmethod
     def _clean_text(soup: BeautifulSoup) -> str:
         for tag in soup(["script", "style", "noscript"]):
             tag.decompose()
-        lines = [re.sub(r"\s+", " ", item).strip() for item in soup.get_text("\n").splitlines()]
+        lines = [
+            re.sub(r"\s+", " ", item).strip()
+            for item in soup.get_text("\n").splitlines()
+        ]
         return "\n".join(item for item in lines if item)
 
     @staticmethod
@@ -130,15 +152,28 @@ class PublicProductClient:
             if match:
                 facts[name] = converter(match.group(1))
         turnover = re.search(
-            r"(?:全天|两市|沪深两市)?成交额[^。；\n]{0,24}?(\d+(?:\.\d+)?)\s*(万亿|亿)",
+            r"(?:全天|两市|沪深两市)?成交额[^。；\n]{0,24}?"
+            r"(\d+(?:\.\d+)?)\s*(万亿|亿)",
             text,
         )
         if turnover:
             value = float(turnover.group(1))
-            facts["turnover_cny"] = value * (1e12 if turnover.group(2) == "万亿" else 1e8)
+            facts["turnover_cny"] = value * (
+                1e12 if turnover.group(2) == "万亿" else 1e8
+            )
         sentiment_terms = [
             term
-            for term in ("回暖", "修复", "火热", "震荡", "分歧", "降温", "弱势", "退潮", "恐慌")
+            for term in (
+                "回暖",
+                "修复",
+                "火热",
+                "震荡",
+                "分歧",
+                "降温",
+                "弱势",
+                "退潮",
+                "恐慌",
+            )
             if term in text
         ]
         if sentiment_terms:
@@ -170,7 +205,11 @@ class PublicProductClient:
                 continue
             soup = BeautifulSoup(html, "html.parser")
             title_node = soup.find("h1") or soup.find("title")
-            title = re.sub(r"\s+", " ", title_node.get_text(" ", strip=True)) if title_node else ""
+            title = (
+                re.sub(r"\s+", " ", title_node.get_text(" ", strip=True))
+                if title_node
+                else ""
+            )
             text = self._clean_text(soup)
             published_at = self._article_date(text)
             if published_at is None:
@@ -204,16 +243,19 @@ class PublicProductClient:
         if not candidates:
             detail = "; ".join(errors[-6:]) if errors else "no public review article found"
             return FetchResult(None, detail)
-        selected = max(candidates, key=lambda item: (item["score"], item["published_at"]))
+        selected = max(
+            candidates,
+            key=lambda item: (item["score"], item["published_at"]),
+        )
         selected.update(
             {
                 "source_id": "kaipanla_public_review",
                 "requested_trade_date": trade_date.isoformat(),
-                "retrieved_at": datetime.now(UTC).isoformat(),
+                "retrieved_at": datetime.now(SHANGHAI).isoformat(),
                 "access_method": "public_web_page",
                 "limitations": [
-                    "公开文章只提供复盘叙述和图片，不等同于开盘啦登录态内的完整结构化行情。",
-                    "文本中的资金或情绪表述属于产品口径，必须与结构化行情和龙虎榜事实分开。",
+                    "公开文章只提供复盘叙述和图片，不等同于登录态内完整结构化行情。",
+                    "文本中的资金或情绪表述属于产品口径，必须与结构化事实分开。",
                 ],
             }
         )
@@ -223,14 +265,23 @@ class PublicProductClient:
     def _cls_article(url: str, html: str) -> dict[str, Any] | None:
         soup = BeautifulSoup(html, "html.parser")
         title_node = soup.find("h1") or soup.find("title")
-        title = re.sub(r"\s+", " ", title_node.get_text(" ", strip=True)) if title_node else ""
+        title = (
+            re.sub(r"\s+", " ", title_node.get_text(" ", strip=True))
+            if title_node
+            else ""
+        )
         text = PublicProductClient._clean_text(soup)
         published_at = PublicProductClient._article_date(text)
         if not published_at or "龙虎榜" not in f"{title}\n{text[:1200]}":
             return None
-        codes = re.findall(r"(?<!\d)([0368]\d{5})(?!\d)", html)
-        name_match = re.search(r"龙虎榜[|｜丨]\s*([^今昨\s]{2,12}?)(?:今日|涨停|跌停|收涨|收跌)", title)
-        security_name = name_match.group(1).strip("|｜丨：:，,") if name_match else None
+        codes = re.findall(r"(?<!\d)([0368]\d{5})(?!\d)", f"{title}\n{text}")
+        name_match = re.search(
+            r"龙虎榜[|｜丨]\s*([^今昨\s]{2,12}?)(?:今日|涨停|跌停|收涨|收跌)",
+            title,
+        )
+        security_name = (
+            name_match.group(1).strip("|｜丨：:，,") if name_match else None
+        )
         net_match = re.search(
             r"(?:合计|机构专用席位|机构|席位)[^。；\n]{0,35}?净(买入|卖出)\s*"
             r"(\d+(?:\.\d+)?)\s*(亿元|万元|万|亿)",
@@ -241,8 +292,9 @@ class PublicProductClient:
             value = float(net_match.group(2))
             scale = 1e8 if net_match.group(3) in {"亿元", "亿"} else 1e4
             net_amount = value * scale * (1 if net_match.group(1) == "买入" else -1)
-        buyer_labels = re.findall(r"([\u4e00-\u9fa5A-Za-z0-9（）()·-]{2,32})净买入", text)
-        seller_labels = re.findall(r"([\u4e00-\u9fa5A-Za-z0-9（）()·-]{2,32})净卖出", text)
+        label_pattern = r"([\u4e00-\u9fa5A-Za-z0-9（）()·-]{2,32})净{}"
+        buyer_labels = re.findall(label_pattern.format("买入"), text)
+        seller_labels = re.findall(label_pattern.format("卖出"), text)
         return {
             "security_code": codes[0] if codes else None,
             "security_name": security_name,
@@ -279,16 +331,17 @@ class PublicProductClient:
         payload = {
             "source_id": "cls_lhb_public",
             "trade_date": trade_date.isoformat(),
-            "retrieved_at": datetime.now(UTC).isoformat(),
+            "retrieved_at": datetime.now(SHANGHAI).isoformat(),
             "access_method": "public_subject_and_article_pages",
             "rows": rows,
             "errors": errors[-10:],
             "limitations": [
-                "财联社公开文章是新闻式摘要，用于交叉核实，不替代交易所或东方财富结构化龙虎榜。",
+                "财联社公开文章是新闻摘要，用于交叉核实，不替代结构化龙虎榜。",
                 "文章未暴露证券代码时保留名称和原文，不猜测代码。",
             ],
         }
-        return FetchResult(payload, None if rows else "no same-day public CLS LHB articles found")
+        error = None if rows else "no same-day public CLS LHB articles found"
+        return FetchResult(payload, error)
 
 
 def download_authorized_artifact(
@@ -314,5 +367,5 @@ def download_authorized_artifact(
         "output": str(output),
         "bytes": len(response.content),
         "sha256": digest,
-        "retrieved_at": datetime.now(UTC).isoformat(),
+        "retrieved_at": datetime.now(SHANGHAI).isoformat(),
     }
